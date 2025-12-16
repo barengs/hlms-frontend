@@ -1,5 +1,5 @@
 import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
-import { AuthProvider, CartProvider, NotificationProvider } from '@/context';
+import { AuthProvider, CartProvider, NotificationProvider, LanguageProvider } from '@/context';
 import { ProtectedRoute, PublicOnlyRoute } from '@/components/routes';
 
 // Public Pages
@@ -26,13 +26,15 @@ import { CartPage } from '@/pages/cart';
 // Root layout with providers
 function RootLayout() {
   return (
-    <AuthProvider>
-      <CartProvider>
-        <NotificationProvider>
-          <Outlet />
-        </NotificationProvider>
-      </CartProvider>
-    </AuthProvider>
+    <LanguageProvider>
+      <AuthProvider>
+        <CartProvider>
+          <NotificationProvider>
+            <Outlet />
+          </NotificationProvider>
+        </CartProvider>
+      </AuthProvider>
+    </LanguageProvider>
   );
 }
 

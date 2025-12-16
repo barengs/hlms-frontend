@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
   LayoutDashboard,
   BookOpen,
@@ -24,7 +24,8 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useNotifications } from '@/context/NotificationContext';
-import { Avatar, Badge, Dropdown } from '@/components/ui';
+import { useLanguage } from '@/context/LanguageContext';
+import { Avatar, Badge, Dropdown, LanguageSwitcher } from '@/components/ui';
 import type { DropdownItem } from '@/components/ui';
 import { cn } from '@/lib/utils';
 
@@ -40,86 +41,6 @@ interface NavGroup {
   items: NavItem[];
 }
 
-const studentNavGroups: NavGroup[] = [
-  {
-    items: [
-      { label: 'Dashboard', href: '/dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
-      { label: 'Kursus Saya', href: '/my-courses', icon: <BookOpen className="w-5 h-5" /> },
-    ],
-  },
-  {
-    title: 'Pembelajaran',
-    items: [
-      { label: 'Tugas', href: '/assignments', icon: <ClipboardList className="w-5 h-5" />, badge: 3 },
-      { label: 'Forum Diskusi', href: '/discussions', icon: <MessageSquare className="w-5 h-5" /> },
-      { label: 'Sertifikat', href: '/certificates', icon: <Award className="w-5 h-5" /> },
-    ],
-  },
-  {
-    title: 'Gamifikasi',
-    items: [
-      { label: 'Leaderboard', href: '/leaderboard', icon: <BarChart3 className="w-5 h-5" /> },
-      { label: 'Lencana Saya', href: '/badges', icon: <Award className="w-5 h-5" /> },
-    ],
-  },
-];
-
-const instructorNavGroups: NavGroup[] = [
-  {
-    items: [
-      { label: 'Dashboard', href: '/instructor', icon: <LayoutDashboard className="w-5 h-5" /> },
-      { label: 'Kursus Saya', href: '/instructor/courses', icon: <BookOpen className="w-5 h-5" /> },
-    ],
-  },
-  {
-    title: 'Manajemen',
-    items: [
-      { label: 'Siswa', href: '/instructor/students', icon: <Users className="w-5 h-5" /> },
-      { label: 'Penilaian', href: '/instructor/grading', icon: <FileText className="w-5 h-5" />, badge: 5 },
-      { label: 'Tanya Jawab', href: '/instructor/qa', icon: <MessageSquare className="w-5 h-5" />, badge: 12 },
-    ],
-  },
-  {
-    title: 'Keuangan',
-    items: [
-      { label: 'Pendapatan', href: '/instructor/earnings', icon: <DollarSign className="w-5 h-5" /> },
-      { label: 'Penarikan', href: '/instructor/payouts', icon: <CreditCard className="w-5 h-5" /> },
-    ],
-  },
-];
-
-const adminNavGroups: NavGroup[] = [
-  {
-    items: [
-      { label: 'Dashboard', href: '/admin', icon: <LayoutDashboard className="w-5 h-5" /> },
-    ],
-  },
-  {
-    title: 'Manajemen',
-    items: [
-      { label: 'Pengguna', href: '/admin/users', icon: <Users className="w-5 h-5" /> },
-      { label: 'Verifikasi Instruktur', href: '/admin/verify-instructors', icon: <UserCheck className="w-5 h-5" />, badge: 8 },
-      { label: 'Kursus', href: '/admin/courses', icon: <BookOpen className="w-5 h-5" /> },
-      { label: 'Kategori', href: '/admin/categories', icon: <FolderOpen className="w-5 h-5" /> },
-    ],
-  },
-  {
-    title: 'Keuangan',
-    items: [
-      { label: 'Transaksi', href: '/admin/transactions', icon: <CreditCard className="w-5 h-5" /> },
-      { label: 'Pembayaran Instruktur', href: '/admin/payouts', icon: <DollarSign className="w-5 h-5" /> },
-      { label: 'Pengaturan Komisi', href: '/admin/commission', icon: <Layers className="w-5 h-5" /> },
-    ],
-  },
-  {
-    title: 'Platform',
-    items: [
-      { label: 'Pengaturan', href: '/admin/settings', icon: <Settings className="w-5 h-5" /> },
-      { label: 'Moderasi', href: '/admin/moderation', icon: <ShieldCheck className="w-5 h-5" /> },
-    ],
-  },
-];
-
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
@@ -128,10 +49,91 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user, logout } = useAuth();
   const { unreadCount } = useNotifications();
+  const { t, language } = useLanguage();
   const location = useLocation();
   const navigate = useNavigate();
 
-  const getNavGroups = (): NavGroup[] => {
+  const studentNavGroups = useMemo((): NavGroup[] => [
+    {
+      items: [
+        { label: t.nav.dashboard, href: '/dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
+        { label: t.nav.myCourses, href: '/my-courses', icon: <BookOpen className="w-5 h-5" /> },
+      ],
+    },
+    {
+      title: language === 'id' ? 'Pembelajaran' : 'Learning',
+      items: [
+        { label: language === 'id' ? 'Tugas' : 'Assignments', href: '/assignments', icon: <ClipboardList className="w-5 h-5" />, badge: 3 },
+        { label: language === 'id' ? 'Forum Diskusi' : 'Discussion Forum', href: '/discussions', icon: <MessageSquare className="w-5 h-5" /> },
+        { label: t.course.certificate, href: '/certificates', icon: <Award className="w-5 h-5" /> },
+      ],
+    },
+    {
+      title: language === 'id' ? 'Gamifikasi' : 'Gamification',
+      items: [
+        { label: t.gamification.leaderboard, href: '/leaderboard', icon: <BarChart3 className="w-5 h-5" /> },
+        { label: t.gamification.myBadges, href: '/badges', icon: <Award className="w-5 h-5" /> },
+      ],
+    },
+  ], [t, language]);
+
+  const instructorNavGroups = useMemo((): NavGroup[] => [
+    {
+      items: [
+        { label: t.nav.dashboard, href: '/instructor', icon: <LayoutDashboard className="w-5 h-5" /> },
+        { label: t.nav.myCourses, href: '/instructor/courses', icon: <BookOpen className="w-5 h-5" /> },
+      ],
+    },
+    {
+      title: language === 'id' ? 'Manajemen' : 'Management',
+      items: [
+        { label: language === 'id' ? 'Siswa' : 'Students', href: '/instructor/students', icon: <Users className="w-5 h-5" /> },
+        { label: language === 'id' ? 'Penilaian' : 'Grading', href: '/instructor/grading', icon: <FileText className="w-5 h-5" />, badge: 5 },
+        { label: language === 'id' ? 'Tanya Jawab' : 'Q&A', href: '/instructor/qa', icon: <MessageSquare className="w-5 h-5" />, badge: 12 },
+      ],
+    },
+    {
+      title: language === 'id' ? 'Keuangan' : 'Finance',
+      items: [
+        { label: language === 'id' ? 'Pendapatan' : 'Earnings', href: '/instructor/earnings', icon: <DollarSign className="w-5 h-5" /> },
+        { label: language === 'id' ? 'Penarikan' : 'Payouts', href: '/instructor/payouts', icon: <CreditCard className="w-5 h-5" /> },
+      ],
+    },
+  ], [t, language]);
+
+  const adminNavGroups = useMemo((): NavGroup[] => [
+    {
+      items: [
+        { label: t.nav.dashboard, href: '/admin', icon: <LayoutDashboard className="w-5 h-5" /> },
+      ],
+    },
+    {
+      title: language === 'id' ? 'Manajemen' : 'Management',
+      items: [
+        { label: language === 'id' ? 'Pengguna' : 'Users', href: '/admin/users', icon: <Users className="w-5 h-5" /> },
+        { label: language === 'id' ? 'Verifikasi Instruktur' : 'Instructor Verification', href: '/admin/verify-instructors', icon: <UserCheck className="w-5 h-5" />, badge: 8 },
+        { label: t.course.courses, href: '/admin/courses', icon: <BookOpen className="w-5 h-5" /> },
+        { label: t.footer.categories, href: '/admin/categories', icon: <FolderOpen className="w-5 h-5" /> },
+      ],
+    },
+    {
+      title: language === 'id' ? 'Keuangan' : 'Finance',
+      items: [
+        { label: language === 'id' ? 'Transaksi' : 'Transactions', href: '/admin/transactions', icon: <CreditCard className="w-5 h-5" /> },
+        { label: language === 'id' ? 'Pembayaran Instruktur' : 'Instructor Payouts', href: '/admin/payouts', icon: <DollarSign className="w-5 h-5" /> },
+        { label: language === 'id' ? 'Pengaturan Komisi' : 'Commission Settings', href: '/admin/commission', icon: <Layers className="w-5 h-5" /> },
+      ],
+    },
+    {
+      title: language === 'id' ? 'Platform' : 'Platform',
+      items: [
+        { label: t.nav.settings, href: '/admin/settings', icon: <Settings className="w-5 h-5" /> },
+        { label: language === 'id' ? 'Moderasi' : 'Moderation', href: '/admin/moderation', icon: <ShieldCheck className="w-5 h-5" /> },
+      ],
+    },
+  ], [t, language]);
+
+  const navGroups = useMemo((): NavGroup[] => {
     switch (user?.role) {
       case 'admin':
         return adminNavGroups;
@@ -140,29 +142,27 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       default:
         return studentNavGroups;
     }
-  };
-
-  const navGroups = getNavGroups();
+  }, [user?.role, adminNavGroups, instructorNavGroups, studentNavGroups]);
 
   const userMenuItems: DropdownItem[] = [
     {
-      label: 'Kembali ke Beranda',
+      label: t.nav.home,
       icon: <BookOpen className="w-4 h-4" />,
       onClick: () => navigate('/'),
     },
     {
-      label: 'Profil Saya',
+      label: t.nav.profile,
       icon: <Users className="w-4 h-4" />,
       onClick: () => navigate('/profile'),
     },
     {
-      label: 'Pengaturan',
+      label: t.nav.settings,
       icon: <Settings className="w-4 h-4" />,
       onClick: () => navigate('/settings'),
     },
     { divider: true, label: '' },
     {
-      label: 'Keluar',
+      label: t.nav.logout,
       icon: <LogOut className="w-4 h-4" />,
       onClick: () => {
         logout();
@@ -177,9 +177,9 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       case 'admin':
         return 'Administrator';
       case 'instructor':
-        return 'Instruktur';
+        return language === 'id' ? 'Instruktur' : 'Instructor';
       default:
-        return 'Siswa';
+        return language === 'id' ? 'Siswa' : 'Student';
     }
   };
 
@@ -209,6 +209,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             <span className="text-lg font-bold text-gray-900">HLMS</span>
           </Link>
           <button
+            aria-label="Close sidebar"
             onClick={() => setSidebarOpen(false)}
             className="p-1.5 hover:bg-gray-100 rounded-lg lg:hidden"
           >
@@ -254,7 +255,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 })}
               </ul>
             </div>
-          ))}
+          ))}          
+          {/* Language Switcher */}
+          <div className="pt-4 border-t border-gray-200">
+            <LanguageSwitcher variant="full" />
+          </div>
         </nav>
       </aside>
 
@@ -264,6 +269,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <header className="sticky top-0 z-30 h-16 bg-white border-b border-gray-200">
           <div className="flex items-center justify-between h-full px-4 lg:px-6">
             <button
+              aria-label="Open menu"
               onClick={() => setSidebarOpen(true)}
               className="p-2 hover:bg-gray-100 rounded-lg lg:hidden"
             >
@@ -274,7 +280,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
             <div className="flex items-center gap-4">
               {/* Notifications */}
-              <button className="relative p-2 hover:bg-gray-100 rounded-lg">
+              <button aria-label="Notifications" className="relative p-2 hover:bg-gray-100 rounded-lg">
                 <Bell className="w-5 h-5 text-gray-600" />
                 {unreadCount > 0 && (
                   <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-xs font-medium rounded-full flex items-center justify-center">

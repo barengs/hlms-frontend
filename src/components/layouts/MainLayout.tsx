@@ -15,7 +15,8 @@ import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
 import { useNotifications } from '@/context/NotificationContext';
-import { Avatar, Badge, Button, Dropdown } from '@/components/ui';
+import { useLanguage } from '@/context/LanguageContext';
+import { Avatar, Button, Dropdown, LanguageSwitcher } from '@/components/ui';
 import type { DropdownItem } from '@/components/ui';
 import { getTimeAgo } from '@/lib/utils';
 
@@ -25,6 +26,7 @@ function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
   const { totalItems } = useCart();
   const { notifications, unreadCount, markAsRead } = useNotifications();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const handleSearch = (e: React.FormEvent) => {
@@ -36,23 +38,23 @@ function Navbar() {
 
   const userMenuItems: DropdownItem[] = [
     {
-      label: 'Profil Saya',
+      label: t.nav.profile,
       icon: <User className="w-4 h-4" />,
       onClick: () => navigate('/profile'),
     },
     {
-      label: 'Kursus Saya',
+      label: t.nav.myCourses,
       icon: <BookOpen className="w-4 h-4" />,
       onClick: () => navigate('/my-courses'),
     },
     {
-      label: 'Pengaturan',
+      label: t.nav.settings,
       icon: <Settings className="w-4 h-4" />,
       onClick: () => navigate('/settings'),
     },
     { divider: true, label: '' },
     {
-      label: 'Keluar',
+      label: t.nav.logout,
       icon: <LogOut className="w-4 h-4" />,
       onClick: () => {
         logout();
@@ -94,7 +96,7 @@ function Navbar() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Cari kursus..."
+                placeholder={t.nav.searchPlaceholder}
                 className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
@@ -102,12 +104,15 @@ function Navbar() {
 
           {/* Right Section */}
           <div className="flex items-center gap-2 sm:gap-4">
+            {/* Language Switcher */}
+            <LanguageSwitcher variant="icon" className="hidden sm:flex" />
+
             {/* Categories Link - Desktop */}
             <Link
               to="/courses"
               className="hidden lg:block text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
             >
-              Jelajahi Kursus
+              {t.nav.exploreCourses}
             </Link>
 
             {isAuthenticated ? (
@@ -117,7 +122,7 @@ function Navbar() {
                   to={getDashboardLink()}
                   className="hidden sm:block text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
                 >
-                  Dashboard
+                  {t.nav.dashboard}
                 </Link>
 
                 {/* Cart */}
@@ -147,11 +152,11 @@ function Navbar() {
                 >
                   <div className="w-80 max-h-96 overflow-y-auto">
                     <div className="px-4 py-3 border-b border-gray-100">
-                      <h3 className="font-semibold text-gray-900">Notifikasi</h3>
+                      <h3 className="font-semibold text-gray-900">{t.nav.notifications}</h3>
                     </div>
                     {notifications.length === 0 ? (
                       <div className="px-4 py-8 text-center text-gray-500">
-                        Tidak ada notifikasi
+                        {t.messages.noNotifications}
                       </div>
                     ) : (
                       <div>
@@ -179,7 +184,7 @@ function Navbar() {
                 {/* User Menu */}
                 <Dropdown
                   trigger={
-                    <button className="flex items-center gap-2 p-1 hover:bg-gray-100 rounded-full transition-colors">
+                    <button aria-label="User menu" className="flex items-center gap-2 p-1 hover:bg-gray-100 rounded-full transition-colors">
                       <Avatar src={user?.avatar} name={user?.name || 'User'} size="sm" />
                       <ChevronDown className="w-4 h-4 text-gray-500 hidden sm:block" />
                     </button>
@@ -191,11 +196,11 @@ function Navbar() {
               <>
                 <Link to="/login">
                   <Button variant="ghost" size="sm">
-                    Masuk
+                    {t.nav.login}
                   </Button>
                 </Link>
                 <Link to="/register" className="hidden sm:block">
-                  <Button size="sm">Daftar</Button>
+                  <Button size="sm">{t.nav.register}</Button>
                 </Link>
               </>
             )}
@@ -224,7 +229,7 @@ function Navbar() {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Cari kursus..."
+                  placeholder={t.nav.searchPlaceholder}
                   className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -235,7 +240,7 @@ function Navbar() {
                 className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Jelajahi Kursus
+                {t.nav.exploreCourses}
               </Link>
               {isAuthenticated && (
                 <Link
@@ -243,9 +248,12 @@ function Navbar() {
                   className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Dashboard
+                  {t.nav.dashboard}
                 </Link>
               )}
+              <div className="px-4 py-2">
+                <LanguageSwitcher variant="full" />
+              </div>
             </nav>
           </div>
         )}
@@ -255,6 +263,8 @@ function Navbar() {
 }
 
 function Footer() {
+  const { t } = useLanguage();
+  
   return (
     <footer className="bg-gray-900 text-gray-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -274,37 +284,37 @@ function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-semibold text-white mb-4">Jelajahi</h4>
+            <h4 className="font-semibold text-white mb-4">{t.footer.explore}</h4>
             <ul className="space-y-2 text-sm">
-              <li><Link to="/courses" className="hover:text-white transition-colors">Semua Kursus</Link></li>
-              <li><Link to="/categories" className="hover:text-white transition-colors">Kategori</Link></li>
-              <li><Link to="/instructors" className="hover:text-white transition-colors">Instruktur</Link></li>
+              <li><Link to="/courses" className="hover:text-white transition-colors">{t.footer.allCourses}</Link></li>
+              <li><Link to="/categories" className="hover:text-white transition-colors">{t.footer.categories}</Link></li>
+              <li><Link to="/instructors" className="hover:text-white transition-colors">{t.footer.instructors}</Link></li>
             </ul>
           </div>
 
           {/* Company */}
           <div>
-            <h4 className="font-semibold text-white mb-4">Perusahaan</h4>
+            <h4 className="font-semibold text-white mb-4">{t.footer.company}</h4>
             <ul className="space-y-2 text-sm">
-              <li><Link to="/about" className="hover:text-white transition-colors">Tentang Kami</Link></li>
-              <li><Link to="/careers" className="hover:text-white transition-colors">Karir</Link></li>
-              <li><Link to="/contact" className="hover:text-white transition-colors">Hubungi Kami</Link></li>
+              <li><Link to="/about" className="hover:text-white transition-colors">{t.footer.aboutUs}</Link></li>
+              <li><Link to="/careers" className="hover:text-white transition-colors">{t.footer.careers}</Link></li>
+              <li><Link to="/contact" className="hover:text-white transition-colors">{t.footer.contactUs}</Link></li>
             </ul>
           </div>
 
           {/* Legal */}
           <div>
-            <h4 className="font-semibold text-white mb-4">Legal</h4>
+            <h4 className="font-semibold text-white mb-4">{t.footer.legal}</h4>
             <ul className="space-y-2 text-sm">
-              <li><Link to="/terms" className="hover:text-white transition-colors">Syarat & Ketentuan</Link></li>
-              <li><Link to="/privacy" className="hover:text-white transition-colors">Kebijakan Privasi</Link></li>
-              <li><Link to="/refund" className="hover:text-white transition-colors">Kebijakan Refund</Link></li>
+              <li><Link to="/terms" className="hover:text-white transition-colors">{t.auth.termsConditions}</Link></li>
+              <li><Link to="/privacy" className="hover:text-white transition-colors">{t.auth.privacyPolicy}</Link></li>
+              <li><Link to="/refund" className="hover:text-white transition-colors">{t.footer.refundPolicy}</Link></li>
             </ul>
           </div>
         </div>
 
         <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
-          <p>&copy; {new Date().getFullYear()} HLMS. Hak cipta dilindungi.</p>
+          <p>&copy; {new Date().getFullYear()} HLMS. {t.footer.allRightsReserved}</p>
         </div>
       </div>
     </footer>

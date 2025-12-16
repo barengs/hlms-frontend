@@ -13,12 +13,13 @@ interface DropdownItem {
 
 interface DropdownProps {
   trigger: ReactNode;
-  items: DropdownItem[];
+  items?: DropdownItem[];
+  children?: ReactNode;
   align?: 'left' | 'right';
   className?: string;
 }
 
-function Dropdown({ trigger, items, align = 'right', className }: DropdownProps) {
+function Dropdown({ trigger, items, children, align = 'right', className }: DropdownProps) {
   return (
     <Menu as="div" className={cn('relative inline-block text-left', className)}>
       <MenuButton as={Fragment}>{trigger}</MenuButton>
@@ -37,27 +38,31 @@ function Dropdown({ trigger, items, align = 'right', className }: DropdownProps)
             align === 'left' ? 'left-0' : 'right-0'
           )}
         >
-          {items.map((item, index) =>
-            item.divider ? (
-              <div key={index} className="border-t border-gray-100 my-1" />
-            ) : (
-              <MenuItem key={index}>
-                {({ focus }) => (
-                  <button
-                    onClick={item.onClick}
-                    className={cn(
-                      'flex w-full items-center gap-3 px-4 py-2.5 text-sm',
-                      focus && 'bg-gray-50',
-                      item.danger
-                        ? 'text-red-600 hover:bg-red-50'
-                        : 'text-gray-700 hover:bg-gray-50'
-                    )}
-                  >
-                    {item.icon && <span className="w-5 h-5">{item.icon}</span>}
-                    {item.label}
-                  </button>
-                )}
-              </MenuItem>
+          {children ? (
+            children
+          ) : (
+            items?.map((item, index) =>
+              item.divider ? (
+                <div key={index} className="border-t border-gray-100 my-1" />
+              ) : (
+                <MenuItem key={index}>
+                  {({ focus }) => (
+                    <button
+                      onClick={item.onClick}
+                      className={cn(
+                        'flex w-full items-center gap-3 px-4 py-2.5 text-sm',
+                        focus && 'bg-gray-50',
+                        item.danger
+                          ? 'text-red-600 hover:bg-red-50'
+                          : 'text-gray-700 hover:bg-gray-50'
+                      )}
+                    >
+                      {item.icon && <span className="w-5 h-5">{item.icon}</span>}
+                      {item.label}
+                    </button>
+                  )}
+                </MenuItem>
+              )
             )
           )}
         </MenuItems>
