@@ -29,7 +29,7 @@ import { useNotifications } from '@/context/NotificationContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { Avatar, Badge, Dropdown, LanguageSwitcher } from '@/components/ui';
 import type { DropdownItem } from '@/components/ui';
-import { cn } from '@/lib/utils';
+import { cn, getTimeAgo } from '@/lib/utils';
 
 interface NavItem {
   label: string;
@@ -54,7 +54,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     return saved === 'true';
   });
   const { user, logout } = useAuth();
-  const { unreadCount } = useNotifications();
+  const { notifications, unreadCount, markAsRead } = useNotifications();
   const { t, language } = useLanguage();
   const location = useLocation();
   const navigate = useNavigate();
@@ -336,14 +336,50 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
             <div className="flex items-center gap-4">
               {/* Notifications */}
-              <button aria-label="Notifications" className="relative p-2 hover:bg-gray-100 rounded-lg">
-                <Bell className="w-5 h-5 text-gray-600" />
-                {unreadCount > 0 && (
-                  <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-xs font-medium rounded-full flex items-center justify-center">
-                    {unreadCount}
-                  </span>
-                )}
-              </button>
+              <Dropdown
+                trigger={
+                  <button aria-label="Notifications" className="relative p-2 hover:bg-gray-100 rounded-full transition-colors">
+                    <Bell className="w-5 h-5 text-gray-600" />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-medium rounded-full flex items-center justify-center">
+                        {unreadCount}
+                      </span>
+                    )}
+                  </button>
+                }
+                align="right"
+                contentClassName="w-80"
+              >
+                <div className="max-h-96 overflow-y-auto">
+                  <div className="px-4 py-3 border-b border-gray-100 bg-white">
+                    <h3 className="font-semibold text-gray-900">{t.nav.notifications}</h3>
+                  </div>
+                  {notifications.length === 0 ? (
+                    <div className="px-4 py-8 text-center text-gray-500">
+                      {t.messages.noNotifications}
+                    </div>
+                  ) : (
+                    <div>
+                      {notifications.slice(0, 5).map((notification) => (
+                        <button
+                          key={notification.id}
+                          onClick={() => {
+                            markAsRead(notification.id);
+                            if (notification.link) navigate(notification.link);
+                          }}
+                          className={`w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-50 last:border-0 ${
+                            !notification.isRead ? 'bg-blue-50' : ''
+                          }`}
+                        >
+                          <p className="text-sm font-medium text-gray-900">{notification.title}</p>
+                          <p className="text-sm text-gray-500 line-clamp-1">{notification.message}</p>
+                          <p className="text-xs text-gray-400 mt-1">{getTimeAgo(notification.createdAt)}</p>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </Dropdown>
 
               {/* User Menu */}
               <Dropdown

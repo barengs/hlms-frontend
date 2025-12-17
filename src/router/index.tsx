@@ -29,6 +29,12 @@ import { ProfilePage } from '@/pages/profile';
 // Certificate Pages
 import { CertificatesPage, CertificateDetailPage } from '@/pages/certificates';
 
+// Assignment Pages
+import { AssignmentsPage, AssignmentDetailPage } from '@/pages/assignments';
+
+// Learning Pages
+import { CourseLearningPage, LessonPage, QuizPage, ExamPage } from '@/pages/learning';
+
 // Root layout with providers
 function RootLayout() {
   return (
@@ -296,6 +302,58 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['student', 'instructor', 'admin']}>
             <CertificateDetailPage />
+          </ProtectedRoute>
+        ),
+      },
+
+      // Assignment Routes (Protected)
+      {
+        path: '/assignments',
+        element: (
+          <ProtectedRoute allowedRoles={['student']}>
+            <AssignmentsPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/assignments/:id',
+        element: (
+          <ProtectedRoute allowedRoles={['student']}>
+            <AssignmentDetailPage />
+          </ProtectedRoute>
+        ),
+      },
+
+      // Learning Routes (Protected)
+      {
+        path: '/learn/:slug',
+        element: (
+          <ProtectedRoute allowedRoles={['student']}>
+            <CourseLearningPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/learn/:courseId/lesson/:lessonId',
+        element: (
+          <ProtectedRoute allowedRoles={['student']}>
+            <LessonPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/learn/:courseId/quiz/:quizId',
+        element: (
+          <ProtectedRoute allowedRoles={['student']}>
+            <QuizPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/learn/:courseId/exam',
+        element: (
+          <ProtectedRoute allowedRoles={['student']}>
+            <ExamPage />
           </ProtectedRoute>
         ),
       },
