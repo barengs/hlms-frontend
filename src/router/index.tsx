@@ -12,7 +12,7 @@ import { LoginPage, RegisterPage, ForgotPasswordPage } from '@/pages/auth';
 import { StudentDashboard, MyCoursesPage, DiscussionsPage, DiscussionDetailPage } from '@/pages/student';
 
 // Instructor Pages
-import { InstructorDashboard, InstructorCoursesPage, CourseManagePage, InstructorStudentsPage, InstructorClassesPage, ClassManagePage } from '@/pages/instructor';
+import { InstructorDashboard, InstructorCoursesPage, CourseManagePage, InstructorStudentsPage, InstructorClassesPage, ClassManagePage, InstructorGradingPage, AssignmentGradingPage, ExamGradingPage, ClassGradingPage } from '@/pages/instructor';
 
 // Admin Pages
 import { AdminDashboard } from '@/pages/admin';
@@ -225,7 +225,31 @@ const router = createBrowserRouter([
         path: '/instructor/grading',
         element: (
           <ProtectedRoute allowedRoles={['instructor']}>
-            <InstructorDashboard />
+            <InstructorGradingPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/instructor/grading/assignments/:assignmentId/submissions/:submissionId',
+        element: (
+          <ProtectedRoute allowedRoles={['instructor']}>
+            <AssignmentGradingPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/instructor/grading/exams/:examId/submissions/:submissionId',
+        element: (
+          <ProtectedRoute allowedRoles={['instructor']}>
+            <ExamGradingPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/instructor/classes/:classId/grading',
+        element: (
+          <ProtectedRoute allowedRoles={['instructor']}>
+            <ClassGradingPage />
           </ProtectedRoute>
         ),
       },

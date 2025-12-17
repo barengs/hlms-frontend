@@ -4,3 +4,7 @@ export { CourseManagePage } from './CourseManagePage';
 export { InstructorStudentsPage } from './InstructorStudentsPage';
 export { InstructorClassesPage } from './InstructorClassesPage';
 export { ClassManagePage } from './ClassManagePage';
+export { InstructorGradingPage } from './InstructorGradingPage';
+export { AssignmentGradingPage } from './AssignmentGradingPage';
+export { ExamGradingPage } from './ExamGradingPage';
+export { ClassGradingPage } from './ClassGradingPage';
