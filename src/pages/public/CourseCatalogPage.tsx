@@ -5,8 +5,6 @@ import {
   Filter,
   Grid,
   List,
-  ChevronDown,
-  Play,
   Clock,
   Users,
   X,
@@ -209,6 +207,7 @@ export function CourseCatalogPage() {
             {/* View Mode */}
             <div className="hidden sm:flex items-center border border-gray-200 rounded-lg p-1">
               <button
+                aria-label="Grid view"
                 onClick={() => setViewMode('grid')}
                 className={`p-1.5 rounded ${
                   viewMode === 'grid' ? 'bg-gray-100 text-blue-600' : 'text-gray-400'
@@ -217,6 +216,7 @@ export function CourseCatalogPage() {
                 <Grid className="w-5 h-5" />
               </button>
               <button
+                aria-label="List view"
                 onClick={() => setViewMode('list')}
                 className={`p-1.5 rounded ${
                   viewMode === 'list' ? 'bg-gray-100 text-blue-600' : 'text-gray-400'

@@ -17,9 +17,10 @@ interface DropdownProps {
   children?: ReactNode;
   align?: 'left' | 'right';
   className?: string;
+  contentClassName?: string;
 }
 
-function Dropdown({ trigger, items, children, align = 'right', className }: DropdownProps) {
+function Dropdown({ trigger, items, children, align = 'right', className, contentClassName }: DropdownProps) {
   return (
     <Menu as="div" className={cn('relative inline-block text-left', className)}>
       <MenuButton as={Fragment}>{trigger}</MenuButton>
@@ -34,8 +35,9 @@ function Dropdown({ trigger, items, children, align = 'right', className }: Drop
       >
         <MenuItems
           className={cn(
-            'absolute z-50 mt-2 w-56 origin-top-right rounded-xl bg-white shadow-lg ring-1 ring-black/5 focus:outline-none py-1',
-            align === 'left' ? 'left-0' : 'right-0'
+            'absolute z-50 mt-2 origin-top-right rounded-xl bg-white shadow-lg ring-1 ring-black/5 focus:outline-none overflow-hidden',
+            align === 'left' ? 'left-0' : 'right-0',
+            children ? contentClassName : 'w-56 py-1'
           )}
         >
           {children ? (

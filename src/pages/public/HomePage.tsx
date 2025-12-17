@@ -177,7 +177,7 @@ function FeaturedCoursesSection() {
                       {course.type === 'self-paced' ? 'Mandiri' : 'Kelas'}
                     </Badge>
                   </div>
-                  <button className="absolute top-3 right-3 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center hover:bg-white transition-colors">
+                  <button aria-label="Preview course" className="absolute top-3 right-3 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center hover:bg-white transition-colors">
                     <Play className="w-4 h-4 text-gray-700" />
                   </button>
                 </div>

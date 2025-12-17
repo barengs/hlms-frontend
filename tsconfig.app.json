@@ -22,6 +22,9 @@
       "@/*": ["src/*"]
     },
 
+    /* Silence baseUrl deprecation warning (still needed for paths) */
+    "ignoreDeprecations": "6.0",
+
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,

@@ -138,7 +138,7 @@ function Navbar() {
                 {/* Notifications */}
                 <Dropdown
                   trigger={
-                    <button className="relative p-2 hover:bg-gray-100 rounded-full transition-colors">
+                    <button aria-label="Notifications" className="relative p-2 hover:bg-gray-100 rounded-full transition-colors">
                       <Bell className="w-5 h-5 text-gray-600" />
                       {unreadCount > 0 && (
                         <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-medium rounded-full flex items-center justify-center">
@@ -147,11 +147,11 @@ function Navbar() {
                       )}
                     </button>
                   }
-                  items={[]}
                   align="right"
+                  contentClassName="w-80"
                 >
-                  <div className="w-80 max-h-96 overflow-y-auto">
-                    <div className="px-4 py-3 border-b border-gray-100">
+                  <div className="max-h-96 overflow-y-auto">
+                    <div className="px-4 py-3 border-b border-gray-100 bg-white">
                       <h3 className="font-semibold text-gray-900">{t.nav.notifications}</h3>
                     </div>
                     {notifications.length === 0 ? (

@@ -365,7 +365,7 @@ export function CourseDetailPage() {
                     alt={course.title}
                     className="w-full h-48 object-cover"
                   />
-                  <button className="absolute inset-0 flex items-center justify-center bg-black/40 hover:bg-black/50 transition-colors group">
+                  <button aria-label="Play course preview" className="absolute inset-0 flex items-center justify-center bg-black/40 hover:bg-black/50 transition-colors group">
                     <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
                       <Play className="w-7 h-7 text-gray-900 ml-1" />
                     </div>

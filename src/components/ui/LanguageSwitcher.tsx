@@ -30,6 +30,7 @@ export function LanguageSwitcher({ variant = 'full', className }: LanguageSwitch
     return (
       <div className={cn('relative inline-block', className)}>
         <select
+          aria-label="Select language"
           value={language}
           onChange={(e) => setLanguage(e.target.value as 'id' | 'en')}
           className="appearance-none bg-transparent border border-gray-300 rounded-lg px-3 py-1.5 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"

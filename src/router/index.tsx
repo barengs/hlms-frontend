@@ -9,7 +9,7 @@ import { HomePage, CourseCatalogPage, CourseDetailPage } from '@/pages/public';
 import { LoginPage, RegisterPage, ForgotPasswordPage } from '@/pages/auth';
 
 // Student Pages
-import { StudentDashboard, MyCoursesPage } from '@/pages/student';
+import { StudentDashboard, MyCoursesPage, DiscussionsPage, DiscussionDetailPage } from '@/pages/student';
 
 // Instructor Pages
 import { InstructorDashboard } from '@/pages/instructor';
@@ -22,6 +22,12 @@ import { LeaderboardPage, BadgesPage } from '@/pages/gamification';
 
 // Cart Pages
 import { CartPage } from '@/pages/cart';
+
+// Profile Pages
+import { ProfilePage } from '@/pages/profile';
+
+// Certificate Pages
+import { CertificatesPage, CertificateDetailPage } from '@/pages/certificates';
 
 // Root layout with providers
 function RootLayout() {
@@ -116,6 +122,22 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['student']}>
             <BadgesPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/discussions',
+        element: (
+          <ProtectedRoute allowedRoles={['student', 'instructor']}>
+            <DiscussionsPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/discussions/:id',
+        element: (
+          <ProtectedRoute allowedRoles={['student', 'instructor']}>
+            <DiscussionDetailPage />
           </ProtectedRoute>
         ),
       },
@@ -256,6 +278,34 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['admin']}>
             <AdminDashboard />
+          </ProtectedRoute>
+        ),
+      },
+
+      // Certificate Routes (Protected)
+      {
+        path: '/certificates',
+        element: (
+          <ProtectedRoute allowedRoles={['student', 'instructor', 'admin']}>
+            <CertificatesPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/certificates/:id',
+        element: (
+          <ProtectedRoute allowedRoles={['student', 'instructor', 'admin']}>
+            <CertificateDetailPage />
+          </ProtectedRoute>
+        ),
+      },
+
+      // Profile Route (Protected - All authenticated users)
+      {
+        path: '/profile',
+        element: (
+          <ProtectedRoute allowedRoles={['student', 'instructor', 'admin']}>
+            <ProfilePage />
           </ProtectedRoute>
         ),
       },

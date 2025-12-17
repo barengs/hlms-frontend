@@ -21,6 +21,8 @@ import {
   Layers,
   CreditCard,
   ClipboardList,
+  PanelLeftClose,
+  PanelLeft,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useNotifications } from '@/context/NotificationContext';
@@ -47,11 +49,21 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    const saved = localStorage.getItem('hlms_sidebar_collapsed');
+    return saved === 'true';
+  });
   const { user, logout } = useAuth();
   const { unreadCount } = useNotifications();
   const { t, language } = useLanguage();
   const location = useLocation();
   const navigate = useNavigate();
+
+  const toggleSidebarCollapse = () => {
+    const newValue = !sidebarCollapsed;
+    setSidebarCollapsed(newValue);
+    localStorage.setItem('hlms_sidebar_collapsed', String(newValue));
+  };
 
   const studentNavGroups = useMemo((): NavGroup[] => [
     {
@@ -196,17 +208,21 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Sidebar */}
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform duration-200 lg:translate-x-0',
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          'fixed inset-y-0 left-0 z-50 bg-white border-r border-gray-200 transform transition-all duration-300 lg:translate-x-0',
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full',
+          sidebarCollapsed ? 'lg:w-20' : 'lg:w-64',
+          'w-64'
         )}
       >
         {/* Logo */}
         <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+            <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0">
               <BookOpen className="w-5 h-5 text-white" />
             </div>
-            <span className="text-lg font-bold text-gray-900">HLMS</span>
+            {!sidebarCollapsed && (
+              <span className="text-lg font-bold text-gray-900">HLMS</span>
+            )}
           </Link>
           <button
             aria-label="Close sidebar"
@@ -218,38 +234,58 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         </div>
 
         {/* Navigation */}
-        <nav className="p-4 space-y-6 overflow-y-auto h-[calc(100vh-4rem)]">
+        <nav className={cn(
+          'space-y-6 overflow-y-auto h-[calc(100vh-4rem)]',
+          sidebarCollapsed ? 'p-2' : 'p-4'
+        )}>
           {navGroups.map((group, groupIndex) => (
             <div key={groupIndex}>
-              {group.title && (
+              {group.title && !sidebarCollapsed && (
                 <h3 className="px-3 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
                   {group.title}
                 </h3>
+              )}
+              {group.title && sidebarCollapsed && (
+                <div className="border-t border-gray-200 my-2" />
               )}
               <ul className="space-y-1">
                 {group.items.map((item) => {
                   const isActive = location.pathname === item.href;
                   return (
-                    <li key={item.href}>
+                    <li key={item.href} className="relative">
                       <Link
                         to={item.href}
+                        title={sidebarCollapsed ? item.label : undefined}
                         className={cn(
-                          'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
+                          'flex items-center rounded-lg text-sm font-medium transition-colors',
+                          sidebarCollapsed ? 'justify-center p-3' : 'gap-3 px-3 py-2.5',
                           isActive
                             ? 'bg-blue-50 text-blue-600'
                             : 'text-gray-700 hover:bg-gray-100'
                         )}
                       >
-                        <span className={cn(isActive ? 'text-blue-600' : 'text-gray-400')}>
+                        <span className={cn(
+                          'flex-shrink-0',
+                          isActive ? 'text-blue-600' : 'text-gray-400'
+                        )}>
                           {item.icon}
                         </span>
-                        <span className="flex-1">{item.label}</span>
-                        {item.badge && item.badge > 0 && (
-                          <Badge variant="danger" size="sm">
-                            {item.badge}
-                          </Badge>
+                        {!sidebarCollapsed && (
+                          <>
+                            <span className="flex-1">{item.label}</span>
+                            {item.badge && item.badge > 0 && (
+                              <Badge variant="danger" size="sm">
+                                {item.badge}
+                              </Badge>
+                            )}
+                          </>
                         )}
                       </Link>
+                      {sidebarCollapsed && item.badge && item.badge > 0 && (
+                        <span className="absolute top-0 right-0 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                          {item.badge}
+                        </span>
+                      )}
                     </li>
                   );
                 })}
@@ -257,17 +293,23 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             </div>
           ))}          
           {/* Language Switcher */}
-          <div className="pt-4 border-t border-gray-200">
-            <LanguageSwitcher variant="full" />
-          </div>
+          {!sidebarCollapsed && (
+            <div className="pt-4 border-t border-gray-200">
+              <LanguageSwitcher variant="full" />
+            </div>
+          )}
         </nav>
       </aside>
 
       {/* Main Content */}
-      <div className="lg:pl-64">
+      <div className={cn(
+        'transition-all duration-300',
+        sidebarCollapsed ? 'lg:pl-20' : 'lg:pl-64'
+      )}>
         {/* Header */}
         <header className="sticky top-0 z-30 h-16 bg-white border-b border-gray-200">
           <div className="flex items-center justify-between h-full px-4 lg:px-6">
+            {/* Mobile menu button */}
             <button
               aria-label="Open menu"
               onClick={() => setSidebarOpen(true)}
@@ -276,7 +318,21 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               <Menu className="w-6 h-6 text-gray-600" />
             </button>
 
-            <div className="flex-1 lg:hidden" />
+            {/* Desktop sidebar toggle */}
+            <button
+              aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              onClick={toggleSidebarCollapse}
+              className="hidden lg:flex p-2 hover:bg-gray-100 rounded-lg"
+            >
+              {sidebarCollapsed ? (
+                <PanelLeft className="w-5 h-5 text-gray-600" />
+              ) : (
+                <PanelLeftClose className="w-5 h-5 text-gray-600" />
+              )}
+            </button>
+
+            {/* Spacer to push profile to the right */}
+            <div className="flex-1" />
 
             <div className="flex items-center gap-4">
               {/* Notifications */}

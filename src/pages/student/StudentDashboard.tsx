@@ -15,21 +15,23 @@ import { mockCourses } from '@/data/mockData';
 import { formatNumber } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
 import { useNotifications } from '@/context/NotificationContext';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 export function StudentDashboard() {
   const { user } = useAuth();
   const { notifications } = useNotifications();
+  
+  // Capture initial timestamp on mount to avoid impure Date.now() calls during render
+  const [initialTimestamp] = useState(() => Date.now());
 
-  // Mock enrolled courses with useMemo to avoid Date.now() issues
+  // Mock enrolled courses with useMemo
   const enrolledCourses = useMemo(() => {
-    const now = Date.now();
     return mockCourses.slice(0, 3).map((course, index) => ({
       ...course,
       progress: [65, 30, 10][index],
-      lastAccessed: new Date(now - index * 86400000).toISOString(),
+      lastAccessed: new Date(initialTimestamp - index * 86400000).toISOString(),
     }));
-  }, []);
+  }, [initialTimestamp]);
 
   // Mock stats
   const stats = {
@@ -43,33 +45,31 @@ export function StudentDashboard() {
 
   // Mock upcoming deadlines
   const deadlines = useMemo(() => {
-    const now = Date.now();
     return [
       {
         id: '1',
         title: 'Tugas: Membuat Komponen React',
         course: 'React Masterclass',
-        dueDate: new Date(now + 2 * 86400000).toISOString(),
+        dueDate: new Date(initialTimestamp + 2 * 86400000).toISOString(),
         daysLeft: 2,
       },
       {
         id: '2',
         title: 'Quiz: JavaScript Fundamentals',
         course: 'Full Stack Development',
-        dueDate: new Date(now + 5 * 86400000).toISOString(),
+        dueDate: new Date(initialTimestamp + 5 * 86400000).toISOString(),
         daysLeft: 5,
       },
     ];
-  }, []);
+  }, [initialTimestamp]);
 
   // Mock achievements
   const recentAchievements = useMemo(() => {
-    const now = Date.now();
     return [
-      { id: '1', name: 'First Steps', icon: '🎯', description: 'Menyelesaikan pelajaran pertama', earnedAt: new Date(now - 86400000).toISOString() },
-      { id: '2', name: 'Week Warrior', icon: '🔥', description: '7 hari berturut-turut belajar', earnedAt: new Date(now - 172800000).toISOString() },
+      { id: '1', name: 'First Steps', icon: '🎯', description: 'Menyelesaikan pelajaran pertama', earnedAt: new Date(initialTimestamp - 86400000).toISOString() },
+      { id: '2', name: 'Week Warrior', icon: '🔥', description: '7 hari berturut-turut belajar', earnedAt: new Date(initialTimestamp - 172800000).toISOString() },
     ];
-  }, []);
+  }, [initialTimestamp]);
 
   return (
     <DashboardLayout>
