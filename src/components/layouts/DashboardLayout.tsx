@@ -94,6 +94,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       items: [
         { label: t.nav.dashboard, href: '/instructor', icon: <LayoutDashboard className="w-5 h-5" /> },
         { label: t.nav.myCourses, href: '/instructor/courses', icon: <BookOpen className="w-5 h-5" /> },
+        { label: language === 'id' ? 'Kelas' : 'Classes', href: '/instructor/classes', icon: <FolderOpen className="w-5 h-5" /> },
       ],
     },
     {

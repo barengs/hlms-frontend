@@ -12,7 +12,7 @@ import { LoginPage, RegisterPage, ForgotPasswordPage } from '@/pages/auth';
 import { StudentDashboard, MyCoursesPage, DiscussionsPage, DiscussionDetailPage } from '@/pages/student';
 
 // Instructor Pages
-import { InstructorDashboard } from '@/pages/instructor';
+import { InstructorDashboard, InstructorCoursesPage, CourseManagePage, InstructorStudentsPage, InstructorClassesPage, ClassManagePage } from '@/pages/instructor';
 
 // Admin Pages
 import { AdminDashboard } from '@/pages/admin';
@@ -161,7 +161,55 @@ const router = createBrowserRouter([
         path: '/instructor/courses',
         element: (
           <ProtectedRoute allowedRoles={['instructor']}>
-            <InstructorDashboard />
+            <InstructorCoursesPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/instructor/courses/:courseId/edit',
+        element: (
+          <ProtectedRoute allowedRoles={['instructor']}>
+            <CourseManagePage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/instructor/courses/:courseId/analytics',
+        element: (
+          <ProtectedRoute allowedRoles={['instructor']}>
+            <CourseManagePage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/instructor/courses/:courseId/students',
+        element: (
+          <ProtectedRoute allowedRoles={['instructor']}>
+            <CourseManagePage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/instructor/classes',
+        element: (
+          <ProtectedRoute allowedRoles={['instructor']}>
+            <InstructorClassesPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/instructor/classes/:classId',
+        element: (
+          <ProtectedRoute allowedRoles={['instructor']}>
+            <ClassManagePage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/instructor/classes/:classId/manage',
+        element: (
+          <ProtectedRoute allowedRoles={['instructor']}>
+            <ClassManagePage />
           </ProtectedRoute>
         ),
       },
@@ -169,7 +217,7 @@ const router = createBrowserRouter([
         path: '/instructor/students',
         element: (
           <ProtectedRoute allowedRoles={['instructor']}>
-            <InstructorDashboard />
+            <InstructorStudentsPage />
           </ProtectedRoute>
         ),
       },

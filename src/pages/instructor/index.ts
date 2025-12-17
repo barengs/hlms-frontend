@@ -1,1 +1,6 @@
 export { InstructorDashboard } from './InstructorDashboard';
+export { InstructorCoursesPage } from './InstructorCoursesPage';
+export { CourseManagePage } from './CourseManagePage';
+export { InstructorStudentsPage } from './InstructorStudentsPage';
+export { InstructorClassesPage } from './InstructorClassesPage';
+export { ClassManagePage } from './ClassManagePage';
