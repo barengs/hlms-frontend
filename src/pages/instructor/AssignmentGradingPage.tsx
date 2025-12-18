@@ -1,23 +1,19 @@
 import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   BookOpen,
   Users,
   FileText,
   Download,
-  Upload,
   Star,
   ChevronLeft,
   Save,
-  Eye,
   MessageSquare,
   Calendar,
-  Check,
-  X,
   AlertCircle,
 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layouts';
-import { Card, CardHeader, CardTitle, Button, Badge, Avatar, Textarea, Input } from '@/components/ui';
+import { Card, CardHeader, CardTitle, Button, Avatar, Textarea, Input } from '@/components/ui';
 import { useLanguage } from '@/context/LanguageContext';
 import { getTimeAgo } from '@/lib/utils';
 
@@ -69,7 +65,6 @@ const mockSubmission = {
 };
 
 export function AssignmentGradingPage() {
-  const { assignmentId, submissionId } = useParams<{ assignmentId: string; submissionId: string }>();
   const navigate = useNavigate();
   const { language } = useLanguage();
   const [grades, setGrades] = useState<Record<string, number>>({
@@ -135,7 +130,7 @@ export function AssignmentGradingPage() {
               <div className="p-6">
                 <h3 className="font-medium text-gray-900 mb-2">{mockAssignment.title}</h3>
                 <p className="text-sm text-gray-600 mb-4">{mockAssignment.description}</p>
-                
+
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-sm">
                     <BookOpen className="w-4 h-4 text-gray-400" />
@@ -173,7 +168,7 @@ export function AssignmentGradingPage() {
                     <p className="text-sm text-gray-500">{mockSubmission.student.email}</p>
                   </div>
                 </div>
-                
+
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-500">{language === 'id' ? 'Dikirim' : 'Submitted'}:</span>
@@ -254,10 +249,10 @@ export function AssignmentGradingPage() {
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="w-full bg-gray-200 rounded-full h-2.5">
-                  <div 
-                    className="bg-blue-600 h-2.5 rounded-full" 
+                  <div
+                    className="bg-blue-600 h-2.5 rounded-full"
                     style={{ width: `${(mockAssignment.gradedSubmissions / mockAssignment.totalSubmissions) * 100}%` }}
                   ></div>
                 </div>
@@ -298,8 +293,8 @@ export function AssignmentGradingPage() {
                         </div>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                        <div 
-                          className="bg-blue-600 h-2 rounded-full" 
+                        <div
+                          className="bg-blue-600 h-2 rounded-full"
                           style={{ width: `${((grades[item.id] || 0) / item.points) * 100}%` }}
                         ></div>
                       </div>
@@ -347,7 +342,7 @@ export function AssignmentGradingPage() {
                   rows={6}
                   className="mb-4"
                 />
-                
+
                 <div className="flex items-center gap-2 p-4 bg-blue-50 rounded-lg mb-6">
                   <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0" />
                   <p className="text-sm text-blue-800">
@@ -356,7 +351,7 @@ export function AssignmentGradingPage() {
                       : 'Constructive feedback will help students understand their strengths and areas for improvement.'}
                   </p>
                 </div>
-                
+
                 <div className="flex justify-end gap-2">
                   <Button variant="outline" onClick={() => navigate('/instructor/grading')}>
                     {language === 'id' ? 'Batal' : 'Cancel'}

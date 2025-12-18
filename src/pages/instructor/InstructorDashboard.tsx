@@ -7,12 +7,10 @@ import {
   MessageSquare,
   FileText,
   Star,
-  Eye,
   ArrowUpRight,
-  ArrowDownRight,
 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layouts';
-import { Card, CardHeader, CardTitle, Badge, Progress, Button, Avatar } from '@/components/ui';
+import { Card, CardHeader, CardTitle, Badge, Button, Avatar } from '@/components/ui';
 import { mockCourses } from '@/data/mockData';
 import { formatCurrency, formatNumber } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
@@ -242,11 +240,10 @@ export function InstructorDashboard() {
             <div className="space-y-3">
               {recentActivities.map((activity) => (
                 <div key={activity.id} className="flex items-start gap-3">
-                  <div className={`w-2 h-2 rounded-full mt-2 ${
-                    activity.type === 'enrollment' ? 'bg-green-500' :
-                    activity.type === 'question' ? 'bg-orange-500' :
-                    activity.type === 'submission' ? 'bg-blue-500' : 'bg-yellow-500'
-                  }`} />
+                  <div className={`w-2 h-2 rounded-full mt-2 ${activity.type === 'enrollment' ? 'bg-green-500' :
+                      activity.type === 'question' ? 'bg-orange-500' :
+                        activity.type === 'submission' ? 'bg-blue-500' : 'bg-yellow-500'
+                    }`} />
                   <div>
                     <p className="text-sm text-gray-700">{activity.message}</p>
                     <p className="text-xs text-gray-400">{activity.time}</p>

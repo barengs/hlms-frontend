@@ -23,7 +23,7 @@ import {
   Calendar,
 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layouts';
-import { Card, CardHeader, CardTitle, Button, Badge, Input, Dropdown, Modal, Progress } from '@/components/ui';
+import { Card, Button, Badge, Input, Dropdown, Modal } from '@/components/ui';
 import { useLanguage } from '@/context/LanguageContext';
 import { formatCurrency, formatNumber } from '@/lib/utils';
 
@@ -256,12 +256,12 @@ export function InstructorCoursesPage() {
     },
     ...(course.status === 'published'
       ? [
-          {
-            label: language === 'id' ? 'Lihat Kursus' : 'View Course',
-            icon: <Eye className="w-4 h-4" />,
-            onClick: () => navigate(`/course/${course.slug}`),
-          },
-        ]
+        {
+          label: language === 'id' ? 'Lihat Kursus' : 'View Course',
+          icon: <Eye className="w-4 h-4" />,
+          onClick: () => navigate(`/course/${course.slug}`),
+        },
+      ]
       : []),
     {
       label: language === 'id' ? 'Duplikasi' : 'Duplicate',
@@ -271,24 +271,24 @@ export function InstructorCoursesPage() {
     { divider: true, label: '' },
     ...(course.status === 'draft'
       ? [
-          {
-            label: language === 'id' ? 'Hapus Kursus' : 'Delete Course',
-            icon: <Trash2 className="w-4 h-4" />,
-            onClick: () => {
-              setSelectedCourse(course);
-              setShowDeleteModal(true);
-            },
-            danger: true,
+        {
+          label: language === 'id' ? 'Hapus Kursus' : 'Delete Course',
+          icon: <Trash2 className="w-4 h-4" />,
+          onClick: () => {
+            setSelectedCourse(course);
+            setShowDeleteModal(true);
           },
-        ]
+          danger: true,
+        },
+      ]
       : [
-          {
-            label: language === 'id' ? 'Arsipkan' : 'Archive',
-            icon: <Archive className="w-4 h-4" />,
-            onClick: () => console.log('Archive:', course.id),
-            danger: true,
-          },
-        ]),
+        {
+          label: language === 'id' ? 'Arsipkan' : 'Archive',
+          icon: <Archive className="w-4 h-4" />,
+          onClick: () => console.log('Archive:', course.id),
+          danger: true,
+        },
+      ]),
   ];
 
   return (
@@ -367,41 +367,37 @@ export function InstructorCoursesPage() {
         <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
           <button
             onClick={() => setStatusFilter('all')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
-              statusFilter === 'all'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
+            className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${statusFilter === 'all'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
           >
             {language === 'id' ? 'Semua' : 'All'} ({stats.totalCourses})
           </button>
           <button
             onClick={() => setStatusFilter('published')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
-              statusFilter === 'published'
-                ? 'bg-green-600 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
+            className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${statusFilter === 'published'
+              ? 'bg-green-600 text-white'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
           >
             {language === 'id' ? 'Dipublikasi' : 'Published'} ({stats.published})
           </button>
           <button
             onClick={() => setStatusFilter('pending')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
-              statusFilter === 'pending'
-                ? 'bg-yellow-600 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
+            className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${statusFilter === 'pending'
+              ? 'bg-yellow-600 text-white'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
           >
             {language === 'id' ? 'Menunggu Review' : 'Pending'} ({stats.pending})
           </button>
           <button
             onClick={() => setStatusFilter('draft')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
-              statusFilter === 'draft'
-                ? 'bg-gray-600 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
+            className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${statusFilter === 'draft'
+              ? 'bg-gray-600 text-white'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
           >
             Draft ({stats.draft})
           </button>
@@ -447,8 +443,8 @@ export function InstructorCoursesPage() {
                   ? 'Tidak ada kursus yang cocok dengan filter Anda.'
                   : 'No courses match your filters.'
                 : language === 'id'
-                ? 'Mulai buat kursus pertama Anda.'
-                : 'Start creating your first course.'}
+                  ? 'Mulai buat kursus pertama Anda.'
+                  : 'Start creating your first course.'}
             </p>
             {!searchQuery && statusFilter === 'all' && (
               <Link

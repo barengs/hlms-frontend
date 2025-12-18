@@ -14,15 +14,12 @@ import {
   TrendingUp,
   Calendar,
   CheckCircle,
-  XCircle,
   MessageSquare,
-  Star,
-  ChevronDown,
   FileText,
   BarChart3,
 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layouts';
-import { Card, CardHeader, CardTitle, Button, Badge, Input, Avatar, Dropdown, Modal, Progress } from '@/components/ui';
+import { Card, Button, Badge, Input, Avatar, Dropdown, Modal, Progress } from '@/components/ui';
 import { useLanguage } from '@/context/LanguageContext';
 import { formatNumber, getTimeAgo } from '@/lib/utils';
 
@@ -292,11 +289,11 @@ export function InstructorStudentsPage() {
       const matchesSearch =
         student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         student.email.toLowerCase().includes(searchQuery.toLowerCase());
-      
+
       const matchesCourse =
         courseFilter === 'all' ||
         student.enrolledCourses.some((c) => c.courseId === courseFilter);
-      
+
       const matchesStatus =
         statusFilter === 'all' ||
         student.enrolledCourses.some((c) => c.status === statusFilter);
@@ -540,8 +537,8 @@ export function InstructorStudentsPage() {
                   ? 'Tidak ada siswa yang cocok dengan filter Anda.'
                   : 'No students match your filters.'
                 : language === 'id'
-                ? 'Belum ada siswa yang mendaftar di kursus Anda.'
-                : 'No students have enrolled in your courses yet.'}
+                  ? 'Belum ada siswa yang mendaftar di kursus Anda.'
+                  : 'No students have enrolled in your courses yet.'}
             </p>
           </Card>
         ) : (
@@ -576,8 +573,8 @@ export function InstructorStudentsPage() {
                     const overallStatus = student.enrolledCourses.some((c) => c.status === 'active')
                       ? 'active'
                       : student.enrolledCourses.some((c) => c.status === 'completed')
-                      ? 'completed'
-                      : 'inactive';
+                        ? 'completed'
+                        : 'inactive';
 
                     return (
                       <tr key={student.id} className="border-b border-gray-100 hover:bg-gray-50">
@@ -685,11 +682,10 @@ export function InstructorStudentsPage() {
                     <button
                       key={course.courseId}
                       onClick={() => setSelectedCourseDetail(course.courseId)}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
-                        selectedCourseDetail === course.courseId
+                      className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${selectedCourseDetail === course.courseId
                           ? 'bg-blue-600 text-white'
                           : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                      }`}
+                        }`}
                     >
                       {course.courseTitle.substring(0, 30)}...
                     </button>

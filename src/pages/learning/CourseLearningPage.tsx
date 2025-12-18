@@ -12,9 +12,6 @@ import {
   Award,
   BookOpen,
   ArrowLeft,
-  BarChart3,
-  Users,
-  Star,
   Download,
   MessageSquare,
 } from 'lucide-react';
@@ -163,7 +160,7 @@ export function CourseLearningPage() {
   const getLessonIcon = (type: Lesson['type'], isCompleted: boolean, isLocked: boolean) => {
     if (isLocked) return <Lock className="w-4 h-4 text-gray-400" />;
     if (isCompleted) return <CheckCircle className="w-4 h-4 text-green-500" />;
-    
+
     switch (type) {
       case 'video':
         return <Play className="w-4 h-4 text-blue-500" />;
@@ -200,7 +197,7 @@ export function CourseLearningPage() {
 
   const handleLessonClick = (lesson: Lesson) => {
     if (lesson.isLocked) return;
-    
+
     if (lesson.type === 'quiz') {
       navigate(`/learn/${course.id}/quiz/${lesson.id}`);
     } else if (lesson.type === 'assignment') {
@@ -249,7 +246,7 @@ export function CourseLearningPage() {
             {/* Course Info */}
             <div className="flex-1 py-2">
               <h1 className="text-2xl font-bold text-gray-900 mb-2">{course.title}</h1>
-              
+
               {/* Instructor */}
               <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
                 <Avatar src={course.instructorAvatar} name={course.instructorName} size="xs" />
@@ -355,11 +352,10 @@ export function CourseLearningPage() {
                           key={lesson.id}
                           onClick={() => handleLessonClick(lesson)}
                           disabled={lesson.isLocked}
-                          className={`w-full flex items-center gap-4 p-4 text-left transition-colors ${
-                            lesson.isLocked
+                          className={`w-full flex items-center gap-4 p-4 text-left transition-colors ${lesson.isLocked
                               ? 'opacity-50 cursor-not-allowed bg-gray-50'
                               : 'hover:bg-gray-50 cursor-pointer'
-                          } ${index < module.lessons.length - 1 ? 'border-b border-gray-50' : ''}`}
+                            } ${index < module.lessons.length - 1 ? 'border-b border-gray-50' : ''}`}
                         >
                           <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100">
                             {getLessonIcon(lesson.type, lesson.isCompleted, lesson.isLocked)}
@@ -407,8 +403,8 @@ export function CourseLearningPage() {
                             ? 'Selesaikan untuk mendapatkan sertifikat'
                             : 'Complete to earn your certificate'
                           : language === 'id'
-                          ? 'Selesaikan semua materi untuk membuka ujian'
-                          : 'Complete all lessons to unlock the exam'}
+                            ? 'Selesaikan semua materi untuk membuka ujian'
+                            : 'Complete all lessons to unlock the exam'}
                       </p>
                     </div>
                   </div>

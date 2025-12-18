@@ -2,28 +2,26 @@ import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   BookOpen,
-  Users,
   FileText,
   Download,
-  Upload,
   Star,
   ChevronLeft,
-  Save,
   Eye,
-  MessageSquare,
   Calendar,
   Check,
   X,
   AlertCircle,
   BarChart3,
-  TrendingUp,
   Filter,
   Search,
   MoreVertical,
   FolderOpen,
+  Edit3,
+  Clock,
+  CheckCircle,
 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layouts';
-import { Card, CardHeader, CardTitle, Button, Badge, Avatar, Textarea, Input, Dropdown, Progress } from '@/components/ui';
+import { Card, CardHeader, CardTitle, Button, Badge, Avatar, Input, Dropdown } from '@/components/ui';
 import { useLanguage } from '@/context/LanguageContext';
 import { formatNumber, getTimeAgo } from '@/lib/utils';
 
@@ -166,7 +164,7 @@ export function ClassGradingPage() {
     const late = mockSubmissions.filter(s => s.status === 'late').length;
     const avgGrade = mockSubmissions
       .filter(s => s.grade !== undefined)
-      .reduce((sum, s) => sum + (s.grade || 0), 0) / 
+      .reduce((sum, s) => sum + (s.grade || 0), 0) /
       mockSubmissions.filter(s => s.grade !== undefined).length || 0;
 
     return { total, pending, graded, late, avgGrade };
@@ -176,12 +174,12 @@ export function ClassGradingPage() {
   const filteredSubmissions = useMemo(() => {
     return mockSubmissions
       .filter(submission => {
-        const matchesSearch = 
+        const matchesSearch =
           submission.student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
           submission.assignment.title.toLowerCase().includes(searchQuery.toLowerCase());
-        
+
         const matchesStatus = statusFilter === 'all' || submission.status === statusFilter;
-        
+
         return matchesSearch && matchesStatus;
       })
       .sort((a, b) => {
@@ -214,8 +212,8 @@ export function ClassGradingPage() {
   const getTypeBadge = (type: 'assignment' | 'exam') => {
     return (
       <Badge variant={type === 'assignment' ? 'primary' : 'secondary'}>
-        {type === 'assignment' 
-          ? (language === 'id' ? 'Tugas' : 'Assignment') 
+        {type === 'assignment'
+          ? (language === 'id' ? 'Tugas' : 'Assignment')
           : (language === 'id' ? 'Ujian' : 'Exam')}
       </Badge>
     );
@@ -408,8 +406,8 @@ export function ClassGradingPage() {
                   ? 'Tidak ada penilaian yang cocok dengan filter Anda.'
                   : 'No submissions match your filters.'
                 : language === 'id'
-                ? 'Belum ada tugas atau ujian yang perlu dinilai untuk kelas ini.'
-                : 'No assignments or exams need grading for this class yet.'}
+                  ? 'Belum ada tugas atau ujian yang perlu dinilai untuk kelas ini.'
+                  : 'No assignments or exams need grading for this class yet.'}
             </p>
           </Card>
         ) : (
@@ -501,7 +499,7 @@ export function ClassGradingPage() {
           <div className="fixed inset-0 z-50 overflow-y-auto">
             <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
               <div className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" onClick={() => setSelectedSubmission(null)} />
-              
+
               <div className="inline-block w-full max-w-4xl my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-lg">
                 <div className="px-6 py-4 border-b border-gray-200">
                   <div className="flex items-center justify-between">
@@ -517,7 +515,7 @@ export function ClassGradingPage() {
                     </button>
                   </div>
                 </div>
-                
+
                 <div className="px-6 py-4 max-h-[70vh] overflow-y-auto">
                   {/* Student Info */}
                   <div className="flex items-center gap-4 pb-4 mb-4 border-b border-gray-200">
@@ -533,7 +531,7 @@ export function ClassGradingPage() {
                       </p>
                     </div>
                   </div>
-                  
+
                   {/* Assignment Info */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     <Card>
@@ -555,7 +553,7 @@ export function ClassGradingPage() {
                       </div>
                     </Card>
                   </div>
-                  
+
                   {/* Attachments */}
                   <div className="mb-6">
                     <h4 className="font-medium text-gray-900 mb-2">
@@ -579,13 +577,13 @@ export function ClassGradingPage() {
                       </p>
                     )}
                   </div>
-                  
+
                   {/* Grading Form */}
                   <div className="space-y-4">
                     <h4 className="font-medium text-gray-900">
                       {language === 'id' ? 'Form Penilaian' : 'Grading Form'}
                     </h4>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -599,7 +597,7 @@ export function ClassGradingPage() {
                           placeholder={language === 'id' ? 'Masukkan poin' : 'Enter points'}
                         />
                       </div>
-                      
+
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           {language === 'id' ? 'Persentase' : 'Percentage'}
@@ -619,7 +617,7 @@ export function ClassGradingPage() {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         {language === 'id' ? 'Umpan Balik' : 'Feedback'}
@@ -633,7 +631,7 @@ export function ClassGradingPage() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end gap-2">
                   <Button variant="outline" onClick={() => setSelectedSubmission(null)}>
                     {language === 'id' ? 'Batal' : 'Cancel'}

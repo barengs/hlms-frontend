@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   ArrowLeft,
   Save,
   Eye,
-  Upload,
   Plus,
   Edit,
   Trash2,
@@ -22,10 +21,9 @@ import {
   ChevronDown,
   ChevronRight,
   CheckCircle,
-  AlertCircle,
 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layouts';
-import { Card, CardHeader, CardTitle, Button, Badge, Input, Modal, Progress } from '@/components/ui';
+import { Card, CardHeader, CardTitle, Button, Badge, Input, Modal } from '@/components/ui';
 import { useLanguage } from '@/context/LanguageContext';
 import { formatCurrency } from '@/lib/utils';
 
@@ -282,11 +280,10 @@ export function CourseManagePage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 pb-3 text-sm font-medium border-b-2 whitespace-nowrap transition-colors ${
-                  activeTab === tab.id
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
+                className={`flex items-center gap-2 pb-3 text-sm font-medium border-b-2 whitespace-nowrap transition-colors ${activeTab === tab.id
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                  }`}
               >
                 {tab.icon}
                 {tab.label}
@@ -411,7 +408,7 @@ export function CourseManagePage() {
                       <input
                         type="text"
                         value={obj}
-                        onChange={() => {}}
+                        onChange={() => { }}
                         className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                       <button className="p-1 text-gray-400 hover:text-red-500">
@@ -552,9 +549,8 @@ export function CourseManagePage() {
                       {module.lessons.map((lesson, lessonIndex) => (
                         <div
                           key={lesson.id}
-                          className={`flex items-center gap-3 p-4 hover:bg-gray-50 ${
-                            lessonIndex < module.lessons.length - 1 ? 'border-b border-gray-100' : ''
-                          }`}
+                          className={`flex items-center gap-3 p-4 hover:bg-gray-50 ${lessonIndex < module.lessons.length - 1 ? 'border-b border-gray-100' : ''
+                            }`}
                         >
                           <button className="cursor-grab text-gray-400 hover:text-gray-600">
                             <GripVertical className="w-4 h-4" />

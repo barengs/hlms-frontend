@@ -13,15 +13,12 @@ import {
   Trash2,
   Eye,
   Copy,
-  Calendar,
-  GraduationCap,
-  FileText,
   BarChart3,
   FolderOpen,
   ArchiveRestore,
 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layouts';
-import { Card, CardHeader, CardTitle, Button, Badge, Input, Dropdown, Modal, Avatar } from '@/components/ui';
+import { Card, Button, Badge, Input, Dropdown, Modal, Avatar, type DropdownItem } from '@/components/ui';
 import { useLanguage } from '@/context/LanguageContext';
 import { formatNumber, getTimeAgo } from '@/lib/utils';
 
@@ -171,7 +168,7 @@ export function InstructorClassesPage() {
     totalStudents: mockClasses.reduce((sum, c) => sum + c.studentsCount, 0),
     avgGrade: Math.round(
       mockClasses.filter((c) => c.status === 'active').reduce((sum, c) => sum + c.averageGrade, 0) /
-        mockClasses.filter((c) => c.status === 'active').length
+      mockClasses.filter((c) => c.status === 'active').length
     ),
   };
 
@@ -187,7 +184,7 @@ export function InstructorClassesPage() {
     .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
 
   const getClassActions = (cls: ClassRoom) => {
-    const actions = [
+    const actions: DropdownItem[] = [
       {
         label: language === 'id' ? 'Lihat Detail' : 'View Details',
         icon: <Eye className="w-4 h-4" />,
@@ -235,7 +232,7 @@ export function InstructorClassesPage() {
         setSelectedClass(cls);
         setShowDeleteModal(true);
       },
-      className: 'text-red-600 hover:bg-red-50',
+      danger: true,
     });
 
     return actions;
@@ -353,31 +350,28 @@ export function InstructorClassesPage() {
             <div className="flex gap-2">
               <button
                 onClick={() => setStatusFilter('all')}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  statusFilter === 'all'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${statusFilter === 'all'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
               >
                 {language === 'id' ? 'Semua' : 'All'} ({stats.totalClasses})
               </button>
               <button
                 onClick={() => setStatusFilter('active')}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  statusFilter === 'active'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${statusFilter === 'active'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
               >
                 {language === 'id' ? 'Aktif' : 'Active'} ({stats.activeClasses})
               </button>
               <button
                 onClick={() => setStatusFilter('archived')}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  statusFilter === 'archived'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${statusFilter === 'archived'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
               >
                 {language === 'id' ? 'Arsip' : 'Archived'} ({stats.archivedClasses})
               </button>
@@ -398,8 +392,8 @@ export function InstructorClassesPage() {
                   ? 'Tidak ada kelas yang cocok dengan filter Anda.'
                   : 'No classes match your filters.'
                 : language === 'id'
-                ? 'Buat kelas pertama Anda untuk memulai mengajar.'
-                : 'Create your first class to start teaching.'}
+                  ? 'Buat kelas pertama Anda untuk memulai mengajar.'
+                  : 'Create your first class to start teaching.'}
             </p>
             {!searchQuery && statusFilter === 'all' && (
               <Button leftIcon={<Plus className="w-4 h-4" />} onClick={() => setShowCreateModal(true)}>
@@ -426,8 +420,8 @@ export function InstructorClassesPage() {
                           ? 'Aktif'
                           : 'Active'
                         : language === 'id'
-                        ? 'Diarsipkan'
-                        : 'Archived'}
+                          ? 'Diarsipkan'
+                          : 'Archived'}
                     </Badge>
                   </div>
                   <div className="absolute top-3 right-3">

@@ -5,21 +5,15 @@ import {
   Users,
   FileText,
   Download,
-  Upload,
   Star,
   ChevronLeft,
   Save,
-  Eye,
   MessageSquare,
   Calendar,
-  Check,
-  X,
   AlertCircle,
-  BarChart3,
-  TrendingUp,
 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layouts';
-import { Card, CardHeader, CardTitle, Button, Badge, Avatar, Textarea, Input, Progress } from '@/components/ui';
+import { Card, CardHeader, CardTitle, Button, Avatar, Textarea, Input, Progress } from '@/components/ui';
 import { useLanguage } from '@/context/LanguageContext';
 import { getTimeAgo } from '@/lib/utils';
 
@@ -77,7 +71,7 @@ const mockSubmission = {
 };
 
 export function ExamGradingPage() {
-  const { examId, submissionId } = useParams<{ examId: string; submissionId: string }>();
+  useParams<{ examId: string; submissionId: string }>();
   const navigate = useNavigate();
   const { language } = useLanguage();
   const [grades, setGrades] = useState<Record<string, number>>({
@@ -143,7 +137,7 @@ export function ExamGradingPage() {
               <div className="p-6">
                 <h3 className="font-medium text-gray-900 mb-2">{mockExam.title}</h3>
                 <p className="text-sm text-gray-600 mb-4">{mockExam.description}</p>
-                
+
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-sm">
                     <BookOpen className="w-4 h-4 text-gray-400" />
@@ -187,7 +181,7 @@ export function ExamGradingPage() {
                     <p className="text-sm text-gray-500">{mockSubmission.student.email}</p>
                   </div>
                 </div>
-                
+
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-500">{language === 'id' ? 'Dikirim' : 'Submitted'}:</span>
@@ -276,10 +270,10 @@ export function ExamGradingPage() {
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="w-full bg-gray-200 rounded-full h-2.5">
-                  <div 
-                    className="bg-blue-600 h-2.5 rounded-full" 
+                  <div
+                    className="bg-blue-600 h-2.5 rounded-full"
                     style={{ width: `${(mockExam.gradedSubmissions / mockExam.totalSubmissions) * 100}%` }}
                   ></div>
                 </div>
@@ -287,7 +281,7 @@ export function ExamGradingPage() {
                   <span>{language === 'id' ? 'Progres Penilaian' : 'Grading Progress'}</span>
                   <span>{Math.round((mockExam.gradedSubmissions / mockExam.totalSubmissions) * 100)}%</span>
                 </div>
-                
+
                 {/* Performance Chart */}
                 <div className="mt-6">
                   <h4 className="font-medium text-gray-900 mb-3">
@@ -324,7 +318,7 @@ export function ExamGradingPage() {
                   {mockExam.sections.map((section) => {
                     const grade = grades[section.id] || 0;
                     const percentage = Math.round((grade / section.maxPoints) * 100);
-                    
+
                     return (
                       <div key={section.id} className="border border-gray-200 rounded-lg p-4">
                         <div className="flex justify-between items-start mb-2">
@@ -394,7 +388,7 @@ export function ExamGradingPage() {
                   rows={6}
                   className="mb-4"
                 />
-                
+
                 <div className="flex items-center gap-2 p-4 bg-blue-50 rounded-lg mb-6">
                   <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0" />
                   <p className="text-sm text-blue-800">
@@ -403,7 +397,7 @@ export function ExamGradingPage() {
                       : 'Comprehensive feedback will help students understand their achievements and areas for further development.'}
                   </p>
                 </div>
-                
+
                 <div className="flex justify-end gap-2">
                   <Button variant="outline" onClick={() => navigate('/instructor/grading')}>
                     {language === 'id' ? 'Batal' : 'Cancel'}

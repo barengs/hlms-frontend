@@ -13,7 +13,7 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layouts';
-import { Card, Button, Badge, Progress } from '@/components/ui';
+import { Card, Button, Progress } from '@/components/ui';
 import { useLanguage } from '@/context/LanguageContext';
 
 interface Question {
@@ -104,7 +104,7 @@ export function QuizPage() {
   const { courseId, quizId } = useParams<{ courseId: string; quizId: string }>();
   const { language } = useLanguage();
   const navigate = useNavigate();
-  
+
   const [quizState, setQuizState] = useState<QuizState>('intro');
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -118,7 +118,7 @@ export function QuizPage() {
 
   // Timer
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let timer: number;
     if (quizState === 'taking' && timeRemaining > 0) {
       timer = setInterval(() => {
         setTimeRemaining((prev) => {
@@ -271,34 +271,33 @@ export function QuizPage() {
       <DashboardLayout>
         <div className="max-w-2xl mx-auto">
           <Card className="text-center py-8">
-            <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 ${
-              passed ? 'bg-green-100' : 'bg-red-100'
-            }`}>
+            <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 ${passed ? 'bg-green-100' : 'bg-red-100'
+              }`}>
               {passed ? (
                 <Award className="w-10 h-10 text-green-500" />
               ) : (
                 <XCircle className="w-10 h-10 text-red-500" />
               )}
             </div>
-            
+
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
               {passed
                 ? language === 'id'
                   ? 'Selamat! Anda Lulus!'
                   : 'Congratulations! You Passed!'
                 : language === 'id'
-                ? 'Maaf, Anda Belum Lulus'
-                : 'Sorry, You Did Not Pass'}
+                  ? 'Maaf, Anda Belum Lulus'
+                  : 'Sorry, You Did Not Pass'}
             </h1>
-            
+
             <p className="text-gray-600 mb-6">
               {passed
                 ? language === 'id'
                   ? 'Anda telah berhasil menyelesaikan quiz ini.'
                   : 'You have successfully completed this quiz.'
                 : language === 'id'
-                ? 'Silakan coba lagi untuk meningkatkan skor Anda.'
-                : 'Please try again to improve your score.'}
+                  ? 'Silakan coba lagi untuk meningkatkan skor Anda.'
+                  : 'Please try again to improve your score.'}
             </p>
 
             <div className="flex justify-center gap-8 mb-8">
@@ -353,9 +352,8 @@ export function QuizPage() {
                   return (
                     <div key={question.id} className="p-4 bg-gray-50 rounded-lg">
                       <div className="flex items-start gap-3">
-                        <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
-                          isCorrect ? 'bg-green-500' : 'bg-red-500'
-                        } text-white text-xs font-medium`}>
+                        <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${isCorrect ? 'bg-green-500' : 'bg-red-500'
+                          } text-white text-xs font-medium`}>
                           {index + 1}
                         </div>
                         <div className="flex-1">
@@ -410,9 +408,8 @@ export function QuizPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-gray-900">{quiz.title}</h1>
-          <div className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
-            timeRemaining <= 60 ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'
-          }`}>
+          <div className={`flex items-center gap-2 px-4 py-2 rounded-lg ${timeRemaining <= 60 ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'
+            }`}>
             <Clock className="w-5 h-5" />
             <span className="font-mono font-bold">{formatTime(timeRemaining)}</span>
           </div>
@@ -441,11 +438,10 @@ export function QuizPage() {
                   <h2 className="text-lg font-medium text-gray-900">{currentQuestion.text}</h2>
                   <button
                     onClick={handleToggleFlag}
-                    className={`p-2 rounded-lg transition-colors ${
-                      flaggedQuestions.has(currentQuestion.id)
-                        ? 'bg-yellow-100 text-yellow-600'
-                        : 'hover:bg-gray-100 text-gray-400'
-                    }`}
+                    className={`p-2 rounded-lg transition-colors ${flaggedQuestions.has(currentQuestion.id)
+                      ? 'bg-yellow-100 text-yellow-600'
+                      : 'hover:bg-gray-100 text-gray-400'
+                      }`}
                     aria-label="Flag question"
                   >
                     <Flag className="w-5 h-5" />
@@ -458,17 +454,15 @@ export function QuizPage() {
                     <button
                       key={option.id}
                       onClick={() => handleSelectAnswer(option.id)}
-                      className={`w-full flex items-center gap-3 p-4 rounded-lg border-2 text-left transition-all ${
-                        answers[currentQuestion.id] === option.id
-                          ? 'border-blue-500 bg-blue-50'
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
+                      className={`w-full flex items-center gap-3 p-4 rounded-lg border-2 text-left transition-all ${answers[currentQuestion.id] === option.id
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                        }`}
                     >
-                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
-                        answers[currentQuestion.id] === option.id
-                          ? 'border-blue-500 bg-blue-500'
-                          : 'border-gray-300'
-                      }`}>
+                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${answers[currentQuestion.id] === option.id
+                        ? 'border-blue-500 bg-blue-500'
+                        : 'border-gray-300'
+                        }`}>
                         {answers[currentQuestion.id] === option.id && (
                           <CheckCircle className="w-4 h-4 text-white" />
                         )}
@@ -489,7 +483,7 @@ export function QuizPage() {
                 >
                   {language === 'id' ? 'Sebelumnya' : 'Previous'}
                 </Button>
-                
+
                 {currentQuestionIndex === quiz.questions.length - 1 ? (
                   <Button
                     variant="success"
@@ -520,18 +514,17 @@ export function QuizPage() {
                   const isAnswered = !!answers[question.id];
                   const isFlagged = flaggedQuestions.has(question.id);
                   const isCurrent = index === currentQuestionIndex;
-                  
+
                   return (
                     <button
                       key={question.id}
                       onClick={() => handleJumpToQuestion(index)}
-                      className={`relative w-10 h-10 rounded-lg flex items-center justify-center text-sm font-medium transition-all ${
-                        isCurrent
-                          ? 'bg-blue-600 text-white'
-                          : isAnswered
+                      className={`relative w-10 h-10 rounded-lg flex items-center justify-center text-sm font-medium transition-all ${isCurrent
+                        ? 'bg-blue-600 text-white'
+                        : isAnswered
                           ? 'bg-green-100 text-green-700'
                           : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                      }`}
+                        }`}
                     >
                       {index + 1}
                       {isFlagged && (

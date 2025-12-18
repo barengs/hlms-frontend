@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   BookOpen,
   Users,
@@ -13,16 +13,11 @@ import {
   MoreVertical,
   Upload,
   Download,
-  Copy,
-  Archive,
   Clock,
   CheckCircle,
-  XCircle,
-  AlertCircle,
   Calendar,
   GraduationCap,
   MessageSquare,
-  Star,
   ChevronDown,
   FolderOpen,
   Play,
@@ -423,8 +418,8 @@ export function ClassManagePage() {
                         ? 'Aktif'
                         : 'Active'
                       : language === 'id'
-                      ? 'Diarsipkan'
-                      : 'Archived'}
+                        ? 'Diarsipkan'
+                        : 'Archived'}
                   </Badge>
                 </div>
                 <p className="text-gray-600 mt-1">{mockClass.description}</p>
@@ -460,11 +455,10 @@ export function ClassManagePage() {
           <nav className="-mb-px flex space-x-8 overflow-x-auto">
             <button
               onClick={() => setActiveTab('topics')}
-              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === 'topics'
-                  ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
+              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'topics'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
             >
               <div className="flex items-center gap-2">
                 <BookOpen className="w-4 h-4" />
@@ -474,11 +468,10 @@ export function ClassManagePage() {
             </button>
             <button
               onClick={() => setActiveTab('materials')}
-              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === 'materials'
-                  ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
+              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'materials'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
             >
               <div className="flex items-center gap-2">
                 <FileText className="w-4 h-4" />
@@ -488,11 +481,10 @@ export function ClassManagePage() {
             </button>
             <button
               onClick={() => setActiveTab('students')}
-              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === 'students'
-                  ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
+              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'students'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
             >
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4" />
@@ -502,11 +494,10 @@ export function ClassManagePage() {
             </button>
             <button
               onClick={() => setActiveTab('grading')}
-              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === 'grading'
-                  ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
+              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'grading'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
             >
               <div className="flex items-center gap-2">
                 <BarChart3 className="w-4 h-4" />
@@ -516,11 +507,10 @@ export function ClassManagePage() {
             </button>
             <button
               onClick={() => setActiveTab('settings')}
-              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === 'settings'
-                  ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
+              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'settings'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
             >
               <div className="flex items-center gap-2">
                 <Settings className="w-4 h-4" />
@@ -561,7 +551,7 @@ export function ClassManagePage() {
               <div className="space-y-4">
                 {mockTopics.map((topic) => {
                   const topicMaterials = mockMaterials.filter(m => m.topicId === topic.id);
-                  
+
                   return (
                     <Card key={topic.id}>
                       <div className="p-4">
@@ -573,9 +563,8 @@ export function ClassManagePage() {
                                 className="mt-1 p-1 hover:bg-gray-100 rounded"
                               >
                                 <ChevronDown
-                                  className={`w-4 h-4 text-gray-500 transition-transform ${
-                                    expandedTopics.includes(topic.id) ? 'rotate-180' : ''
-                                  }`}
+                                  className={`w-4 h-4 text-gray-500 transition-transform ${expandedTopics.includes(topic.id) ? 'rotate-180' : ''
+                                    }`}
                                 />
                               </button>
                               <div>
@@ -599,7 +588,7 @@ export function ClassManagePage() {
                             />
                           </div>
                         </div>
-                        
+
                         {expandedTopics.includes(topic.id) && (
                           <div className="mt-4 pl-7 border-l-2 border-gray-200">
                             {topicMaterials.length === 0 ? (
@@ -835,11 +824,10 @@ export function ClassManagePage() {
                           </td>
                           <td className="py-4 px-4">
                             {student.grade !== undefined ? (
-                              <span className={`font-medium ${
-                                student.grade >= 85 ? 'text-green-600' :
+                              <span className={`font-medium ${student.grade >= 85 ? 'text-green-600' :
                                 student.grade >= 70 ? 'text-blue-600' :
-                                student.grade >= 50 ? 'text-yellow-600' : 'text-red-600'
-                              }`}>
+                                  student.grade >= 50 ? 'text-yellow-600' : 'text-red-600'
+                                }`}>
                                 {student.grade}%
                               </span>
                             ) : (
@@ -1143,7 +1131,7 @@ export function ClassManagePage() {
                 placeholder={language === 'id' ? 'Contoh: Advanced React Patterns Guide.pdf' : 'e.g., Advanced React Patterns Guide.pdf'}
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 {language === 'id' ? 'Jenis Materi' : 'Material Type'} *
@@ -1159,7 +1147,7 @@ export function ClassManagePage() {
                 <option value="image">{language === 'id' ? 'Gambar' : 'Image'}</option>
               </select>
             </div>
-            
+
             {materialType === 'link' ? (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1190,7 +1178,7 @@ export function ClassManagePage() {
                 </div>
               </div>
             )}
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 {language === 'id' ? 'Deskripsi' : 'Description'}
@@ -1202,7 +1190,7 @@ export function ClassManagePage() {
                 rows={3}
               />
             </div>
-            
+
             {!editingMaterial && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1220,7 +1208,7 @@ export function ClassManagePage() {
                 </select>
               </div>
             )}
-            
+
             <div className="flex justify-end gap-2 pt-4">
               <Button
                 variant="outline"

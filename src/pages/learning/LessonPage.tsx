@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
-  Play,
-  Pause,
   ArrowLeft,
   ArrowRight,
   ChevronLeft,
@@ -10,15 +8,12 @@ import {
   CheckCircle,
   FileText,
   Download,
-  MessageSquare,
   Clock,
-  BookOpen,
-  List,
   X,
   Menu,
 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layouts';
-import { Card, Button, Badge, Progress } from '@/components/ui';
+import { Card, Button, Badge } from '@/components/ui';
 import { useLanguage } from '@/context/LanguageContext';
 
 interface Lesson {
@@ -217,20 +212,18 @@ export function LessonPage() {
                       navigate(`/learn/${courseId}/lesson/${item.id}`);
                     }
                   }}
-                  className={`w-full flex items-center gap-3 p-3 rounded-lg text-left transition-colors ${
-                    item.isCurrent
-                      ? 'bg-blue-50 text-blue-700'
-                      : 'hover:bg-gray-50 text-gray-700'
-                  }`}
+                  className={`w-full flex items-center gap-3 p-3 rounded-lg text-left transition-colors ${item.isCurrent
+                    ? 'bg-blue-50 text-blue-700'
+                    : 'hover:bg-gray-50 text-gray-700'
+                    }`}
                 >
                   <div
-                    className={`flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full text-xs font-medium ${
-                      item.isCompleted
-                        ? 'bg-green-500 text-white'
-                        : item.isCurrent
+                    className={`flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full text-xs font-medium ${item.isCompleted
+                      ? 'bg-green-500 text-white'
+                      : item.isCurrent
                         ? 'bg-blue-600 text-white'
                         : 'bg-gray-200 text-gray-600'
-                    }`}
+                      }`}
                   >
                     {item.isCompleted ? <CheckCircle className="w-4 h-4" /> : index + 1}
                   </div>
@@ -359,7 +352,7 @@ export function LessonPage() {
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-white rounded-lg border border-gray-200">
                 <div className="flex items-center gap-3">
                   {isCompleted ? (
-                    <Badge variant="success" size="lg">
+                    <Badge variant="success" size="md">
                       <CheckCircle className="w-4 h-4 mr-1" />
                       {language === 'id' ? 'Selesai' : 'Completed'}
                     </Badge>
