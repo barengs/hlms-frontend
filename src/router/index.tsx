@@ -134,7 +134,7 @@ const router = createBrowserRouter([
       {
         path: '/discussions',
         element: (
-          <ProtectedRoute allowedRoles={['student', 'instructor']}>
+          <ProtectedRoute allowedRoles={['student', 'instructor', 'admin']}>
             <DiscussionsPage />
           </ProtectedRoute>
         ),
@@ -142,7 +142,7 @@ const router = createBrowserRouter([
       {
         path: '/discussions/:id',
         element: (
-          <ProtectedRoute allowedRoles={['student', 'instructor']}>
+          <ProtectedRoute allowedRoles={['student', 'instructor', 'admin']}>
             <DiscussionDetailPage />
           </ProtectedRoute>
         ),
@@ -250,14 +250,6 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['instructor']}>
             <ClassGradingPage />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: '/instructor/qa',
-        element: (
-          <ProtectedRoute allowedRoles={['instructor']}>
-            <InstructorDashboard />
           </ProtectedRoute>
         ),
       },

@@ -128,6 +128,14 @@ export function DiscussionDetailPage() {
   const { language } = useLanguage();
   const [replyContent, setReplyContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [likedDiscussion, setLikedDiscussion] = useState(false);
+  const [discussionLikes, setDiscussionLikes] = useState(12); // Mock initial likes
+  const [likedReplies, setLikedReplies] = useState<Set<string>>(new Set());
+  const [replyLikes, setReplyLikes] = useState<Record<string, number>>({
+    'r1': 8,
+    'r2': 3,
+    'r3': 5,
+  });
 
   // In real app, fetch discussion by id
   // For demo, using mock data
@@ -141,14 +149,14 @@ export function DiscussionDetailPage() {
 
   const handleSubmitReply = async () => {
     if (!replyContent.trim()) return;
-    
+
     setIsSubmitting(true);
     // In real app, call API to submit reply
     console.log('Submitting reply:', replyContent);
-    
+
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 500));
-    
+
     setReplyContent('');
     setIsSubmitting(false);
   };
@@ -157,6 +165,23 @@ export function DiscussionDetailPage() {
     if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
       handleSubmitReply();
     }
+  };
+
+  const handleToggleLike = () => {
+    setLikedDiscussion(!likedDiscussion);
+    setDiscussionLikes(prev => likedDiscussion ? prev - 1 : prev + 1);
+  };
+
+  const handleToggleReplyLike = (replyId: string) => {
+    const newLiked = new Set(likedReplies);
+    if (newLiked.has(replyId)) {
+      newLiked.delete(replyId);
+      setReplyLikes(prev => ({ ...prev, [replyId]: (prev[replyId] || 0) - 1 }));
+    } else {
+      newLiked.add(replyId);
+      setReplyLikes(prev => ({ ...prev, [replyId]: (prev[replyId] || 0) + 1 }));
+    }
+    setLikedReplies(newLiked);
   };
 
   return (
@@ -232,9 +257,14 @@ export function DiscussionDetailPage() {
               </div>
 
               <div className="flex items-center gap-4 mt-4 pt-4 border-t border-gray-100">
-                <button className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-blue-600">
-                  <ThumbsUp className="w-4 h-4" />
+                <button
+                  onClick={handleToggleLike}
+                  className={`flex items-center gap-1.5 text-sm transition-colors ${likedDiscussion ? 'text-blue-600' : 'text-gray-500 hover:text-blue-600'
+                    }`}
+                >
+                  <ThumbsUp className={`w-4 h-4 ${likedDiscussion ? 'fill-current' : ''}`} />
                   <span>{language === 'id' ? 'Suka' : 'Like'}</span>
+                  {discussionLikes > 0 && <span>({discussionLikes})</span>}
                 </button>
                 <div className="flex items-center gap-1.5 text-sm text-gray-500">
                   <MessageSquare className="w-4 h-4" />
@@ -299,9 +329,14 @@ export function DiscussionDetailPage() {
                       {reply.content}
                     </div>
                     <div className="flex items-center gap-4 mt-3">
-                      <button className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-blue-600">
-                        <ThumbsUp className="w-4 h-4" />
+                      <button
+                        onClick={() => handleToggleReplyLike(reply.id)}
+                        className={`flex items-center gap-1.5 text-sm transition-colors ${likedReplies.has(reply.id) ? 'text-blue-600' : 'text-gray-500 hover:text-blue-600'
+                          }`}
+                      >
+                        <ThumbsUp className={`w-4 h-4 ${likedReplies.has(reply.id) ? 'fill-current' : ''}`} />
                         <span>{language === 'id' ? 'Suka' : 'Like'}</span>
+                        {(replyLikes[reply.id] || 0) > 0 && <span>({replyLikes[reply.id]})</span>}
                       </button>
                     </div>
                   </div>

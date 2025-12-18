@@ -171,14 +171,25 @@ export function DiscussionsPage() {
   const [selectedCourse, setSelectedCourse] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newDiscussion, setNewDiscussion] = useState({ title: '', content: '', courseId: '' });
+  const [sortBy, setSortBy] = useState<'newest' | 'most-replies' | 'instructor-answered'>('newest');
+  const [topicFilter, setTopicFilter] = useState<'all' | 'general' | 'course'>('all');
 
   // Get enrolled courses for filter
   const enrolledCourses = mockCourses.slice(0, 4);
 
-  // Filter discussions
+  // Filter and sort discussions
   const filteredDiscussions = useMemo(() => {
     let discussions = [...mockDiscussions];
 
+    // Topic filter
+    if (topicFilter === 'general') {
+      // General topics would be those without a specific course or marked as general
+      discussions = discussions.filter((d) => !d.courseId || d.title.includes('[Pengumuman]'));
+    } else if (topicFilter === 'course') {
+      discussions = discussions.filter((d) => d.courseId && !d.title.includes('[Pengumuman]'));
+    }
+
+    // Search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       discussions = discussions.filter(
@@ -189,19 +200,34 @@ export function DiscussionsPage() {
       );
     }
 
+    // Course filter
     if (selectedCourse) {
       discussions = discussions.filter((d) => d.courseId === selectedCourse);
     }
 
-    // Sort: pinned first, then by date
+    // Sort: pinned first, then by selected sort option
     discussions.sort((a, b) => {
+      // Always show pinned first
       if (a.isPinned && !b.isPinned) return -1;
       if (!a.isPinned && b.isPinned) return 1;
-      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+
+      // Then sort by selected option
+      switch (sortBy) {
+        case 'most-replies':
+          return b.replies.length - a.replies.length;
+        case 'instructor-answered':
+          const aHasInstructor = a.replies.some((r) => r.isInstructorReply) ? 1 : 0;
+          const bHasInstructor = b.replies.some((r) => r.isInstructorReply) ? 1 : 0;
+          if (bHasInstructor !== aHasInstructor) return bHasInstructor - aHasInstructor;
+          return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+        case 'newest':
+        default:
+          return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+      }
     });
 
     return discussions;
-  }, [searchQuery, selectedCourse]);
+  }, [searchQuery, selectedCourse, sortBy, topicFilter]);
 
   const handleCreateDiscussion = () => {
     // In real app, this would call an API
@@ -237,28 +263,56 @@ export function DiscussionsPage() {
 
         {/* Filters */}
         <Card className="mb-6">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder={language === 'id' ? 'Cari diskusi...' : 'Search discussions...'}
-                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
+          <div className="space-y-4">
+            {/* Search */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={language === 'id' ? 'Cari diskusi...' : 'Search discussions...'}
+                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
             </div>
-            <Select
-              value={selectedCourse}
-              onChange={(e) => setSelectedCourse(e.target.value)}
-              options={[
-                { value: '', label: language === 'id' ? 'Semua Kursus' : 'All Courses' },
-                ...enrolledCourses.map((c) => ({ value: c.id, label: c.title })),
-              ]}
-              className="w-full sm:w-64"
-            />
+
+            {/* Filters Row */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              {/* Topic Filter */}
+              <Select
+                value={topicFilter}
+                onChange={(e) => setTopicFilter(e.target.value as 'all' | 'general' | 'course')}
+                options={[
+                  { value: 'all', label: language === 'id' ? 'Semua Topik' : 'All Topics' },
+                  { value: 'general', label: language === 'id' ? 'Umum' : 'General' },
+                  { value: 'course', label: language === 'id' ? 'Kursus' : 'Course' },
+                ]}
+                className="w-full sm:w-48"
+              />
+
+              {/* Course Filter */}
+              <Select
+                value={selectedCourse}
+                onChange={(e) => setSelectedCourse(e.target.value)}
+                options={[
+                  { value: '', label: language === 'id' ? 'Semua Kursus' : 'All Courses' },
+                  ...enrolledCourses.map((c) => ({ value: c.id, label: c.title })),
+                ]}
+                className="w-full sm:w-64"
+              />
+
+              {/* Sort By */}
+              <Select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as 'newest' | 'most-replies' | 'instructor-answered')}
+                options={[
+                  { value: 'newest', label: language === 'id' ? 'Terbaru' : 'Newest' },
+                  { value: 'most-replies', label: language === 'id' ? 'Paling Banyak Balasan' : 'Most Replies' },
+                  { value: 'instructor-answered', label: language === 'id' ? 'Dijawab Instruktur' : 'Instructor Answered' },
+                ]}
+                className="w-full sm:w-56"
+              />
+            </div>
           </div>
         </Card>
 

@@ -102,7 +102,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       items: [
         { label: language === 'id' ? 'Siswa' : 'Students', href: '/instructor/students', icon: <Users className="w-5 h-5" /> },
         { label: language === 'id' ? 'Penilaian' : 'Grading', href: '/instructor/grading', icon: <FileText className="w-5 h-5" />, badge: 5 },
-        { label: language === 'id' ? 'Tanya Jawab' : 'Q&A', href: '/instructor/qa', icon: <MessageSquare className="w-5 h-5" />, badge: 12 },
+        { label: language === 'id' ? 'Diskusi' : 'Discussion', href: '/discussions', icon: <MessageSquare className="w-5 h-5" />, badge: 12 },
       ],
     },
     {
@@ -292,7 +292,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 })}
               </ul>
             </div>
-          ))}          
+          ))}
           {/* Language Switcher */}
           {!sidebarCollapsed && (
             <div className="pt-4 border-t border-gray-200">
@@ -368,9 +368,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                             markAsRead(notification.id);
                             if (notification.link) navigate(notification.link);
                           }}
-                          className={`w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-50 last:border-0 ${
-                            !notification.isRead ? 'bg-blue-50' : ''
-                          }`}
+                          className={`w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-50 last:border-0 ${!notification.isRead ? 'bg-blue-50' : ''
+                            }`}
                         >
                           <p className="text-sm font-medium text-gray-900">{notification.title}</p>
                           <p className="text-sm text-gray-500 line-clamp-1">{notification.message}</p>

@@ -111,7 +111,7 @@ export function InstructorDashboard() {
       {/* Alert Cards */}
       <div className="grid md:grid-cols-2 gap-4 mb-8">
         {stats.pendingQuestions > 0 && (
-          <Link to="/instructor/qa">
+          <Link to="/discussions">
             <Card className="flex items-center justify-between bg-orange-50 border-orange-200 hover:bg-orange-100 transition-colors">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center">
@@ -241,8 +241,8 @@ export function InstructorDashboard() {
               {recentActivities.map((activity) => (
                 <div key={activity.id} className="flex items-start gap-3">
                   <div className={`w-2 h-2 rounded-full mt-2 ${activity.type === 'enrollment' ? 'bg-green-500' :
-                      activity.type === 'question' ? 'bg-orange-500' :
-                        activity.type === 'submission' ? 'bg-blue-500' : 'bg-yellow-500'
+                    activity.type === 'question' ? 'bg-orange-500' :
+                      activity.type === 'submission' ? 'bg-blue-500' : 'bg-yellow-500'
                     }`} />
                   <div>
                     <p className="text-sm text-gray-700">{activity.message}</p>
