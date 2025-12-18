@@ -124,7 +124,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       title: language === 'id' ? 'Manajemen' : 'Management',
       items: [
         { label: language === 'id' ? 'Pengguna' : 'Users', href: '/admin/users', icon: <Users className="w-5 h-5" /> },
-        { label: language === 'id' ? 'Verifikasi Instruktur' : 'Instructor Verification', href: '/admin/verify-instructors', icon: <UserCheck className="w-5 h-5" />, badge: 8 },
+        { label: language === 'id' ? 'Instruktur' : 'Instructors', href: '/admin/instructors', icon: <UserCheck className="w-5 h-5" />, badge: 8 },
         { label: t.course.courses, href: '/admin/courses', icon: <BookOpen className="w-5 h-5" /> },
         { label: t.footer.categories, href: '/admin/categories', icon: <FolderOpen className="w-5 h-5" /> },
       ],

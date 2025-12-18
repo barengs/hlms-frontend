@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { type ColumnDef } from '@tanstack/react-table';
 import {
   Users,
@@ -17,6 +18,7 @@ import {
   Calendar,
   Clock,
   Download,
+  Eye,
 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layouts';
 import { Card, Button, Badge, Avatar, Select, Modal, DataTable } from '@/components/ui';
@@ -109,6 +111,7 @@ const mockUsers: User[] = [
 
 export function AdminUsersPage() {
   const { language } = useLanguage();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -220,6 +223,11 @@ export function AdminUsersPage() {
   };
 
   const getUserActions = (user: User): DropdownItem[] => [
+    {
+      label: language === 'id' ? 'Lihat Detail' : 'View Details',
+      icon: <Eye className="w-4 h-4" />,
+      onClick: () => navigate(`/admin/users/${user.id}`),
+    },
     {
       label: language === 'id' ? 'Edit' : 'Edit',
       icon: <Edit className="w-4 h-4" />,
