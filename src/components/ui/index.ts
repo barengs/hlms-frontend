@@ -26,3 +26,5 @@ export type { DropdownItem } from './Dropdown';
 export { Rating } from './Rating';
 
 export { LanguageSwitcher } from './LanguageSwitcher';
+
+export { DataTable } from './DataTable';
