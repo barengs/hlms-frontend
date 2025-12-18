@@ -3,3 +3,5 @@ export { AdminUsersPage } from './AdminUsersPage';
 export { UserDetailPage } from './UserDetailPage';
 export { InstructorsManagementPage } from './InstructorsManagementPage';
 export { InstructorDetailPage } from './InstructorDetailPage';
+export { CoursesManagementPage } from './CoursesManagementPage';
+export { CourseReviewPage } from './CourseReviewPage';
