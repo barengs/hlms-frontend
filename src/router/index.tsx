@@ -12,10 +12,10 @@ import { LoginPage, RegisterPage, ForgotPasswordPage } from '@/pages/auth';
 import { StudentDashboard, MyCoursesPage, DiscussionsPage, DiscussionDetailPage } from '@/pages/student';
 
 // Instructor Pages
-import { InstructorDashboard, InstructorCoursesPage, CourseManagePage, InstructorStudentsPage, InstructorClassesPage, ClassManagePage, InstructorGradingPage, AssignmentGradingPage, ExamGradingPage, ClassGradingPage } from '@/pages/instructor';
+import { InstructorDashboard, InstructorCoursesPage, CourseManagePage, InstructorStudentsPage, InstructorClassesPage, ClassManagePage, InstructorGradingPage, AssignmentGradingPage, ExamGradingPage, ClassGradingPage, InstructorEarningsPage, InstructorPayoutsPage } from '@/pages/instructor';
 
 // Admin Pages
-import { AdminDashboard } from '@/pages/admin';
+import { AdminDashboard, AdminUsersPage } from '@/pages/admin';
 
 // Gamification Pages
 import { LeaderboardPage, BadgesPage } from '@/pages/gamification';
@@ -257,7 +257,7 @@ const router = createBrowserRouter([
         path: '/instructor/earnings',
         element: (
           <ProtectedRoute allowedRoles={['instructor']}>
-            <InstructorDashboard />
+            <InstructorEarningsPage />
           </ProtectedRoute>
         ),
       },
@@ -265,7 +265,7 @@ const router = createBrowserRouter([
         path: '/instructor/payouts',
         element: (
           <ProtectedRoute allowedRoles={['instructor']}>
-            <InstructorDashboard />
+            <InstructorPayoutsPage />
           </ProtectedRoute>
         ),
       },
@@ -283,7 +283,7 @@ const router = createBrowserRouter([
         path: '/admin/users',
         element: (
           <ProtectedRoute allowedRoles={['admin']}>
-            <AdminDashboard />
+            <AdminUsersPage />
           </ProtectedRoute>
         ),
       },
