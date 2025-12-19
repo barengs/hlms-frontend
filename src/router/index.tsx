@@ -23,6 +23,9 @@ import { LeaderboardPage, BadgesPage } from '@/pages/gamification';
 // Cart Pages
 import { CartPage } from '@/pages/cart';
 
+// Checkout Pages
+import { CheckoutPage, PaymentSuccessPage } from '@/pages/checkout';
+
 // Profile Pages
 import { ProfilePage } from '@/pages/profile';
 
@@ -70,6 +73,22 @@ const router = createBrowserRouter([
       {
         path: '/cart',
         element: <CartPage />,
+      },
+      {
+        path: '/checkout',
+        element: (
+          <ProtectedRoute allowedRoles={['student', 'instructor', 'admin']}>
+            <CheckoutPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/payment/success',
+        element: (
+          <ProtectedRoute allowedRoles={['student', 'instructor', 'admin']}>
+            <PaymentSuccessPage />
+          </ProtectedRoute>
+        ),
       },
 
       // Auth Routes (Public Only)
