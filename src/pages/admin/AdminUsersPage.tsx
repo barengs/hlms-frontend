@@ -308,7 +308,12 @@ export function AdminUsersPage() {
             <div className="flex items-center gap-3">
               <Avatar src={user.avatar} name={user.name} size="sm" />
               <div>
-                <p className="font-medium text-gray-900">{user.name}</p>
+                <button
+                  onClick={() => navigate(`/admin/users/${user.id}`)}
+                  className="font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer text-left"
+                >
+                  {user.name}
+                </button>
                 <div className="flex items-center gap-1 text-sm text-gray-500">
                   <Mail className="w-3 h-3" />
                   {user.email}

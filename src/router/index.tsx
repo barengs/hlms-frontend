@@ -1,5 +1,5 @@
 import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
-import { AuthProvider, CartProvider, NotificationProvider, LanguageProvider } from '@/context';
+import { AuthProvider, CartProvider, NotificationProvider, LanguageProvider, ThemeProvider } from '@/context';
 import { ProtectedRoute, PublicOnlyRoute } from '@/components/routes';
 
 // Public Pages
@@ -15,7 +15,7 @@ import { StudentDashboard, MyCoursesPage, DiscussionsPage, DiscussionDetailPage 
 import { InstructorDashboard, InstructorCoursesPage, CourseManagePage, InstructorStudentsPage, InstructorClassesPage, ClassManagePage, InstructorGradingPage, AssignmentGradingPage, ExamGradingPage, ClassGradingPage, InstructorEarningsPage, InstructorPayoutsPage } from '@/pages/instructor';
 
 // Admin Pages
-import { AdminDashboard, AdminUsersPage, UserDetailPage, InstructorsManagementPage, InstructorDetailPage, CoursesManagementPage, CourseReviewPage, CategoriesManagementPage, TransactionsPage, TransactionDetailPage, AdminPayoutsPage, CommissionSettingsPage } from '@/pages/admin';
+import { AdminDashboard, AdminUsersPage, UserDetailPage, InstructorsManagementPage, InstructorDetailPage, CoursesManagementPage, CourseReviewPage, CategoriesManagementPage, TransactionsPage, TransactionDetailPage, AdminPayoutsPage, CommissionSettingsPage, AdminSettingsPage, ModerationPage } from '@/pages/admin';
 
 // Gamification Pages
 import { LeaderboardPage, BadgesPage } from '@/pages/gamification';
@@ -41,15 +41,17 @@ import { CourseLearningPage, LessonPage, QuizPage, ExamPage } from '@/pages/lear
 // Root layout with providers
 function RootLayout() {
   return (
-    <LanguageProvider>
-      <AuthProvider>
-        <CartProvider>
-          <NotificationProvider>
-            <Outlet />
-          </NotificationProvider>
-        </CartProvider>
-      </AuthProvider>
-    </LanguageProvider>
+    <ThemeProvider>
+      <LanguageProvider>
+        <AuthProvider>
+          <CartProvider>
+            <NotificationProvider>
+              <Outlet />
+            </NotificationProvider>
+          </CartProvider>
+        </AuthProvider>
+      </LanguageProvider>
+    </ThemeProvider>
   );
 }
 
@@ -390,7 +392,7 @@ const router = createBrowserRouter([
         path: '/admin/settings',
         element: (
           <ProtectedRoute allowedRoles={['admin']}>
-            <AdminDashboard />
+            <AdminSettingsPage />
           </ProtectedRoute>
         ),
       },
@@ -398,7 +400,7 @@ const router = createBrowserRouter([
         path: '/admin/moderation',
         element: (
           <ProtectedRoute allowedRoles={['admin']}>
-            <AdminDashboard />
+            <ModerationPage />
           </ProtectedRoute>
         ),
       },

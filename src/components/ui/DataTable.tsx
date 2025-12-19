@@ -76,19 +76,19 @@ export function DataTable<TData, TValue>({
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gray-50 border-y border-gray-200">
+          <thead className="bg-gray-50 dark:bg-gray-800 border-y border-gray-200 dark:border-gray-700">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
-                    className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase"
+                    className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase"
                   >
                     {header.isPlaceholder ? null : (
                       <div
                         className={
                           header.column.getCanSort()
-                            ? 'flex items-center gap-2 cursor-pointer select-none hover:text-gray-700'
+                            ? 'flex items-center gap-2 cursor-pointer select-none hover:text-gray-700 dark:hover:text-gray-300'
                             : ''
                         }
                         onClick={header.column.getToggleSortingHandler()}
@@ -111,13 +111,13 @@ export function DataTable<TData, TValue>({
               </tr>
             ))}
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
             {table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
                 <tr
                   key={row.id}
                   data-state={row.getIsSelected() ? 'selected' : undefined}
-                  className="hover:bg-gray-50"
+                  className="hover:bg-gray-50 dark:hover:bg-gray-800"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <td key={cell.id} className="px-3 py-2.5">
@@ -128,7 +128,7 @@ export function DataTable<TData, TValue>({
               ))
             ) : (
               <tr>
-                <td colSpan={columns.length} className="h-24 text-center text-gray-500">
+                <td colSpan={columns.length} className="h-24 text-center text-gray-500 dark:text-gray-400">
                   No results found.
                 </td>
               </tr>
@@ -140,7 +140,7 @@ export function DataTable<TData, TValue>({
       {/* Pagination */}
       {enablePagination && (
         <div className="flex items-center justify-between">
-          <div className="text-sm text-gray-700">
+          <div className="text-sm text-gray-700 dark:text-gray-300">
             {table.getFilteredSelectedRowModel().rows.length > 0 && (
               <span className="mr-4">
                 {table.getFilteredSelectedRowModel().rows.length} of{' '}

@@ -306,8 +306,8 @@ export function InstructorsManagementPage() {
             <div className="flex items-center gap-3">
               <Avatar src={instructor.avatar} name={instructor.name} size="sm" />
               <div>
-                <p className="font-medium text-gray-900 text-sm">{instructor.name}</p>
-                <div className="flex items-center gap-1 text-xs text-gray-500">
+                <p className="font-medium text-gray-900 dark:text-white text-sm">{instructor.name}</p>
+                <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
                   <Mail className="w-3 h-3" />
                   {instructor.email}
                 </div>
@@ -320,7 +320,7 @@ export function InstructorsManagementPage() {
         accessorKey: 'stats.totalRevenue',
         header: language === 'id' ? 'Pendapatan' : 'Revenue',
         cell: ({ row }) => (
-          <div className="text-sm font-medium text-gray-900">
+          <div className="text-sm font-medium text-gray-900 dark:text-white">
             {formatCurrency(row.original.stats.totalRevenue)}
           </div>
         ),
@@ -356,7 +356,7 @@ export function InstructorsManagementPage() {
                 <Calendar className="w-3 h-3 text-gray-400" />
                 {new Date(date).toLocaleDateString('id-ID')}
               </div>
-              <div className="text-gray-500">{getTimeAgo(date)}</div>
+              <div className="text-gray-500 dark:text-gray-400">{getTimeAgo(date)}</div>
             </div>
           );
         },
@@ -385,10 +385,10 @@ export function InstructorsManagementPage() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
             {language === 'id' ? 'Manajemen Instruktur' : 'Instructors Management'}
           </h1>
-          <p className="text-gray-600 mt-1">
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
             {language === 'id'
               ? 'Kelola semua instruktur platform'
               : 'Manage all platform instructors'}
@@ -402,8 +402,8 @@ export function InstructorsManagementPage() {
               <Users className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{formatNumber(stats.total)}</p>
-              <p className="text-xs text-gray-500">{language === 'id' ? 'Total' : 'Total'}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{formatNumber(stats.total)}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{language === 'id' ? 'Total' : 'Total'}</p>
             </div>
           </Card>
 
@@ -412,8 +412,8 @@ export function InstructorsManagementPage() {
               <UserCheck className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{formatNumber(stats.active)}</p>
-              <p className="text-xs text-gray-500">{language === 'id' ? 'Aktif' : 'Active'}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{formatNumber(stats.active)}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{language === 'id' ? 'Aktif' : 'Active'}</p>
             </div>
           </Card>
 
@@ -422,8 +422,8 @@ export function InstructorsManagementPage() {
               <Clock className="w-5 h-5 text-yellow-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{formatNumber(stats.pending)}</p>
-              <p className="text-xs text-gray-500">{language === 'id' ? 'Menunggu' : 'Pending'}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{formatNumber(stats.pending)}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{language === 'id' ? 'Menunggu' : 'Pending'}</p>
             </div>
           </Card>
 
@@ -432,8 +432,8 @@ export function InstructorsManagementPage() {
               <UserX className="w-5 h-5 text-red-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{formatNumber(stats.suspended)}</p>
-              <p className="text-xs text-gray-500">{language === 'id' ? 'Suspend' : 'Suspended'}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{formatNumber(stats.suspended)}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{language === 'id' ? 'Suspend' : 'Suspended'}</p>
             </div>
           </Card>
         </div>
@@ -455,8 +455,8 @@ export function InstructorsManagementPage() {
                     <div className="flex items-center gap-3">
                       <Avatar src={instructor.avatar} name={instructor.name} size="sm" />
                       <div>
-                        <p className="font-medium text-gray-900 text-sm">{instructor.name}</p>
-                        <p className="text-xs text-gray-500">{instructor.email}</p>
+                        <p className="font-medium text-gray-900 dark:text-white text-sm">{instructor.name}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{instructor.email}</p>
                       </div>
                     </div>
                     <div className="flex gap-2">

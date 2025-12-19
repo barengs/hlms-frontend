@@ -375,9 +375,12 @@ export function TransactionsPage() {
         accessorKey: 'transactionId',
         header: language === 'id' ? 'ID Transaksi' : 'Transaction ID',
         cell: ({ row }) => (
-          <div className="font-mono text-xs text-gray-900">
+          <button
+            onClick={() => navigate(`/admin/transactions/${row.original.id}`)}
+            className="font-mono text-xs text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+          >
             {row.original.transactionId}
-          </div>
+          </button>
         ),
       },
       {

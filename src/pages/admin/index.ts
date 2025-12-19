@@ -10,3 +10,5 @@ export { TransactionsPage } from './TransactionsPage';
 export { TransactionDetailPage } from './TransactionDetailPage';
 export { AdminPayoutsPage } from './AdminPayoutsPage';
 export { CommissionSettingsPage } from './CommissionSettingsPage';
+export { AdminSettingsPage } from './AdminSettingsPage';
+export { ModerationPage } from './ModerationPage';

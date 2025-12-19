@@ -21,7 +21,7 @@ function Card({ children, className, padding = 'md', hover = false, onClick }: C
     <div
       onClick={onClick}
       className={cn(
-        'bg-white rounded-xl shadow-sm border border-gray-100',
+        'bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700',
         paddingStyles[padding],
         hover && 'hover:shadow-md transition-shadow duration-200 cursor-pointer',
         onClick && 'cursor-pointer',
@@ -38,11 +38,11 @@ function CardHeader({ children, className }: { children: ReactNode; className?: 
 }
 
 function CardTitle({ children, className }: { children: ReactNode; className?: string }) {
-  return <h3 className={cn('text-lg font-semibold text-gray-900', className)}>{children}</h3>;
+  return <h3 className={cn('text-lg font-semibold text-gray-900 dark:text-white', className)}>{children}</h3>;
 }
 
 function CardDescription({ children, className }: { children: ReactNode; className?: string }) {
-  return <p className={cn('text-sm text-gray-500 mt-1', className)}>{children}</p>;
+  return <p className={cn('text-sm text-gray-500 dark:text-gray-400 mt-1', className)}>{children}</p>;
 }
 
 function CardContent({ children, className }: { children: ReactNode; className?: string }) {
@@ -50,7 +50,7 @@ function CardContent({ children, className }: { children: ReactNode; className?:
 }
 
 function CardFooter({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={cn('mt-4 pt-4 border-t border-gray-100', className)}>{children}</div>;
+  return <div className={cn('mt-4 pt-4 border-t border-gray-100 dark:border-gray-700', className)}>{children}</div>;
 }
 
 export { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter };
