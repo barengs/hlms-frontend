@@ -8,3 +8,4 @@ export { CourseReviewPage } from './CourseReviewPage';
 export { CategoriesManagementPage } from './CategoriesManagementPage';
 export { TransactionsPage } from './TransactionsPage';
 export { TransactionDetailPage } from './TransactionDetailPage';
+export { AdminPayoutsPage } from './AdminPayoutsPage';
