@@ -6,3 +6,5 @@ export { InstructorDetailPage } from './InstructorDetailPage';
 export { CoursesManagementPage } from './CoursesManagementPage';
 export { CourseReviewPage } from './CourseReviewPage';
 export { CategoriesManagementPage } from './CategoriesManagementPage';
+export { TransactionsPage } from './TransactionsPage';
+export { TransactionDetailPage } from './TransactionDetailPage';
