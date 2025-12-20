@@ -3,7 +3,7 @@ import { AuthProvider, CartProvider, NotificationProvider, LanguageProvider, The
 import { ProtectedRoute, PublicOnlyRoute } from '@/components/routes';
 
 // Public Pages
-import { HomePage, CourseCatalogPage, CourseDetailPage } from '@/pages/public';
+import { HomePage, CourseCatalogPage, CourseDetailPage, InstructorRegisterPage } from '@/pages/public';
 
 // Auth Pages
 import { LoginPage, RegisterPage, ForgotPasswordPage } from '@/pages/auth';
@@ -71,6 +71,10 @@ const router = createBrowserRouter([
       {
         path: '/course/:slug',
         element: <CourseDetailPage />,
+      },
+      {
+        path: '/instructor/register',
+        element: <InstructorRegisterPage />,
       },
       {
         path: '/cart',

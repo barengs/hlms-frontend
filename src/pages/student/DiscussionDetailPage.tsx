@@ -186,11 +186,11 @@ export function DiscussionDetailPage() {
 
   return (
     <DashboardLayout>
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto p-4 lg:p-6">
         {/* Back Button */}
         <Link
           to="/discussions"
-          className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
+          className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-6"
         >
           <ArrowLeft className="w-4 h-4" />
           {language === 'id' ? 'Kembali ke Forum' : 'Back to Forum'}
@@ -211,12 +211,12 @@ export function DiscussionDetailPage() {
                     {discussion.isPinned && (
                       <Pin className="w-4 h-4 text-blue-500" />
                     )}
-                    <h1 className="text-xl font-bold text-gray-900">
+                    <h1 className="text-xl font-bold text-gray-900 dark:text-white">
                       {discussion.title}
                     </h1>
                   </div>
                   <div className="flex items-center gap-2 mt-1 flex-wrap">
-                    <span className="font-medium text-gray-900">
+                    <span className="font-medium text-gray-900 dark:text-white">
                       {discussion.user?.name}
                     </span>
                     {discussion.user?.role === 'instructor' && (
@@ -225,7 +225,7 @@ export function DiscussionDetailPage() {
                       </Badge>
                     )}
                     <span className="text-gray-300">•</span>
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
                       {getTimeAgo(discussion.createdAt)}
                     </span>
                   </div>
@@ -251,7 +251,7 @@ export function DiscussionDetailPage() {
               </Badge>
 
               <div className="mt-4 prose prose-sm max-w-none">
-                <div className="whitespace-pre-wrap text-gray-700">
+                <div className="whitespace-pre-wrap text-gray-700 dark:text-gray-300">
                   {discussion.content}
                 </div>
               </div>
@@ -277,72 +277,97 @@ export function DiscussionDetailPage() {
           </div>
         </Card>
 
-        {/* Replies Section */}
+        {/* Replies Timeline */}
         <div className="mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             {language === 'id' ? 'Balasan' : 'Replies'} ({discussion.replies.length})
           </h2>
 
-          <div className="space-y-4">
-            {discussion.replies.map((reply) => (
-              <Card
-                key={reply.id}
-                className={reply.isInstructorReply ? 'border-l-4 border-l-blue-500' : ''}
-              >
-                <div className="flex gap-4">
-                  <Avatar
-                    src={reply.user?.avatar}
-                    name={reply.user?.name || 'User'}
-                    size="md"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-medium text-gray-900">
-                          {reply.user?.name}
-                        </span>
-                        {reply.isInstructorReply && (
-                          <Badge variant="primary" size="sm">
-                            {language === 'id' ? 'Instruktur' : 'Instructor'}
-                          </Badge>
-                        )}
-                        <span className="text-sm text-gray-500">
-                          {getTimeAgo(reply.createdAt)}
-                        </span>
+          {/* Timeline Container */}
+          <div className="relative">
+            {/* Timeline vertical line */}
+            <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gray-200 dark:bg-gray-700" />
+
+            <div className="space-y-0">
+              {discussion.replies.map((reply, index) => {
+                const isFirst = index === 0;
+                const isLast = index === discussion.replies.length - 1;
+                const roundedClasses = isFirst
+                  ? 'rounded-t-xl'
+                  : isLast
+                    ? 'rounded-b-xl'
+                    : '';
+
+                return (
+                  <div key={reply.id} className="relative flex gap-4 group">
+                    {/* Timeline dot */}
+                    <div className="relative z-10 flex-shrink-0">
+                      <div className="w-16 h-16 bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+                        <div className={`w-3 h-3 ${reply.isInstructorReply ? 'bg-blue-500' : 'bg-gray-400 dark:bg-gray-600'} rounded-full group-hover:scale-125 transition-transform`} />
                       </div>
-                      <Dropdown
-                        trigger={
-                          <button aria-label="Reply options" className="p-1 hover:bg-gray-100 rounded">
-                            <MoreVertical className="w-4 h-4 text-gray-400" />
-                          </button>
-                        }
-                        items={[
-                          {
-                            label: language === 'id' ? 'Laporkan' : 'Report',
-                            icon: <Flag className="w-4 h-4" />,
-                            onClick: () => console.log('Report reply'),
-                          },
-                        ]}
-                      />
                     </div>
-                    <div className="mt-2 whitespace-pre-wrap text-gray-700">
-                      {reply.content}
-                    </div>
-                    <div className="flex items-center gap-4 mt-3">
-                      <button
-                        onClick={() => handleToggleReplyLike(reply.id)}
-                        className={`flex items-center gap-1.5 text-sm transition-colors ${likedReplies.has(reply.id) ? 'text-blue-600' : 'text-gray-500 hover:text-blue-600'
-                          }`}
-                      >
-                        <ThumbsUp className={`w-4 h-4 ${likedReplies.has(reply.id) ? 'fill-current' : ''}`} />
-                        <span>{language === 'id' ? 'Suka' : 'Like'}</span>
-                        {(replyLikes[reply.id] || 0) > 0 && <span>({replyLikes[reply.id]})</span>}
-                      </button>
+
+                    {/* Reply Card */}
+                    <div className="flex-1">
+                      <div className={`bg-white dark:bg-gray-800 border ${reply.isInstructorReply ? 'border-l-4 border-l-blue-500' : 'border-gray-200'} dark:border-gray-700 ${roundedClasses} p-4`}>
+                        <div className="flex gap-4">
+                          <Avatar
+                            src={reply.user?.avatar}
+                            name={reply.user?.name || 'User'}
+                            size="md"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-medium text-gray-900 dark:text-white">
+                                  {reply.user?.name}
+                                </span>
+                                {reply.isInstructorReply && (
+                                  <Badge variant="primary" size="sm">
+                                    {language === 'id' ? 'Instruktur' : 'Instructor'}
+                                  </Badge>
+                                )}
+                                <span className="text-sm text-gray-500 dark:text-gray-400">
+                                  {getTimeAgo(reply.createdAt)}
+                                </span>
+                              </div>
+                              <Dropdown
+                                trigger={
+                                  <button aria-label="Reply options" className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
+                                    <MoreVertical className="w-4 h-4 text-gray-400" />
+                                  </button>
+                                }
+                                items={[
+                                  {
+                                    label: language === 'id' ? 'Laporkan' : 'Report',
+                                    icon: <Flag className="w-4 h-4" />,
+                                    onClick: () => console.log('Report reply'),
+                                  },
+                                ]}
+                              />
+                            </div>
+                            <div className="mt-2 whitespace-pre-wrap text-gray-700 dark:text-gray-300">
+                              {reply.content}
+                            </div>
+                            <div className="flex items-center gap-4 mt-3">
+                              <button
+                                onClick={() => handleToggleReplyLike(reply.id)}
+                                className={`flex items-center gap-1.5 text-sm transition-colors ${likedReplies.has(reply.id) ? 'text-blue-600' : 'text-gray-500 hover:text-blue-600'
+                                  }`}
+                              >
+                                <ThumbsUp className={`w-4 h-4 ${likedReplies.has(reply.id) ? 'fill-current' : ''}`} />
+                                <span>{language === 'id' ? 'Suka' : 'Like'}</span>
+                                {(replyLikes[reply.id] || 0) > 0 && <span>({replyLikes[reply.id]})</span>}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Card>
-            ))}
+                );
+              })}
+            </div>
           </div>
         </div>
 
@@ -365,7 +390,7 @@ export function DiscussionDetailPage() {
                     : 'Write your reply... (Ctrl+Enter to send)'
                 }
                 rows={3}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
               />
               <div className="flex justify-end mt-3">
                 <Button

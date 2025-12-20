@@ -2,17 +2,17 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
 import { AuthLayout } from '@/components/layouts';
-import { Button, Input, Select, LanguageSwitcher } from '@/components/ui';
+import { Button, Input, LanguageSwitcher } from '@/components/ui';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
-import type { UserRole } from '@/types';
+
 
 export function RegisterPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [role, setRole] = useState<UserRole>('student');
+
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [agreed, setAgreed] = useState(false);
@@ -35,7 +35,7 @@ export function RegisterPage() {
     }
 
     try {
-      await register(name, email, password, role);
+      await register(name, email, password, 'student');
       navigate('/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : t.messages.loginError);
@@ -77,15 +77,7 @@ export function RegisterPage() {
           required
         />
 
-        <Select
-          label={t.auth.registerAs}
-          value={role}
-          onChange={(e) => setRole(e.target.value as UserRole)}
-          options={[
-            { value: 'student', label: t.auth.student },
-            { value: 'instructor', label: t.auth.instructor },
-          ]}
-        />
+
 
         <Input
           label={t.auth.password}
