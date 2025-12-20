@@ -9,6 +9,9 @@ import {
   Plus,
   BookOpen,
   Award,
+  Bell,
+  Video,
+  FileText,
 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layouts';
 import { Card, Button, Badge, Avatar, Input, Modal, Select } from '@/components/ui';
@@ -38,6 +41,11 @@ const mockEnrolledClasses = [
     maxStudents: 30,
     status: 'ongoing' as const,
     nextSession: '2024-01-24T19:00:00',
+    notifications: {
+      newMaterials: 2,
+      newAssignments: 1,
+      upcomingDeadlines: 1,
+    },
   },
   {
     id: 'class-2',
@@ -60,6 +68,11 @@ const mockEnrolledClasses = [
     maxStudents: 25,
     status: 'ongoing' as const,
     nextSession: '2024-01-25T20:00:00',
+    notifications: {
+      newMaterials: 0,
+      newAssignments: 3,
+      upcomingDeadlines: 2,
+    },
   },
   {
     id: 'class-3',
@@ -82,6 +95,11 @@ const mockEnrolledClasses = [
     maxStudents: 20,
     status: 'completed' as const,
     nextSession: null,
+    notifications: {
+      newMaterials: 0,
+      newAssignments: 0,
+      upcomingDeadlines: 0,
+    },
   },
 ];
 
@@ -306,12 +324,47 @@ export function MyClassesPage() {
                       </div>
                     </div>
                   )}
+
+                  {/* Notifications */}
+                  {(cls.notifications.newMaterials > 0 ||
+                    cls.notifications.newAssignments > 0 ||
+                    cls.notifications.upcomingDeadlines > 0) && (
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {cls.notifications.newMaterials > 0 && (
+                          <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                            <Video className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                            <span className="text-xs font-medium text-blue-600 dark:text-blue-400">
+                              {cls.notifications.newMaterials}{' '}
+                              {language === 'id' ? 'Materi Baru' : 'New Materials'}
+                            </span>
+                          </div>
+                        )}
+                        {cls.notifications.newAssignments > 0 && (
+                          <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                            <FileText className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+                            <span className="text-xs font-medium text-orange-600 dark:text-orange-400">
+                              {cls.notifications.newAssignments}{' '}
+                              {language === 'id' ? 'Tugas Baru' : 'New Assignments'}
+                            </span>
+                          </div>
+                        )}
+                        {cls.notifications.upcomingDeadlines > 0 && (
+                          <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                            <Bell className="w-4 h-4 text-red-600 dark:text-red-400" />
+                            <span className="text-xs font-medium text-red-600 dark:text-red-400">
+                              {cls.notifications.upcomingDeadlines}{' '}
+                              {language === 'id' ? 'Deadline Mendekat' : 'Upcoming Deadlines'}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    )}
                 </div>
 
                 {/* Right: Actions */}
-                <div className="flex lg:flex-col gap-3 lg:w-48">
+                <div className="flex flex-col justify-between lg:w-48">
                   {cls.nextSession && (
-                    <div className="flex-1 lg:flex-none p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                    <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg mb-3">
                       <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
                         {language === 'id' ? 'Sesi Berikutnya' : 'Next Session'}
                       </p>
@@ -323,7 +376,7 @@ export function MyClassesPage() {
                       </p>
                     </div>
                   )}
-                  <Link to={`/class/${cls.id}`} className="flex-1 lg:flex-none">
+                  <Link to={`/student/class/${cls.id}`} className="mt-auto">
                     <Button size="sm" variant="outline" className="w-full">
                       {language === 'id' ? 'Lihat Detail' : 'View Details'}
                     </Button>

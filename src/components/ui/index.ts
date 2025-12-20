@@ -28,3 +28,5 @@ export { Rating } from './Rating';
 export { LanguageSwitcher } from './LanguageSwitcher';
 
 export { DataTable } from './DataTable';
+
+export { Tabs } from './Tabs';

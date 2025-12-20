@@ -9,7 +9,7 @@ import { HomePage, CourseCatalogPage, CourseDetailPage, InstructorRegisterPage }
 import { LoginPage, RegisterPage, ForgotPasswordPage } from '@/pages/auth';
 
 // Student Pages
-import { StudentDashboard, MyCoursesPage, MyClassesPage, DiscussionsPage, DiscussionDetailPage } from '@/pages/student';
+import { StudentDashboard, MyCoursesPage, MyClassesPage, ClassDetailPage, DiscussionsPage, DiscussionDetailPage } from '@/pages/student';
 
 // Instructor Pages
 import { InstructorDashboard, InstructorCoursesPage, CourseManagePage, InstructorStudentsPage, InstructorClassesPage, ClassManagePage, InstructorGradingPage, AssignmentGradingPage, ExamGradingPage, ClassGradingPage, InstructorEarningsPage, InstructorPayoutsPage } from '@/pages/instructor';
@@ -145,6 +145,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['student']}>
             <MyClassesPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/student/class/:classId',
+        element: (
+          <ProtectedRoute allowedRoles={['student']}>
+            <ClassDetailPage />
           </ProtectedRoute>
         ),
       },
