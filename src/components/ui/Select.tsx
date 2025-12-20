@@ -11,6 +11,7 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   error?: string;
   options: SelectOption[];
   placeholder?: string;
+  selectSize?: 'sm' | 'md' | 'lg';
 }
 
 function Select({
@@ -18,11 +19,18 @@ function Select({
   error,
   options,
   placeholder,
+  selectSize = 'md',
   className,
   id,
   ...props
 }: SelectProps) {
   const selectId = id || label?.toLowerCase().replace(/\s+/g, '-');
+
+  const sizes = {
+    sm: 'px-3 py-1.5 pr-9 text-sm',
+    md: 'px-4 py-2.5 pr-10 text-base',
+    lg: 'px-5 py-3 pr-12 text-lg',
+  };
 
   return (
     <div className="w-full">
@@ -38,12 +46,14 @@ function Select({
         <select
           id={selectId}
           className={cn(
-            'w-full px-3 py-2 pr-8 border rounded-lg transition-colors duration-200 appearance-none bg-white text-sm',
+            'w-full border rounded-lg transition-colors duration-200 appearance-none',
+            'bg-white dark:bg-gray-800 text-gray-900 dark:text-white',
             'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-            'disabled:bg-gray-100 disabled:cursor-not-allowed',
+            'disabled:bg-gray-100 dark:disabled:bg-gray-700 disabled:cursor-not-allowed',
             error
               ? 'border-red-500 focus:ring-red-500'
-              : 'border-gray-300 hover:border-gray-400',
+              : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500',
+            sizes[selectSize],
             className
           )}
           {...props}

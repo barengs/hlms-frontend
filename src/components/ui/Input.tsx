@@ -7,11 +7,30 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   helperText?: string;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
+  inputSize?: 'sm' | 'md' | 'lg';
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ className, label, error, helperText, leftIcon, rightIcon, id, ...props }, ref) => {
+  ({ className, label, error, helperText, leftIcon, rightIcon, inputSize = 'md', id, ...props }, ref) => {
     const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
+
+    const sizes = {
+      sm: 'px-3 py-1.5 text-sm',
+      md: 'px-4 py-2.5 text-base',
+      lg: 'px-5 py-3 text-lg',
+    };
+
+    const iconSizes = {
+      sm: leftIcon ? 'pl-9' : '',
+      md: leftIcon ? 'pl-10' : '',
+      lg: leftIcon ? 'pl-12' : '',
+    };
+
+    const iconRightSizes = {
+      sm: rightIcon ? 'pr-9' : '',
+      md: rightIcon ? 'pr-10' : '',
+      lg: rightIcon ? 'pr-12' : '',
+    };
 
     return (
       <div className="w-full">
@@ -33,7 +52,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             id={inputId}
             className={cn(
-              'w-full px-4 py-2.5 border rounded-lg transition-colors duration-200',
+              'w-full border rounded-lg transition-colors duration-200',
               'bg-white dark:bg-gray-800 text-gray-900 dark:text-white',
               'placeholder:text-gray-400 dark:placeholder:text-gray-500',
               'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
@@ -41,8 +60,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               error
                 ? 'border-red-500 focus:ring-red-500'
                 : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500',
-              leftIcon && 'pl-10',
-              rightIcon && 'pr-10',
+              sizes[inputSize],
+              iconSizes[inputSize],
+              iconRightSizes[inputSize],
               className
             )}
             {...props}
