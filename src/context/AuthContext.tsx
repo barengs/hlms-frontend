@@ -68,12 +68,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      
+
       const foundUser = mockUsers[email];
       if (!foundUser) {
         throw new Error('Email atau password salah');
       }
-      
+
       setUser(foundUser);
       localStorage.setItem('hlms_user', JSON.stringify(foundUser));
     } finally {
@@ -81,23 +81,60 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const register = useCallback(async (name: string, email: string, _password: string, role: UserRole) => {
+  const register = useCallback(async (name: string, email: string, password: string, role: UserRole) => {
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      
+      const response = await fetch('https://api-lms.umediatama.com/api/v1/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+          password_confirmation: password,
+          role,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Registration failed');
+      }
+
+      // Map API response to User type
+      const apiUser = data.data?.user || data;
+
       const newUser: User = {
-        id: Math.random().toString(36).substring(7),
-        email,
-        name,
-        role,
-        createdAt: new Date().toISOString(),
-        isVerified: false,
+        id: apiUser.id || Math.random().toString(36).substring(7),
+        email: apiUser.email || email,
+        name: apiUser.name || name,
+        role: apiUser.role || role,
+        avatar: apiUser.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`,
+        createdAt: apiUser.created_at || new Date().toISOString(),
+        isVerified: !!apiUser.email_verified_at,
+        // Default values for Student specific fields to prevent UI errors
+        bio: '',
       };
-      
-      setUser(newUser);
-      localStorage.setItem('hlms_user', JSON.stringify(newUser));
+
+      // Handle specific role fields if necessary (casting to 'any' to bypass strict checks for merged properties)
+      const extendedUser: any = {
+        ...newUser,
+        points: 0,
+        badges: [],
+        enrolledCourses: [],
+        completedCourses: [],
+      };
+
+      setUser(extendedUser);
+      localStorage.setItem('hlms_user', JSON.stringify(extendedUser));
+
+      if (data.data?.token || data.token) {
+        localStorage.setItem('hlms_token', data.data?.token || data.token);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -112,7 +149,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     try {
       await new Promise((resolve) => setTimeout(resolve, 500));
-      
+
       if (user) {
         const updatedUser = { ...user, ...data };
         setUser(updatedUser);
