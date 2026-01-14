@@ -7,7 +7,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string, role: UserRole) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   updateProfile: (data: Partial<User>) => Promise<void>;
 }
 
@@ -179,9 +179,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const logout = useCallback(() => {
-    setUser(null);
-    localStorage.removeItem('hlms_user');
+  const logout = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const token = localStorage.getItem('hlms_token');
+      if (token) {
+        await fetch('https://api-lms.umediatama.com/api/v1/auth/logout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+      }
+    } catch (error) {
+      console.error('Logout failed', error);
+    } finally {
+      setUser(null);
+      localStorage.removeItem('hlms_user');
+      localStorage.removeItem('hlms_token');
+      setIsLoading(false);
+    }
   }, []);
 
   const updateProfile = useCallback(async (data: Partial<User>) => {
