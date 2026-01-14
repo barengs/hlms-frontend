@@ -63,19 +63,58 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
   const [isLoading, setIsLoading] = useState(false);
 
-  const login = useCallback(async (email: string, _password: string) => {
+  const login = useCallback(async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const response = await fetch('https://api-lms.umediatama.com/api/v1/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
 
-      const foundUser = mockUsers[email];
-      if (!foundUser) {
-        throw new Error('Email atau password salah');
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Login failed');
       }
 
-      setUser(foundUser);
-      localStorage.setItem('hlms_user', JSON.stringify(foundUser));
+      // Map API response to User type
+      const apiUser = data.data?.user || data.user || data;
+
+      const loggedInUser: User = {
+        id: apiUser.id || Math.random().toString(36).substring(7),
+        email: apiUser.email || email,
+        name: apiUser.name || 'User',
+        role: apiUser.role || 'student',
+        avatar: apiUser.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${apiUser.name || 'User'}`,
+        createdAt: apiUser.created_at || new Date().toISOString(),
+        isVerified: !!apiUser.email_verified_at,
+        bio: apiUser.bio || '',
+      };
+
+      // Ensure we have all necessary fields for specific roles
+      const extendedUser: any = {
+        ...loggedInUser,
+        // Default values if not provided by API
+        points: loggedInUser.role === 'student' ? 0 : undefined,
+        badges: loggedInUser.role === 'student' ? [] : undefined,
+        enrolledCourses: loggedInUser.role === 'student' ? [] : undefined,
+        completedCourses: loggedInUser.role === 'student' ? [] : undefined,
+        courses: loggedInUser.role === 'instructor' ? [] : undefined,
+      };
+
+      setUser(extendedUser);
+      localStorage.setItem('hlms_user', JSON.stringify(extendedUser));
+
+      if (data.data?.token || data.token) {
+        localStorage.setItem('hlms_token', data.data?.token || data.token);
+      }
     } finally {
       setIsLoading(false);
     }
