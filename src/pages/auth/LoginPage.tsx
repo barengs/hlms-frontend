@@ -20,8 +20,38 @@ export function LoginPage() {
     setError('');
 
     try {
+      // Need to unwrap to catch errors here, but we also want the user data
+      // However, check AuthContext implementation. login returns void.
+      // We rely on the useAuth hook to expose the current user state, 
+      // BUT state updates might not be immediate in the same render cycle.
+      // Better approach: authContext.login should probably return the user or we check the user in useEffect 
+      // or we decode from the logic we know.
+      // Since we just updated login in AuthContext, let's see what it returns.
+      // It returns Promise<void>. 
+      
+      // We can fetch the user from the store assuming the dispatch happens synchronously enough or simply
+      // trust that we can get the role from the side effect or modifying login to return user.
+      // For now, let's assume valid login updates the store.
+      
       await login(email, password);
-      navigate('/dashboard');
+      // We can't access 'user' state immediately here as updated reliable.
+      // A common pattern is to let a higher order component redirect (like PublicOnlyRoute which works for /login access)
+      // OR navigate cleanly.
+      
+      // Let's modify the login flow to be simpler:
+      // Since PublicOnlyRoute will redirect authenticated users, and we are on /login (PublicOnly),
+      // successfully setting the user will trigger PublicOnlyRoute to redirect us!
+      // So we technically don't even need to navigate() manually if PublicOnlyRoute does its job.
+      // Let's check PublicOnlyRoute logic again.
+      // "if (isAuthenticated && user) { Redirect ... }"
+      
+      // So we can just navigate to '/' or let the route guard handle it. 
+      // But to be explicit and faster UX:
+      
+      // We don't have the user object here easily without modifying AuthContext return type.
+      // Let's rely on the router/AuthContext state change to drive the UI.
+      // But manually navigating to '/' usually works as a fallback.
+      navigate('/'); 
     } catch (err) {
       setError(err instanceof Error ? err.message : t.messages.loginError);
     }

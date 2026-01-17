@@ -1,5 +1,8 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
-import type { User, UserRole, Student, Instructor, Admin } from '@/types';
+import { createContext, useContext, useCallback, type ReactNode } from 'react';
+import type { User, UserRole } from '@/types';
+import { useAppDispatch, useAppSelector } from '@/store';
+import { useLoginMutation } from '@/store/features/auth/authApiSlice';
+import { setCredentials, logOut, selectCurrentUser } from '@/store/features/auth/authSlice';
 
 interface AuthContextType {
   user: User | null;
@@ -13,115 +16,72 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock users for development
-const mockUsers: Record<string, User> = {
-  'student@example.com': {
-    id: '1',
-    email: 'student@example.com',
-    name: 'Ahmad Siswa',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Ahmad',
-    role: 'student',
-    bio: 'Seorang siswa yang bersemangat belajar',
-    createdAt: '2024-01-15',
-    isVerified: true,
-    enrolledCourses: ['1', '2', '3'],
-    completedCourses: ['4'],
-    points: 1250,
-    badges: [],
-  } as Student,
-  'instructor@example.com': {
-    id: '2',
-    email: 'instructor@example.com',
-    name: 'Budi Pengajar',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Budi',
-    role: 'instructor',
-    bio: 'Instruktur berpengalaman di bidang web development',
-    createdAt: '2023-06-01',
-    isVerified: true,
-    courses: ['1', '2'],
-    totalStudents: 1500,
-    totalEarnings: 45000000,
-    rating: 4.8,
-  } as Instructor,
-  'admin@example.com': {
-    id: '3',
-    email: 'admin@example.com',
-    name: 'Admin Platform',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Admin',
-    role: 'admin',
-    bio: 'Administrator platform',
-    createdAt: '2023-01-01',
-    isVerified: true,
-    permissions: ['all'],
-  } as Admin,
-};
+// Mock users removed as we are using API
+
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(() => {
-    const saved = localStorage.getItem('hlms_user');
-    return saved ? JSON.parse(saved) : null;
-  });
-  const [isLoading, setIsLoading] = useState(false);
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectCurrentUser);
+  const [loginApi, { isLoading }] = useLoginMutation();
 
-  const login = useCallback(async (email: string, _password: string) => {
-    setIsLoading(true);
+  const login = useCallback(async (email: string, password: string) => {
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const response = await loginApi({ email, password }).unwrap();
       
-      const foundUser = mockUsers[email];
-      if (!foundUser) {
-        throw new Error('Email atau password salah');
+      // Backend response structure:
+      // {
+      //   "message": "Login successful.",
+      //   "data": {
+      //     "user": { ... },
+      //     "token": "...",
+      //     "token_type": "Bearer"
+      //   }
+      // }
+      
+      const data = response.data;
+      const token = data?.token;
+      let userData = data?.user;
+
+      if (token && userData) {
+        // Map API roles array to frontend single role
+        // Backend returns: roles: [{ name: 'admin' }, ...]
+        // Frontend expects: role: 'admin'
+        if (userData.roles && Array.isArray(userData.roles) && userData.roles.length > 0) {
+           const roleName = userData.roles[0].name;
+           console.log('Mapping role:', roleName);
+           userData = { ...userData, role: roleName };
+        } else {
+           console.warn('No roles found in user data or format incorrect', userData);
+        }
+        
+        console.log('Dispatching credentials with:', userData);
+        dispatch(setCredentials({ user: userData, token }));
+      } else {
+        // Fallback for debugging if structure is different
+        console.error('Invalid API response structure', response);
+        throw new Error('Login failed: Invalid server response');
       }
-      
-      setUser(foundUser);
-      localStorage.setItem('hlms_user', JSON.stringify(foundUser));
-    } finally {
-      setIsLoading(false);
+    } catch (error) {
+      console.error('Login failed', error);
+      throw error;
     }
-  }, []);
-
-  const register = useCallback(async (name: string, email: string, _password: string, role: UserRole) => {
-    setIsLoading(true);
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      
-      const newUser: User = {
-        id: Math.random().toString(36).substring(7),
-        email,
-        name,
-        role,
-        createdAt: new Date().toISOString(),
-        isVerified: false,
-      };
-      
-      setUser(newUser);
-      localStorage.setItem('hlms_user', JSON.stringify(newUser));
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  }, [dispatch, loginApi]);
 
   const logout = useCallback(() => {
-    setUser(null);
-    localStorage.removeItem('hlms_user');
+    dispatch(logOut());
+  }, [dispatch]);
+
+  const register = useCallback(async (name: string, email: string, _password: string, role: UserRole) => {
+    // Placeholder for register implementation
+    console.log('Register not yet implemented via API', { name, email, role });
+    // Keep mock behavior removed or throw error?
+    // For now, let's just log.
   }, []);
 
   const updateProfile = useCallback(async (data: Partial<User>) => {
-    setIsLoading(true);
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      
-      if (user) {
-        const updatedUser = { ...user, ...data };
-        setUser(updatedUser);
-        localStorage.setItem('hlms_user', JSON.stringify(updatedUser));
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  }, [user]);
+     // Placeholder for profile update
+     console.log('Update profile not yet implemented via API', data);
+  }, []);
 
   return (
     <AuthContext.Provider

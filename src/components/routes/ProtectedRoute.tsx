@@ -11,6 +11,13 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
   const { user, isAuthenticated } = useAuth();
   const location = useLocation();
 
+  console.log('ProtectedRoute Check:', { 
+    path: location.pathname, 
+    isAuthenticated, 
+    userRole: user?.role, 
+    allowedRoles 
+  });
+
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
