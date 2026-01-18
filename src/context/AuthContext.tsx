@@ -1,7 +1,7 @@
 import { createContext, useContext, useCallback, type ReactNode } from 'react';
-import type { User, UserRole } from '@/types';
+import type { User } from '@/types';
 import { useAppDispatch, useAppSelector } from '@/store';
-import { useLoginMutation } from '@/store/features/auth/authApiSlice';
+import { useLoginMutation, useLogoutMutation, useRegisterMutation } from '@/store/features/auth/authApiSlice';
 import { setCredentials, logOut, selectCurrentUser } from '@/store/features/auth/authSlice';
 
 interface AuthContextType {
@@ -9,7 +9,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string, role: UserRole) => Promise<void>;
+  register: (name: string, email: string, password: string, password_confirmation: string) => Promise<void>;
   logout: () => void;
   updateProfile: (data: Partial<User>) => Promise<void>;
 }
@@ -22,7 +22,11 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectCurrentUser);
-  const [loginApi, { isLoading }] = useLoginMutation();
+  const [loginApi, { isLoading: isLoginLoading }] = useLoginMutation();
+  const [logoutApi, { isLoading: isLogoutLoading }] = useLogoutMutation();
+  const [registerApi, { isLoading: isRegisterLoading }] = useRegisterMutation();
+
+  const isLoading = isLoginLoading || isLogoutLoading || isRegisterLoading;
 
   const login = useCallback(async (email: string, password: string) => {
     try {
@@ -67,16 +71,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [dispatch, loginApi]);
 
-  const logout = useCallback(() => {
-    dispatch(logOut());
-  }, [dispatch]);
+  const logout = useCallback(async () => {
+    try {
+      await logoutApi().unwrap();
+    } catch (error) {
+      console.warn('Logout failed on server', error);
+    } finally {
+      dispatch(logOut());
+    }
+  }, [dispatch, logoutApi]);
 
-  const register = useCallback(async (name: string, email: string, _password: string, role: UserRole) => {
-    // Placeholder for register implementation
-    console.log('Register not yet implemented via API', { name, email, role });
-    // Keep mock behavior removed or throw error?
-    // For now, let's just log.
-  }, []);
+  const register = useCallback(async (name: string, email: string, password: string, password_confirmation: string) => {
+    try {
+      const response = await registerApi({ 
+        name, 
+        email, 
+        password,
+        password_confirmation
+      }).unwrap();
+      
+      // Assuming auto-login after register or just success message?
+      // User request did not specify response structure, but usually standard flow is login after register
+      // OR user has to login manually.
+      // Let's assume manual login for safety, OR check if token is returned.
+      
+      const data = response.data;
+      const token = data?.token;
+      let userData = data?.user;
+      
+      if (token && userData) {
+         if (userData.roles && Array.isArray(userData.roles) && userData.roles.length > 0) {
+           userData = { ...userData, role: userData.roles[0].name };
+        }
+        dispatch(setCredentials({ user: userData, token }));
+      }
+      
+      // If no token, caller (RegisterPage) handles navigation or success message
+    } catch (error) {
+      console.error('Registration failed', error);
+      throw error;
+    }
+  }, [dispatch, registerApi]);
 
   const updateProfile = useCallback(async (data: Partial<User>) => {
      // Placeholder for profile update

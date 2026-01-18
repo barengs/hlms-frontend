@@ -35,7 +35,7 @@ export function RegisterPage() {
     }
 
     try {
-      await register(name, email, password, 'student');
+      await register(name, email, password, confirmPassword);
       navigate('/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : t.messages.loginError);
