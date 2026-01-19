@@ -20,7 +20,7 @@ import { useMemo, useState } from 'react';
 export function StudentDashboard() {
   const { user } = useAuth();
   const { notifications } = useNotifications();
-  
+
   // Capture initial timestamp on mount to avoid impure Date.now() calls during render
   const [initialTimestamp] = useState(() => Date.now());
 
@@ -158,7 +158,7 @@ export function StudentDashboard() {
                       <span className="text-sm font-medium text-gray-600">{course.progress}%</span>
                     </div>
                   </div>
-                  <button 
+                  <button
                     className="self-center w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white hover:bg-blue-700 transition-colors"
                     aria-label="Play course"
                   >
@@ -231,9 +231,8 @@ export function StudentDashboard() {
                 {notifications.slice(0, 3).map((notif) => (
                   <div
                     key={notif.id}
-                    className={`p-3 rounded-lg text-sm ${
-                      notif.isRead ? 'bg-gray-50' : 'bg-blue-50'
-                    }`}
+                    className={`p-3 rounded-lg text-sm ${notif.isRead ? 'bg-gray-50' : 'bg-blue-50'
+                      }`}
                   >
                     <p className="font-medium text-gray-900">{notif.title}</p>
                     <p className="text-gray-500 line-clamp-1">{notif.message}</p>

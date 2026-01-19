@@ -1,222 +1,122 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
-import type { User, UserRole, Student, Instructor, Admin } from '@/types';
+import { createContext, useContext, useCallback, type ReactNode } from 'react';
+import type { User } from '@/types';
+import { useAppDispatch, useAppSelector } from '@/store';
+import { useLoginMutation, useLogoutMutation, useRegisterMutation } from '@/store/features/auth/authApiSlice';
+import { setCredentials, logOut, selectCurrentUser } from '@/store/features/auth/authSlice';
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string, role: UserRole) => Promise<void>;
-  logout: () => Promise<void>;
+  register: (name: string, email: string, password: string, password_confirmation: string) => Promise<void>;
+  logout: () => void;
   updateProfile: (data: Partial<User>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock users for development
-const mockUsers: Record<string, User> = {
-  'student@example.com': {
-    id: '1',
-    email: 'student@example.com',
-    name: 'Ahmad Siswa',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Ahmad',
-    role: 'student',
-    bio: 'Seorang siswa yang bersemangat belajar',
-    createdAt: '2024-01-15',
-    isVerified: true,
-    enrolledCourses: ['1', '2', '3'],
-    completedCourses: ['4'],
-    points: 1250,
-    badges: [],
-  } as Student,
-  'instructor@example.com': {
-    id: '2',
-    email: 'instructor@example.com',
-    name: 'Budi Pengajar',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Budi',
-    role: 'instructor',
-    bio: 'Instruktur berpengalaman di bidang web development',
-    createdAt: '2023-06-01',
-    isVerified: true,
-    courses: ['1', '2'],
-    totalStudents: 1500,
-    totalEarnings: 45000000,
-    rating: 4.8,
-  } as Instructor,
-  'admin@example.com': {
-    id: '3',
-    email: 'admin@example.com',
-    name: 'Admin Platform',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Admin',
-    role: 'admin',
-    bio: 'Administrator platform',
-    createdAt: '2023-01-01',
-    isVerified: true,
-    permissions: ['all'],
-  } as Admin,
-};
+// Mock users removed as we are using API
+
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(() => {
-    const saved = localStorage.getItem('hlms_user');
-    return saved ? JSON.parse(saved) : null;
-  });
-  const [isLoading, setIsLoading] = useState(false);
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectCurrentUser);
+  const [loginApi, { isLoading: isLoginLoading }] = useLoginMutation();
+  const [logoutApi, { isLoading: isLogoutLoading }] = useLogoutMutation();
+  const [registerApi, { isLoading: isRegisterLoading }] = useRegisterMutation();
+
+  const isLoading = isLoginLoading || isLogoutLoading || isRegisterLoading;
 
   const login = useCallback(async (email: string, password: string) => {
-    setIsLoading(true);
     try {
-      const response = await fetch('https://api-lms.umediatama.com/api/v1/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
+      const response = await loginApi({ email, password }).unwrap();
+      
+      // Backend response structure:
+      // {
+      //   "message": "Login successful.",
+      //   "data": {
+      //     "user": { ... },
+      //     "token": "...",
+      //     "token_type": "Bearer"
+      //   }
+      // }
+      
+      const data = response.data;
+      const token = data?.token;
+      let userData = data?.user;
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Login failed');
-      }
-
-      // Map API response to User type
-      const apiUser = data.data?.user || data.user || data;
-
-      const loggedInUser: User = {
-        id: apiUser.id || Math.random().toString(36).substring(7),
-        email: apiUser.email || email,
-        name: apiUser.name || 'User',
-        role: apiUser.role || 'student',
-        avatar: apiUser.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${apiUser.name || 'User'}`,
-        createdAt: apiUser.created_at || new Date().toISOString(),
-        isVerified: !!apiUser.email_verified_at,
-        bio: apiUser.bio || '',
-      };
-
-      // Ensure we have all necessary fields for specific roles
-      const extendedUser: any = {
-        ...loggedInUser,
-        // Default values if not provided by API
-        points: loggedInUser.role === 'student' ? 0 : undefined,
-        badges: loggedInUser.role === 'student' ? [] : undefined,
-        enrolledCourses: loggedInUser.role === 'student' ? [] : undefined,
-        completedCourses: loggedInUser.role === 'student' ? [] : undefined,
-        courses: loggedInUser.role === 'instructor' ? [] : undefined,
-      };
-
-      setUser(extendedUser);
-      localStorage.setItem('hlms_user', JSON.stringify(extendedUser));
-
-      if (data.data?.token || data.token) {
-        localStorage.setItem('hlms_token', data.data?.token || data.token);
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  const register = useCallback(async (name: string, email: string, password: string, role: UserRole) => {
-    setIsLoading(true);
-    try {
-      const response = await fetch('https://api-lms.umediatama.com/api/v1/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify({
-          name,
-          email,
-          password,
-          password_confirmation: password,
-          role,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Registration failed');
-      }
-
-      // Map API response to User type
-      const apiUser = data.data?.user || data;
-
-      const newUser: User = {
-        id: apiUser.id || Math.random().toString(36).substring(7),
-        email: apiUser.email || email,
-        name: apiUser.name || name,
-        role: apiUser.role || role,
-        avatar: apiUser.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`,
-        createdAt: apiUser.created_at || new Date().toISOString(),
-        isVerified: !!apiUser.email_verified_at,
-        // Default values for Student specific fields to prevent UI errors
-        bio: '',
-      };
-
-      // Handle specific role fields if necessary (casting to 'any' to bypass strict checks for merged properties)
-      const extendedUser: any = {
-        ...newUser,
-        points: 0,
-        badges: [],
-        enrolledCourses: [],
-        completedCourses: [],
-      };
-
-      setUser(extendedUser);
-      localStorage.setItem('hlms_user', JSON.stringify(extendedUser));
-
-      if (data.data?.token || data.token) {
-        localStorage.setItem('hlms_token', data.data?.token || data.token);
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  const logout = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const token = localStorage.getItem('hlms_token');
-      if (token) {
-        await fetch('https://api-lms.umediatama.com/api/v1/auth/logout', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-        });
+      if (token && userData) {
+        // Map API roles array to frontend single role
+        // Backend returns: roles: [{ name: 'admin' }, ...]
+        // Frontend expects: role: 'admin'
+        if (userData.roles && Array.isArray(userData.roles) && userData.roles.length > 0) {
+           const roleName = userData.roles[0].name;
+           console.log('Mapping role:', roleName);
+           userData = { ...userData, role: roleName };
+        } else {
+           console.warn('No roles found in user data or format incorrect', userData);
+        }
+        
+        console.log('Dispatching credentials with:', userData);
+        dispatch(setCredentials({ user: userData, token }));
+      } else {
+        // Fallback for debugging if structure is different
+        console.error('Invalid API response structure', response);
+        throw new Error('Login failed: Invalid server response');
       }
     } catch (error) {
-      console.error('Logout failed', error);
-    } finally {
-      setUser(null);
-      localStorage.removeItem('hlms_user');
-      localStorage.removeItem('hlms_token');
-      setIsLoading(false);
+      console.error('Login failed', error);
+      throw error;
     }
-  }, []);
+  }, [dispatch, loginApi]);
+
+  const logout = useCallback(async () => {
+    try {
+      await logoutApi().unwrap();
+    } catch (error) {
+      console.warn('Logout failed on server', error);
+    } finally {
+      dispatch(logOut());
+    }
+  }, [dispatch, logoutApi]);
+
+  const register = useCallback(async (name: string, email: string, password: string, password_confirmation: string) => {
+    try {
+      const response = await registerApi({ 
+        name, 
+        email, 
+        password,
+        password_confirmation
+      }).unwrap();
+      
+      // Assuming auto-login after register or just success message?
+      // User request did not specify response structure, but usually standard flow is login after register
+      // OR user has to login manually.
+      // Let's assume manual login for safety, OR check if token is returned.
+      
+      const data = response.data;
+      const token = data?.token;
+      let userData = data?.user;
+      
+      if (token && userData) {
+         if (userData.roles && Array.isArray(userData.roles) && userData.roles.length > 0) {
+           userData = { ...userData, role: userData.roles[0].name };
+        }
+        dispatch(setCredentials({ user: userData, token }));
+      }
+      
+      // If no token, caller (RegisterPage) handles navigation or success message
+    } catch (error) {
+      console.error('Registration failed', error);
+      throw error;
+    }
+  }, [dispatch, registerApi]);
 
   const updateProfile = useCallback(async (data: Partial<User>) => {
-    setIsLoading(true);
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      if (user) {
-        const updatedUser = { ...user, ...data };
-        setUser(updatedUser);
-        localStorage.setItem('hlms_user', JSON.stringify(updatedUser));
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  }, [user]);
+     // Placeholder for profile update
+     console.log('Update profile not yet implemented via API', data);
+  }, []);
 
   return (
     <AuthContext.Provider
