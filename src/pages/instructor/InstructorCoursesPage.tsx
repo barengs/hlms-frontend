@@ -26,130 +26,9 @@ import { DashboardLayout } from '@/components/layouts';
 import { Card, Button, Badge, Input, Dropdown, Modal } from '@/components/ui';
 import { useLanguage } from '@/context/LanguageContext';
 import { formatCurrency, formatNumber } from '@/lib/utils';
+import { useGetInstructorCoursesQuery, type InstructorCourse } from '@/store/features/instructor/instructorApiSlice';
 
 type CourseStatus = 'draft' | 'pending' | 'published' | 'rejected';
-
-interface InstructorCourse {
-  id: string;
-  title: string;
-  slug: string;
-  thumbnail: string;
-  status: CourseStatus;
-  price: number;
-  totalStudents: number;
-  totalRevenue: number;
-  rating: number;
-  totalRatings: number;
-  totalLessons: number;
-  totalModules: number;
-  completionRate: number;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt?: string;
-  enrollmentsThisMonth: number;
-  revenueThisMonth: number;
-}
-
-// Mock instructor courses
-const mockInstructorCourses: InstructorCourse[] = [
-  {
-    id: 'course-1',
-    title: 'React Masterclass: From Zero to Hero',
-    slug: 'react-masterclass',
-    thumbnail: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400',
-    status: 'published',
-    price: 299000,
-    totalStudents: 1250,
-    totalRevenue: 374750000,
-    rating: 4.9,
-    totalRatings: 856,
-    totalLessons: 85,
-    totalModules: 12,
-    completionRate: 68,
-    createdAt: '2024-01-15T10:00:00Z',
-    updatedAt: '2024-12-10T15:30:00Z',
-    publishedAt: '2024-02-01T10:00:00Z',
-    enrollmentsThisMonth: 120,
-    revenueThisMonth: 35880000,
-  },
-  {
-    id: 'course-2',
-    title: 'Full Stack Development with Node.js',
-    slug: 'fullstack-nodejs',
-    thumbnail: 'https://images.unsplash.com/photo-1627398242454-45a1465c2479?w=400',
-    status: 'published',
-    price: 449000,
-    totalStudents: 856,
-    totalRevenue: 384344000,
-    rating: 4.8,
-    totalRatings: 523,
-    totalLessons: 120,
-    totalModules: 15,
-    completionRate: 45,
-    createdAt: '2024-03-10T10:00:00Z',
-    updatedAt: '2024-12-08T12:00:00Z',
-    publishedAt: '2024-04-01T10:00:00Z',
-    enrollmentsThisMonth: 85,
-    revenueThisMonth: 38165000,
-  },
-  {
-    id: 'course-3',
-    title: 'UI/UX Design Fundamentals',
-    slug: 'uiux-fundamentals',
-    thumbnail: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400',
-    status: 'pending',
-    price: 199000,
-    totalStudents: 0,
-    totalRevenue: 0,
-    rating: 0,
-    totalRatings: 0,
-    totalLessons: 45,
-    totalModules: 8,
-    completionRate: 0,
-    createdAt: '2024-11-20T10:00:00Z',
-    updatedAt: '2024-12-05T10:00:00Z',
-    enrollmentsThisMonth: 0,
-    revenueThisMonth: 0,
-  },
-  {
-    id: 'course-4',
-    title: 'Advanced TypeScript Patterns',
-    slug: 'advanced-typescript',
-    thumbnail: 'https://images.unsplash.com/photo-1516116216624-53e697fedbea?w=400',
-    status: 'draft',
-    price: 349000,
-    totalStudents: 0,
-    totalRevenue: 0,
-    rating: 0,
-    totalRatings: 0,
-    totalLessons: 28,
-    totalModules: 6,
-    completionRate: 0,
-    createdAt: '2024-12-01T10:00:00Z',
-    updatedAt: '2024-12-12T14:00:00Z',
-    enrollmentsThisMonth: 0,
-    revenueThisMonth: 0,
-  },
-  {
-    id: 'course-5',
-    title: 'Machine Learning Basics',
-    slug: 'ml-basics',
-    thumbnail: 'https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=400',
-    status: 'rejected',
-    price: 399000,
-    totalStudents: 0,
-    totalRevenue: 0,
-    rating: 0,
-    totalRatings: 0,
-    totalLessons: 35,
-    totalModules: 7,
-    completionRate: 0,
-    createdAt: '2024-10-15T10:00:00Z',
-    updatedAt: '2024-11-01T10:00:00Z',
-    enrollmentsThisMonth: 0,
-    revenueThisMonth: 0,
-  },
-];
 
 export function InstructorCoursesPage() {
   const { language } = useLanguage();
@@ -160,19 +39,50 @@ export function InstructorCoursesPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<InstructorCourse | null>(null);
 
+  const { data: courses = [], isLoading, error } = useGetInstructorCoursesQuery();
+
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-gray-500">
+              {language === 'id' ? 'Memuat kursus...' : 'Loading courses...'}
+            </p>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (error) {
+     return (
+        <DashboardLayout>
+           <div className="p-8 text-center bg-red-50 rounded-lg border border-red-200 text-red-700">
+              <p>
+                 {language === 'id' 
+                    ? 'Gagal memuat data kursus. Silakan coba lagi nanti.' 
+                    : 'Failed to load courses. Please try again later.'}
+              </p>
+           </div>
+        </DashboardLayout>
+     );
+  }
+
   // Stats
   const stats = {
-    totalCourses: mockInstructorCourses.length,
-    published: mockInstructorCourses.filter((c) => c.status === 'published').length,
-    pending: mockInstructorCourses.filter((c) => c.status === 'pending').length,
-    draft: mockInstructorCourses.filter((c) => c.status === 'draft').length,
-    totalStudents: mockInstructorCourses.reduce((sum, c) => sum + c.totalStudents, 0),
-    totalRevenue: mockInstructorCourses.reduce((sum, c) => sum + c.totalRevenue, 0),
-    monthlyRevenue: mockInstructorCourses.reduce((sum, c) => sum + c.revenueThisMonth, 0),
+    totalCourses: courses.length,
+    published: courses.filter((c) => c.status === 'published').length,
+    pending: courses.filter((c) => c.status === 'pending').length,
+    draft: courses.filter((c) => c.status === 'draft').length,
+    totalStudents: courses.reduce((sum, c) => sum + c.totalStudents, 0),
+    totalRevenue: courses.reduce((sum, c) => sum + c.totalRevenue, 0),
+    monthlyRevenue: courses.reduce((sum, c) => sum + c.revenueThisMonth, 0),
   };
 
   // Filter and sort courses
-  const filteredCourses = mockInstructorCourses
+  const filteredCourses = courses
     .filter((course) => {
       const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesStatus = statusFilter === 'all' || course.status === statusFilter;

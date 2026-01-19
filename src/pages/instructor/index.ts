@@ -10,3 +10,4 @@ export { ExamGradingPage } from './ExamGradingPage';
 export { ClassGradingPage } from './ClassGradingPage';
 export { InstructorEarningsPage } from './InstructorEarningsPage';
 export { InstructorPayoutsPage } from './InstructorPayoutsPage';
+export { InstructorCreateCoursePage } from './InstructorCreateCoursePage';

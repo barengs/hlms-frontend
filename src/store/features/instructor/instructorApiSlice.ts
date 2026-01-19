@@ -47,13 +47,91 @@ export interface InstructorDashboardResponse {
   data: InstructorDashboardData;
 }
 
+export interface InstructorCourse {
+  id: string;
+  title: string;
+  slug: string;
+  thumbnail: string;
+  status: 'draft' | 'pending' | 'published' | 'rejected';
+  price: number;
+  totalStudents: number;
+  totalRevenue: number;
+  rating: number;
+  totalRatings: number;
+  totalLessons: number;
+  totalModules: number;
+  completionRate: number;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt?: string;
+  enrollmentsThisMonth: number;
+  revenueThisMonth: number;
+}
+
+export interface InstructorCoursesResponse {
+  success: boolean;
+  message: string;
+  data: InstructorCourse[];
+}
+
+export interface Category {
+  id: number;
+  name: string;
+  slug: string;
+}
+
+export interface CreateCoursePayload {
+  title: string;
+  slug: string;
+  thumbnail: string;
+  subtitle: string;
+  description: string;
+  category_id: number;
+  type: 'self_paced' | 'structured';
+  level: 'beginner' | 'intermediate' | 'advanced' | 'all_levels';
+  language: string;
+  price: number;
+  discount_price: number;
+  requirements: string[];
+  outcomes: string[];
+  target_audience: string[];
+}
+
+export interface CategoriesResponse {
+  success: boolean;
+  message: string;
+  data: Category[];
+}
+
 export const instructorApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getInstructorDashboard: builder.query<InstructorDashboardData, void>({
       query: () => '/v1/instructor/dashboard',
       transformResponse: (response: InstructorDashboardResponse) => response.data,
     }),
+    getInstructorCourses: builder.query<InstructorCourse[], void>({
+      query: () => '/v1/instructor/courses',
+      transformResponse: (response: InstructorCoursesResponse) => response.data,
+      providesTags: ['InstructorCourses'],
+    }),
+    getCategories: builder.query<Category[], void>({
+      query: () => '/v1/admin/categories',
+      transformResponse: (response: CategoriesResponse) => response.data,
+    }),
+    createCourse: builder.mutation<void, CreateCoursePayload>({
+      query: (body) => ({
+        url: '/v1/instructor/courses',
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: ['InstructorCourses'],
+    }),
   }),
 });
 
-export const { useGetInstructorDashboardQuery } = instructorApiSlice;
+export const { 
+  useGetInstructorDashboardQuery, 
+  useGetInstructorCoursesQuery,
+  useGetCategoriesQuery,
+  useCreateCourseMutation
+} = instructorApiSlice;
