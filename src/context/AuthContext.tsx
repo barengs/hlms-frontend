@@ -1,20 +1,9 @@
-import { createContext, useContext, useCallback, type ReactNode } from 'react';
+import { useCallback, type ReactNode } from 'react';
 import type { User } from '@/types';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { useLoginMutation, useLogoutMutation, useRegisterMutation } from '@/store/features/auth/authApiSlice';
 import { setCredentials, logOut, selectCurrentUser } from '@/store/features/auth/authSlice';
-
-interface AuthContextType {
-  user: User | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string, password_confirmation: string) => Promise<void>;
-  logout: () => void;
-  updateProfile: (data: Partial<User>) => Promise<void>;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+import { AuthContext } from './AuthContextValue';
 
 // Mock users removed as we are using API
 
@@ -133,12 +122,4 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       {children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
 }
