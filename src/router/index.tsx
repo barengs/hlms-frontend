@@ -12,7 +12,7 @@ import { LoginPage, RegisterPage, ForgotPasswordPage } from '@/pages/auth';
 import { StudentDashboard, MyCoursesPage, MyClassesPage, ClassDetailPage, DiscussionsPage, DiscussionDetailPage } from '@/pages/student';
 
 // Instructor Pages
-import { InstructorDashboard, InstructorCoursesPage, CourseManagePage, InstructorStudentsPage, InstructorClassesPage, ClassManagePage, InstructorGradingPage, AssignmentGradingPage, ExamGradingPage, ClassGradingPage, InstructorEarningsPage, InstructorPayoutsPage } from '@/pages/instructor';
+import { InstructorDashboard, InstructorCoursesPage, CourseManagePage, InstructorStudentsPage, InstructorClassesPage, ClassManagePage, InstructorGradingPage, AssignmentGradingPage, ExamGradingPage, ClassGradingPage, InstructorEarningsPage, InstructorPayoutsPage, InstructorCreateCoursePage } from '@/pages/instructor';
 
 // Admin Pages
 import { AdminDashboard, AdminUsersPage, UserDetailPage, InstructorsManagementPage, InstructorDetailPage, CoursesManagementPage, CourseReviewPage, CategoriesManagementPage, TransactionsPage, TransactionDetailPage, AdminPayoutsPage, CommissionSettingsPage, AdminSettingsPage, ModerationPage } from '@/pages/admin';
@@ -203,6 +203,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['instructor']}>
             <InstructorCoursesPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/instructor/courses/create',
+        element: (
+          <ProtectedRoute allowedRoles={['instructor']}>
+            <InstructorCreateCoursePage />
           </ProtectedRoute>
         ),
       },

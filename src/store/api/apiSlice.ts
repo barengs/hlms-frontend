@@ -21,6 +21,6 @@ export const apiSlice = createApi({
             return headers;
         },
     }),
-    tagTypes: ['User', 'Course', 'Class'], // Define initial tags for caching invalidation
+    tagTypes: ['User', 'Course', 'Class', 'InstructorCourses'], // Define initial tags for caching invalidation
     endpoints: (_builder) => ({}), // Endpoints will be injected via injectEndpoints in feature slices
 });
