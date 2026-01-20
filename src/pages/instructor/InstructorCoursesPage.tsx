@@ -44,7 +44,7 @@ export function InstructorCoursesPage() {
   if (isLoading) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex items-center justify-center min-h-100">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
             <p className="text-gray-500">
@@ -372,7 +372,7 @@ export function InstructorCoursesPage() {
               <Card key={course.id} className="hover:shadow-lg transition-shadow">
                 <div className="flex flex-col lg:flex-row">
                   {/* Thumbnail */}
-                  <div className="lg:w-64 h-40 lg:h-auto flex-shrink-0 relative overflow-hidden">
+                  <div className="lg:w-64 h-40 lg:h-auto shrink-0 relative overflow-hidden">
                     <img
                       src={course.thumbnail}
                       alt={course.title}
