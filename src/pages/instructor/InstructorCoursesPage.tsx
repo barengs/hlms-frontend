@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layouts';
 import { Card, Button, Badge, Input, Dropdown, Modal } from '@/components/ui';
+import { CourseThumbnail } from '@/components/common/CourseThumbnail';
 import { useLanguage } from '@/context/LanguageContext';
 import { formatCurrency, formatNumber } from '@/lib/utils';
 import { useGetInstructorCoursesQuery, useDeleteCourseMutation, type InstructorCourse } from '@/store/features/instructor/instructorApiSlice';
@@ -383,7 +384,7 @@ export function InstructorCoursesPage() {
                 <div className="flex flex-col lg:flex-row">
                   {/* Thumbnail */}
                   <div className="lg:w-64 h-40 lg:h-auto shrink-0 relative overflow-hidden">
-                    <img
+                    <CourseThumbnail
                       src={course.thumbnail}
                       alt={course.title}
                       className="w-full h-full object-cover"
