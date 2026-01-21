@@ -68,10 +68,46 @@ export interface InstructorCourse {
   revenueThisMonth: number;
 }
 
+export interface RawInstructorCourse {
+  id: number;
+  instructor_id: string;
+  category_id: string | null;
+  title: string;
+  slug: string;
+  subtitle: string | null;
+  description: string | null;
+  thumbnail: string | null;
+  preview_video: string | null;
+  type: string;
+  level: string;
+  language: string;
+  price: string;
+  discount_price: string | null;
+  requirements: string[] | null;
+  outcomes: string[] | null;
+  target_audience: string[] | null;
+  status: 'draft' | 'pending' | 'published' | 'rejected';
+  admin_feedback: string | null;
+  is_featured: boolean;
+  published_at: string | null;
+  total_duration: string;
+  total_lessons: string;
+  total_enrollments: string;
+  average_rating: string;
+  total_reviews: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+  sections_count: string;
+  lessons_count: string;
+  revenue: string | null;
+  category: any;
+}
+
 export interface InstructorCoursesResponse {
   success: boolean;
   message: string;
-  data: InstructorCourse[];
+  data: RawInstructorCourse[];
 }
 
 export interface Category {
@@ -111,14 +147,36 @@ export const instructorApiSlice = apiSlice.injectEndpoints({
     }),
     getInstructorCourses: builder.query<InstructorCourse[], void>({
       query: () => '/v1/instructor/courses',
-      transformResponse: (response: InstructorCoursesResponse) => response.data,
+      transformResponse: (response: RawInstructorCourse[]) => {
+        const courses = Array.isArray(response) ? response : [];
+        return courses.map((course) => ({
+          id: String(course.id),
+          title: course.title,
+          slug: course.slug,
+          thumbnail: course.thumbnail || '',
+          status: course.status,
+          price: Number(course.price),
+          totalStudents: Number(course.total_enrollments),
+          totalRevenue: Number(course.revenue || 0),
+          rating: Number(course.average_rating),
+          totalRatings: Number(course.total_reviews),
+          totalLessons: Number(course.lessons_count),
+          totalModules: Number(course.sections_count),
+          completionRate: 0, // Not provided by backend yet
+          createdAt: course.created_at,
+          updatedAt: course.updated_at,
+          publishedAt: course.published_at || undefined,
+          enrollmentsThisMonth: 0, // Not provided by backend yet
+          revenueThisMonth: 0, // Not provided by backend yet
+        }));
+      },
       providesTags: ['InstructorCourses'],
     }),
     getCategories: builder.query<Category[], void>({
       query: () => '/v1/admin/categories',
       transformResponse: (response: CategoriesResponse) => response.data,
     }),
-    createCourse: builder.mutation<void, CreateCoursePayload>({
+    createCourse: builder.mutation<void, FormData>({
       query: (body) => ({
         url: '/v1/instructor/courses',
         method: 'POST',
