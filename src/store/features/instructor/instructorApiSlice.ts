@@ -86,7 +86,7 @@ export interface CreateCoursePayload {
   thumbnail: string;
   subtitle: string;
   description: string;
-  category_id: number;
+  category_id?: number;
   type: 'self_paced' | 'structured';
   level: 'beginner' | 'intermediate' | 'advanced' | 'all_levels';
   language: string;
@@ -119,7 +119,9 @@ export const instructorApiSlice = apiSlice.injectEndpoints({
           id: course.id,
           title: course.title,
           slug: course.slug,
-          thumbnail: course.thumbnail,
+          thumbnail: course.thumbnail && !course.thumbnail.startsWith('http')
+            ? `https://api-lms.umediatama.com/storage/${course.thumbnail.replace(/^\/+/, '')}`
+            : course.thumbnail,
           status: course.status, // Ensure backend returns 'draft' | 'pending' | 'published' | 'rejected'
           price: Number(course.price || 0),
           totalStudents: Number(course.students_count || 0),
@@ -142,7 +144,7 @@ export const instructorApiSlice = apiSlice.injectEndpoints({
       query: () => '/v1/admin/categories',
       transformResponse: (response: CategoriesResponse) => response.data,
     }),
-    createCourse: builder.mutation<void, CreateCoursePayload>({
+    createCourse: builder.mutation<void, FormData>({
       query: (body) => ({
         url: '/v1/instructor/courses',
         method: 'POST',

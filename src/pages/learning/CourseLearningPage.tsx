@@ -235,7 +235,7 @@ export function CourseLearningPage() {
             {/* Thumbnail */}
             <div className="md:w-72 h-40 shrink-0">
               <img
-                src={course.thumbnail}
+                src={`https://api-lms.umediatama.com/storage/${course.thumbnail}`}
                 alt={course.title}
                 className="w-full h-full object-cover"
               />
