@@ -42,6 +42,9 @@ export function InstructorCoursesPage() {
 
   const { data: courses = [], isLoading, error } = useGetInstructorCoursesQuery();
 
+  console.log('DEBUG: InstructorCoursesPage render', { courses, isLoading, error });
+
+
   if (isLoading) {
     return (
       <DashboardLayout>

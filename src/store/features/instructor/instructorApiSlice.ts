@@ -111,7 +111,31 @@ export const instructorApiSlice = apiSlice.injectEndpoints({
     }),
     getInstructorCourses: builder.query<InstructorCourse[], void>({
       query: () => '/v1/instructor/courses',
-      transformResponse: (response: InstructorCoursesResponse) => response.data,
+      transformResponse: (response: any) => {
+        // Handle if response is array or object with data property
+        const rawData = Array.isArray(response) ? response : response.data || [];
+
+        return rawData.map((course: any) => ({
+          id: course.id,
+          title: course.title,
+          slug: course.slug,
+          thumbnail: course.thumbnail,
+          status: course.status, // Ensure backend returns 'draft' | 'pending' | 'published' | 'rejected'
+          price: Number(course.price || 0),
+          totalStudents: Number(course.students_count || 0),
+          totalRevenue: Number(course.revenue || 0),
+          rating: Number(course.average_rating || 0),
+          totalRatings: Number(course.total_reviews || 0),
+          totalLessons: Number(course.lessons_count || 0),
+          totalModules: Number(course.sections_count || 0),
+          completionRate: 0, // Not available in API derived from screenshot
+          createdAt: course.created_at,
+          updatedAt: course.updated_at,
+          publishedAt: course.published_at,
+          enrollmentsThisMonth: 0, // Placeholder
+          revenueThisMonth: 0, // Placeholder
+        }));
+      },
       providesTags: ['InstructorCourses'],
     }),
     getCategories: builder.query<Category[], void>({
@@ -128,8 +152,12 @@ export const instructorApiSlice = apiSlice.injectEndpoints({
     }),
     deleteCourse: builder.mutation<void, string>({
       query: (id) => ({
-        url: `/v1/instructor/courses/${id}`,
+        url: `v1/instructor/courses/${id}`,
         method: 'DELETE',
+        headers: {
+          // Explicitly set header to ensure it's present for this critical action
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+        },
       }),
       invalidatesTags: ['InstructorCourses'],
     }),
