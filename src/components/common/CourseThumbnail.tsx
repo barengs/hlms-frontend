@@ -9,14 +9,13 @@ interface CourseThumbnailProps {
 
 export const CourseThumbnail = ({ src, alt, className = '' }: CourseThumbnailProps) => {
     const [hasError, setHasError] = useState(false);
-    const [imgSrc, setImgSrc] = useState(src);
 
     useEffect(() => {
-        setImgSrc(src);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setHasError(false);
     }, [src]);
 
-    if (hasError || !imgSrc) {
+    if (hasError || !src) {
         return (
             <div
                 className={`bg-gray-200 flex items-center justify-center ${className}`}
@@ -30,7 +29,7 @@ export const CourseThumbnail = ({ src, alt, className = '' }: CourseThumbnailPro
 
     return (
         <img
-            src={imgSrc}
+            src={src}
             alt={alt}
             className={className}
             onError={() => setHasError(true)}
