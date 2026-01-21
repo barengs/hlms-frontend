@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import { AuthLayout } from '@/components/layouts';
 import { Button, Input, LanguageSwitcher } from '@/components/ui';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/useAuth';
 import { useLanguage } from '@/context/LanguageContext';
 
 export function LoginPage() {

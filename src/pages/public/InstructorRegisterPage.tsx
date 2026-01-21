@@ -175,7 +175,7 @@ export function InstructorRegisterPage() {
                 <div className="space-y-4">
                   {benefits.map((benefit, index) => (
                     <div key={index} className="flex gap-3">
-                      <div className="flex-shrink-0 w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center text-green-600 dark:text-green-400">
+                      <div className="shrink-0 w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center text-green-600 dark:text-green-400">
                         {benefit.icon}
                       </div>
                       <div>
@@ -196,15 +196,15 @@ export function InstructorRegisterPage() {
                   </h3>
                   <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                     <li className="flex gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                      <CheckCircle className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />
                       <span>Minimal pengalaman 1 tahun di bidangnya</span>
                     </li>
                     <li className="flex gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                      <CheckCircle className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />
                       <span>Mampu membuat materi pembelajaran berkualitas</span>
                     </li>
                     <li className="flex gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                      <CheckCircle className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />
                       <span>Bersedia memberikan support kepada siswa</span>
                     </li>
                   </ul>

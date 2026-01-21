@@ -232,7 +232,7 @@ export function MyCoursesPage() {
         <div className="space-y-4">
           {filteredCourses.map((course) => (
             <Card key={course.id} className="flex gap-6">
-              <div className="relative w-48 flex-shrink-0">
+              <div className="relative w-48 shrink-0">
                 <img
                   src={course.thumbnail}
                   alt={course.title}

@@ -126,12 +126,20 @@ export const instructorApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ['InstructorCourses'],
     }),
+    deleteCourse: builder.mutation<void, string>({
+      query: (id) => ({
+        url: `/v1/instructor/courses/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['InstructorCourses'],
+    }),
   }),
 });
 
-export const { 
-  useGetInstructorDashboardQuery, 
+export const {
+  useGetInstructorDashboardQuery,
   useGetInstructorCoursesQuery,
   useGetCategoriesQuery,
-  useCreateCourseMutation
+  useCreateCourseMutation,
+  useDeleteCourseMutation
 } = instructorApiSlice;

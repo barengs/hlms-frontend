@@ -466,7 +466,7 @@ export function ClassDetailPage() {
                   <Card key={session.id} hover>
                     <div className="flex items-start justify-between">
                       <div className="flex items-start gap-3 flex-1">
-                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${session.status === 'completed'
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${session.status === 'completed'
                           ? 'bg-green-100 dark:bg-green-900/30'
                           : 'bg-blue-100 dark:bg-blue-900/30'
                           }`}>
@@ -541,7 +541,7 @@ export function ClassDetailPage() {
                   <Card key={material.id} hover>
                     <div className="flex items-start justify-between">
                       <div className="flex items-start gap-3 flex-1">
-                        <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center shrink-0">
                           {material.type === 'video' ? (
                             <Video className="w-5 h-5 text-orange-600 dark:text-orange-400" />
                           ) : (

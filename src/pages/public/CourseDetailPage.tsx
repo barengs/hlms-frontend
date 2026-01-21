@@ -22,7 +22,7 @@ import { Button, Card, Badge, Rating, Avatar, Progress } from '@/components/ui';
 import { mockCourses, mockCategories } from '@/data/mockData';
 import { formatCurrency, formatNumber, formatDuration, getCourseLevelLabel, getCourseTypeLabel } from '@/lib/utils';
 import { useCart } from '@/context/CartContext';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/useAuth';
 
 export function CourseDetailPage() {
   const { slug } = useParams();
@@ -207,7 +207,7 @@ export function CourseDetailPage() {
               <div className="grid md:grid-cols-2 gap-3">
                 {course.objectives.map((objective, index) => (
                   <div key={index} className="flex items-start gap-3">
-                    <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                    <Check className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
                     <span className="text-gray-700">{objective}</span>
                   </div>
                 ))}

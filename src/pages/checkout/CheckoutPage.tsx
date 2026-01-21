@@ -473,7 +473,7 @@ export function CheckoutPage() {
                     </select>
                     <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                       <div className="flex gap-2">
-                        <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0" />
+                        <AlertCircle className="w-5 h-5 text-yellow-600 shrink-0" />
                         <div className="text-sm text-yellow-800">
                           <p className="font-medium mb-1">
                             {language === 'id' ? 'Instruksi Pembayaran' : 'Payment Instructions'}
@@ -529,7 +529,7 @@ export function CheckoutPage() {
                       <img
                         src={item.course.thumbnail}
                         alt={item.course.title}
-                        className="w-16 h-12 object-cover rounded flex-shrink-0"
+                        className="w-16 h-12 object-cover rounded shrink-0"
                       />
                       <div className="flex-1 min-w-0">
                         <h4 className="text-sm font-medium text-gray-900 line-clamp-1">

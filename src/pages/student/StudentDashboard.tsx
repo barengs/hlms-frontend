@@ -13,7 +13,7 @@ import { DashboardLayout } from '@/components/layouts';
 import { Card, CardHeader, CardTitle, Badge, Progress, Button } from '@/components/ui';
 import { mockCourses } from '@/data/mockData';
 import { formatNumber } from '@/lib/utils';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/useAuth';
 import { useNotifications } from '@/context/NotificationContext';
 import { useMemo, useState } from 'react';
 
@@ -148,7 +148,7 @@ export function StudentDashboard() {
                   <img
                     src={course.thumbnail}
                     alt={course.title}
-                    className="w-32 h-20 object-cover rounded-lg flex-shrink-0"
+                    className="w-32 h-20 object-cover rounded-lg shrink-0"
                   />
                   <div className="flex-1 min-w-0">
                     <h3 className="font-medium text-gray-900 mb-1 truncate">{course.title}</h3>

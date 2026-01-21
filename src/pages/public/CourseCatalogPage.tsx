@@ -230,7 +230,7 @@ export function CourseCatalogPage() {
 
         <div className="flex gap-8">
           {/* Sidebar Filters - Desktop */}
-          <aside className="hidden lg:block w-64 flex-shrink-0">
+          <aside className="hidden lg:block w-64 shrink-0">
             <div className="sticky top-24 space-y-6">
               {/* Level Filter */}
               <div>
@@ -381,7 +381,7 @@ export function CourseCatalogPage() {
                       <img
                         src={course.thumbnail}
                         alt={course.title}
-                        className="w-60 h-36 object-cover rounded-lg flex-shrink-0"
+                        className="w-60 h-36 object-cover rounded-lg shrink-0"
                       />
                       <div className="flex-1 py-2">
                         <div className="flex items-center gap-2 mb-2">

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   Play,
@@ -18,7 +18,6 @@ import {
 import { DashboardLayout } from '@/components/layouts';
 import { Card, CardHeader, CardTitle, Button, Badge, Avatar, Progress } from '@/components/ui';
 import { useLanguage } from '@/context/LanguageContext';
-import { useAuth } from '@/context/AuthContext';
 
 interface Lesson {
   id: string;
@@ -136,7 +135,6 @@ const mockEnrolledCourse: EnrolledCourse = {
 export function CourseLearningPage() {
   const { slug } = useParams<{ slug: string }>();
   const { language } = useLanguage();
-  const { user } = useAuth();
   const navigate = useNavigate();
   const [expandedModules, setExpandedModules] = useState<string[]>(['module-1', 'module-2', 'module-3', 'module-4']);
 
@@ -208,7 +206,7 @@ export function CourseLearningPage() {
   };
 
   // Find next lesson to continue
-  const nextLesson = useMemo(() => {
+  const nextLesson = (() => {
     for (const module of course.modules) {
       for (const lesson of module.lessons) {
         if (!lesson.isCompleted && !lesson.isLocked) {
@@ -217,7 +215,7 @@ export function CourseLearningPage() {
       }
     }
     return null;
-  }, [course.modules]);
+  })();
 
   return (
     <DashboardLayout>
@@ -235,7 +233,7 @@ export function CourseLearningPage() {
         <Card className="mb-6 overflow-hidden">
           <div className="flex flex-col md:flex-row gap-6">
             {/* Thumbnail */}
-            <div className="md:w-72 h-40 flex-shrink-0">
+            <div className="md:w-72 h-40 shrink-0">
               <img
                 src={course.thumbnail}
                 alt={course.title}
@@ -357,7 +355,7 @@ export function CourseLearningPage() {
                               : 'hover:bg-gray-50 cursor-pointer'
                             } ${index < module.lessons.length - 1 ? 'border-b border-gray-50' : ''}`}
                         >
-                          <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100">
+                          <div className="shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100">
                             {getLessonIcon(lesson.type, lesson.isCompleted, lesson.isLocked)}
                           </div>
                           <div className="flex-1 min-w-0">
@@ -371,7 +369,7 @@ export function CourseLearningPage() {
                             </div>
                           </div>
                           {lesson.isCompleted && (
-                            <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                            <CheckCircle className="w-5 h-5 text-green-500 shrink-0" />
                           )}
                         </button>
                       ))}

@@ -43,7 +43,7 @@ export function CartPage() {
           <div className="lg:col-span-2 space-y-4">
             {items.map((item) => (
               <Card key={item.courseId} className="flex gap-4">
-                <Link to={`/course/${item.course.slug}`} className="flex-shrink-0">
+                <Link to={`/course/${item.course.slug}`} className="shrink-0">
                   <img
                     src={item.course.thumbnail}
                     alt={item.course.title}

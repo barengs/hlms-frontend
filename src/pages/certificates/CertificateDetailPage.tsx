@@ -1,11 +1,10 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
   Award,
   Download,
   Share2,
   Calendar,
-  Clock,
   ArrowLeft,
   CheckCircle,
   ExternalLink,
@@ -18,7 +17,7 @@ import {
 import { DashboardLayout } from '@/components/layouts';
 import { Card, Button, Badge, Avatar, Modal } from '@/components/ui';
 import { useLanguage } from '@/context/LanguageContext';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/useAuth';
 
 interface Certificate {
   id: string;
@@ -69,7 +68,6 @@ export function CertificateDetailPage() {
   const { language } = useLanguage();
   const { user } = useAuth();
   const [showShareModal, setShowShareModal] = useState(false);
-  const certificateRef = useRef<HTMLDivElement>(null);
 
   // In real app, fetch certificate by id
   const certificate = mockCertificate;
@@ -122,9 +120,9 @@ export function CertificateDetailPage() {
         </Link>
 
         {/* Certificate Preview */}
-        <Card className="mb-6 overflow-hidden print:shadow-none" ref={certificateRef}>
+        <Card className="mb-6 overflow-hidden print:shadow-none">
           {/* Certificate Header - Decorative */}
-          <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-8 text-center relative overflow-hidden">
+          <div className="bg-linear-to-r from-blue-600 to-blue-800 text-white p-8 text-center relative overflow-hidden">
             <div className="absolute inset-0 opacity-10">
               <div className="absolute top-0 left-0 w-32 h-32 border-t-4 border-l-4 border-white" />
               <div className="absolute top-0 right-0 w-32 h-32 border-t-4 border-r-4 border-white" />
@@ -170,7 +168,7 @@ export function CertificateDetailPage() {
             {/* Grade */}
             {certificate.grade && (
               <div className="mb-6">
-                <Badge variant="success" size="lg" className="text-lg px-6 py-2">
+                <Badge variant="success" size="md" className="text-lg px-6 py-2">
                   {language === 'id' ? 'Nilai Akhir' : 'Final Grade'}: {certificate.grade}
                 </Badge>
               </div>

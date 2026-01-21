@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layouts';
 import { Card, CardHeader, CardTitle, Button, Badge, Avatar, Input, Modal } from '@/components/ui';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/useAuth';
 import { useLanguage } from '@/context/LanguageContext';
 import { formatCurrency, getTimeAgo } from '@/lib/utils';
 

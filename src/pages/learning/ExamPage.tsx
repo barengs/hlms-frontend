@@ -323,7 +323,7 @@ export function ExamPage() {
 
             <div className="bg-yellow-50 p-4 rounded-lg mb-6 max-w-md mx-auto text-left">
               <div className="flex items-start gap-3">
-                <AlertTriangle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                <AlertTriangle className="w-5 h-5 text-yellow-600 shrink-0 mt-0.5" />
                 <div>
                   <h3 className="font-medium text-yellow-800 mb-1">
                     {language === 'id' ? 'Peringatan Penting' : 'Important Notice'}
@@ -536,7 +536,7 @@ export function ExamPage() {
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
-                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 ${
                         answers[currentQuestion.id] === option.id
                           ? 'border-blue-500 bg-blue-500'
                           : 'border-gray-300'
