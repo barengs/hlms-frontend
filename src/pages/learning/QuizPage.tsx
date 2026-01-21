@@ -352,7 +352,7 @@ export function QuizPage() {
                   return (
                     <div key={question.id} className="p-4 bg-gray-50 rounded-lg">
                       <div className="flex items-start gap-3">
-                        <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${isCorrect ? 'bg-green-500' : 'bg-red-500'
+                        <div className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${isCorrect ? 'bg-green-500' : 'bg-red-500'
                           } text-white text-xs font-medium`}>
                           {index + 1}
                         </div>
@@ -459,7 +459,7 @@ export function QuizPage() {
                         : 'border-gray-200 hover:border-gray-300'
                         }`}
                     >
-                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${answers[currentQuestion.id] === option.id
+                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 ${answers[currentQuestion.id] === option.id
                         ? 'border-blue-500 bg-blue-500'
                         : 'border-gray-300'
                         }`}>

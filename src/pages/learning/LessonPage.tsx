@@ -188,7 +188,7 @@ export function LessonPage() {
       <div className="flex h-[calc(100vh-80px)] -m-6">
         {/* Sidebar */}
         {showSidebar && (
-          <div className="w-80 border-r border-gray-200 bg-white flex-shrink-0 overflow-y-auto">
+          <div className="w-80 border-r border-gray-200 bg-white shrink-0 overflow-y-auto">
             <div className="p-4 border-b border-gray-200 flex items-center justify-between">
               <h3 className="font-semibold text-gray-900">
                 {language === 'id' ? 'Daftar Materi' : 'Lesson List'}
@@ -218,7 +218,7 @@ export function LessonPage() {
                     }`}
                 >
                   <div
-                    className={`flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full text-xs font-medium ${item.isCompleted
+                    className={`shrink-0 w-6 h-6 flex items-center justify-center rounded-full text-xs font-medium ${item.isCompleted
                       ? 'bg-green-500 text-white'
                       : item.isCurrent
                         ? 'bg-blue-600 text-white'

@@ -24,9 +24,10 @@ import {
 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layouts';
 import { Card, Button, Badge, Input, Dropdown, Modal } from '@/components/ui';
+import { CourseThumbnail } from '@/components/common/CourseThumbnail';
 import { useLanguage } from '@/context/LanguageContext';
 import { formatCurrency, formatNumber } from '@/lib/utils';
-import { useGetInstructorCoursesQuery, type InstructorCourse } from '@/store/features/instructor/instructorApiSlice';
+import { useGetInstructorCoursesQuery, useDeleteCourseMutation, type InstructorCourse } from '@/store/features/instructor/instructorApiSlice';
 
 type CourseStatus = 'draft' | 'pending' | 'published' | 'rejected';
 
@@ -38,13 +39,17 @@ export function InstructorCoursesPage() {
   const [sortBy, setSortBy] = useState<'newest' | 'students' | 'revenue'>('newest');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<InstructorCourse | null>(null);
+  const [deleteCourse, { isLoading: isDeleting }] = useDeleteCourseMutation();
 
   const { data: courses = [], isLoading, error } = useGetInstructorCoursesQuery();
+
+  console.log('DEBUG: InstructorCoursesPage render', { courses, isLoading, error });
+
 
   if (isLoading) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex items-center justify-center min-h-100">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
             <p className="text-gray-500">
@@ -57,17 +62,17 @@ export function InstructorCoursesPage() {
   }
 
   if (error) {
-     return (
-        <DashboardLayout>
-           <div className="p-8 text-center bg-red-50 rounded-lg border border-red-200 text-red-700">
-              <p>
-                 {language === 'id' 
-                    ? 'Gagal memuat data kursus. Silakan coba lagi nanti.' 
-                    : 'Failed to load courses. Please try again later.'}
-              </p>
-           </div>
-        </DashboardLayout>
-     );
+    return (
+      <DashboardLayout>
+        <div className="p-8 text-center bg-red-50 rounded-lg border border-red-200 text-red-700">
+          <p>
+            {language === 'id'
+              ? 'Gagal memuat data kursus. Silakan coba lagi nanti.'
+              : 'Failed to load courses. Please try again later.'}
+          </p>
+        </div>
+      </DashboardLayout>
+    );
   }
 
   // Stats
@@ -140,11 +145,17 @@ export function InstructorCoursesPage() {
     });
   };
 
-  const handleDeleteCourse = () => {
+  const handleDeleteCourse = async () => {
     if (selectedCourse) {
-      console.log('Deleting course:', selectedCourse.id);
-      setShowDeleteModal(false);
-      setSelectedCourse(null);
+      try {
+        await deleteCourse(selectedCourse.id).unwrap();
+        setShowDeleteModal(false);
+        setSelectedCourse(null);
+      } catch (err) {
+        console.error('Failed to delete course:', err);
+        // Fallback error handling if no toast system
+        alert(language === 'id' ? 'Gagal menghapus kursus' : 'Failed to delete course');
+      }
     }
   };
 
@@ -372,8 +383,8 @@ export function InstructorCoursesPage() {
               <Card key={course.id} className="hover:shadow-lg transition-shadow">
                 <div className="flex flex-col lg:flex-row">
                   {/* Thumbnail */}
-                  <div className="lg:w-64 h-40 lg:h-auto flex-shrink-0 relative overflow-hidden">
-                    <img
+                  <div className="lg:w-64 h-40 lg:h-auto shrink-0 relative overflow-hidden">
+                    <CourseThumbnail
                       src={course.thumbnail}
                       alt={course.title}
                       className="w-full h-full object-cover"
@@ -517,8 +528,11 @@ export function InstructorCoursesPage() {
               <Button variant="outline" onClick={() => setShowDeleteModal(false)}>
                 {language === 'id' ? 'Batal' : 'Cancel'}
               </Button>
-              <Button variant="danger" onClick={handleDeleteCourse}>
-                {language === 'id' ? 'Ya, Hapus' : 'Yes, Delete'}
+              <Button variant="danger" onClick={handleDeleteCourse} disabled={isDeleting}>
+                {isDeleting
+                  ? (language === 'id' ? 'Menghapus...' : 'Deleting...')
+                  : (language === 'id' ? 'Ya, Hapus' : 'Yes, Delete')
+                }
               </Button>
             </div>
           </div>

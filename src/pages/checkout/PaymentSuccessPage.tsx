@@ -91,7 +91,7 @@ export function PaymentSuccessPage() {
 
             <div className="space-y-4">
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center shrink-0">
                   <CreditCard className="w-5 h-5 text-blue-600" />
                 </div>
                 <div className="flex-1">
@@ -101,7 +101,7 @@ export function PaymentSuccessPage() {
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center shrink-0">
                   <Calendar className="w-5 h-5 text-purple-600" />
                 </div>
                 <div className="flex-1">
@@ -119,7 +119,7 @@ export function PaymentSuccessPage() {
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center shrink-0">
                   <CreditCard className="w-5 h-5 text-green-600" />
                 </div>
                 <div className="flex-1">
@@ -129,7 +129,7 @@ export function PaymentSuccessPage() {
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center shrink-0">
                   <span className="text-xl font-bold text-yellow-600">Rp</span>
                 </div>
                 <div className="flex-1">
@@ -166,7 +166,7 @@ export function PaymentSuccessPage() {
                   <img
                     src={course.thumbnail}
                     alt={course.title}
-                    className="w-24 h-16 object-cover rounded flex-shrink-0"
+                    className="w-24 h-16 object-cover rounded shrink-0"
                   />
                   <div className="flex-1 min-w-0">
                     <h3 className="font-medium text-gray-900 line-clamp-1">{course.title}</h3>
@@ -186,7 +186,7 @@ export function PaymentSuccessPage() {
           {/* Email Notification */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
             <div className="flex gap-3">
-              <Mail className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+              <Mail className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm font-medium text-blue-900 mb-1">
                   {language === 'id' ? 'Konfirmasi Email' : 'Email Confirmation'}

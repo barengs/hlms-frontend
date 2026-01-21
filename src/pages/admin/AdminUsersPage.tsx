@@ -515,7 +515,7 @@ export function AdminUsersPage() {
                   className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              <div className="flex flex-col sm:flex-row gap-3 sm:flex-shrink-0">
+              <div className="flex flex-col sm:flex-row gap-3 sm:shrink-0">
                 <Select
                   value={roleFilter}
                   onChange={(e) => setRoleFilter(e.target.value)}

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
-  FileText,
   Clock,
   CheckCircle,
   AlertCircle,
@@ -19,7 +18,6 @@ import {
 import { DashboardLayout } from '@/components/layouts';
 import { Card, CardHeader, CardTitle, Button, Badge, Avatar } from '@/components/ui';
 import { useLanguage } from '@/context/LanguageContext';
-import { useAuth } from '@/context/AuthContext';
 
 type AssignmentStatus = 'pending' | 'submitted' | 'graded' | 'overdue';
 
@@ -114,7 +112,6 @@ const mockAssignment: AssignmentDetail = {
 export function AssignmentDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { language } = useLanguage();
-  const { user } = useAuth();
   const [submissionContent, setSubmissionContent] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState<{ name: string; size: string }[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -147,7 +144,7 @@ export function AssignmentDetailPage() {
       case 'pending':
         if (days <= 0) {
           return (
-            <Badge variant="danger" size="lg">
+            <Badge variant="danger" size="md">
               <AlertCircle className="w-4 h-4 mr-1" />
               {language === 'id' ? 'Jatuh Tempo Hari Ini' : 'Due Today'}
             </Badge>
@@ -155,35 +152,35 @@ export function AssignmentDetailPage() {
         }
         if (days <= 2) {
           return (
-            <Badge variant="warning" size="lg">
+            <Badge variant="warning" size="md">
               <Clock className="w-4 h-4 mr-1" />
               {days} {language === 'id' ? 'hari lagi' : 'days left'}
             </Badge>
           );
         }
         return (
-          <Badge variant="primary" size="lg">
+          <Badge variant="primary" size="md">
             <Clock className="w-4 h-4 mr-1" />
             {days} {language === 'id' ? 'hari lagi' : 'days left'}
           </Badge>
         );
       case 'submitted':
         return (
-          <Badge variant="secondary" size="lg">
+          <Badge variant="secondary" size="md">
             <Upload className="w-4 h-4 mr-1" />
             {language === 'id' ? 'Menunggu Penilaian' : 'Awaiting Grade'}
           </Badge>
         );
       case 'graded':
         return (
-          <Badge variant="success" size="lg">
+          <Badge variant="success" size="md">
             <CheckCircle className="w-4 h-4 mr-1" />
             {language === 'id' ? 'Dinilai' : 'Graded'}: {assignment.submission?.score}/{assignment.maxScore}
           </Badge>
         );
       case 'overdue':
         return (
-          <Badge variant="danger" size="lg">
+          <Badge variant="danger" size="md">
             <AlertCircle className="w-4 h-4 mr-1" />
             {language === 'id' ? 'Terlambat' : 'Overdue'}
           </Badge>
@@ -235,7 +232,7 @@ export function AssignmentDetailPage() {
         <Card className="mb-6">
           <div className="flex flex-col md:flex-row gap-6">
             {/* Course Thumbnail */}
-            <div className="md:w-48 h-32 flex-shrink-0">
+            <div className="md:w-48 h-32 shrink-0">
               <img
                 src={assignment.courseThumbnail}
                 alt={assignment.courseTitle}

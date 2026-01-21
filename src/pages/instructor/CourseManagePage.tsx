@@ -404,7 +404,7 @@ export function CourseManagePage() {
                 <div className="space-y-2">
                   {course.objectives.map((obj, index) => (
                     <div key={index} className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                      <CheckCircle className="w-4 h-4 text-green-500 shrink-0" />
                       <input
                         type="text"
                         value={obj}

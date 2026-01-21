@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layouts';
 import { Card, Button, Badge, Avatar, Dropdown } from '@/components/ui';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/useAuth';
 import { useLanguage } from '@/context/LanguageContext';
 import { mockCourses } from '@/data/mockData';
 import { getTimeAgo } from '@/lib/utils';
@@ -301,7 +301,7 @@ export function DiscussionDetailPage() {
                 return (
                   <div key={reply.id} className="relative flex gap-4 group">
                     {/* Timeline dot */}
-                    <div className="relative z-10 flex-shrink-0">
+                    <div className="relative z-10 shrink-0">
                       <div className="w-16 h-16 bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
                         <div className={`w-3 h-3 ${reply.isInstructorReply ? 'bg-blue-500' : 'bg-gray-400 dark:bg-gray-600'} rounded-full group-hover:scale-125 transition-transform`} />
                       </div>

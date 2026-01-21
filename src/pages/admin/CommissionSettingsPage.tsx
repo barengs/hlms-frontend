@@ -310,7 +310,7 @@ export function CommissionSettingsPage() {
             {hasChanges && (
               <Card className="bg-blue-50 border-blue-200">
                 <div className="flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                  <AlertCircle className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
                   <div className="flex-1">
                     <p className="text-sm font-medium text-blue-900 mb-3">
                       {language === 'id' ? 'Anda memiliki perubahan yang belum disimpan' : 'You have unsaved changes'}
@@ -373,7 +373,7 @@ export function CommissionSettingsPage() {
             {/* Info Card */}
             <Card className="bg-yellow-50 border-yellow-200">
               <div className="flex gap-3">
-                <Info className="w-5 h-5 text-yellow-600 flex-shrink-0" />
+                <Info className="w-5 h-5 text-yellow-600 shrink-0" />
                 <div className="text-sm text-yellow-900">
                   <p className="font-medium mb-1">
                     {language === 'id' ? 'Catatan Penting' : 'Important Notes'}

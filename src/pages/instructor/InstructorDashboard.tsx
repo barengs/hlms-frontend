@@ -12,7 +12,7 @@ import {
 import { DashboardLayout } from '@/components/layouts';
 import { Card, CardHeader, CardTitle, Badge, Button, Avatar } from '@/components/ui';
 import { formatCurrency, formatNumber, getTimeAgo } from '@/lib/utils';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/useAuth';
 import { useGetInstructorDashboardQuery } from '@/store/features/instructor/instructorApiSlice';
 
 export function InstructorDashboard() {
@@ -22,7 +22,7 @@ export function InstructorDashboard() {
   if (isLoading) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex items-center justify-center min-h-100">
           <div className="text-center">
              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
              <p className="text-gray-500">Memuat data dashboard...</p>
@@ -173,7 +173,7 @@ export function InstructorDashboard() {
                     key={course.id}
                     className="flex gap-4 p-3 -mx-3 rounded-lg hover:bg-gray-50 transition-colors"
                   >
-                    <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center shrink-0">
                        <BookOpen className="w-6 h-6 text-indigo-600" />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -220,7 +220,7 @@ export function InstructorDashboard() {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Earnings Summary */}
-          <Card className="bg-gradient-to-br from-green-500 to-emerald-600 text-white">
+          <Card className="bg-linear-to-br from-green-500 to-emerald-600 text-white">
             <h3 className="font-semibold mb-4">Ringkasan Pendapatan</h3>
             <div className="space-y-3">
               <div className="flex justify-between">

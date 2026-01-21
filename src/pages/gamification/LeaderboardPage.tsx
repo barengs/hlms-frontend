@@ -1,8 +1,8 @@
-import { Trophy, Medal, Award, Crown, Flame, Target, Star, Zap } from 'lucide-react';
+import { Medal, Award, Crown, Flame, Target, Star, Zap } from 'lucide-react';
 import { DashboardLayout } from '@/components/layouts';
-import { Card, CardHeader, CardTitle, Avatar, Badge } from '@/components/ui';
+import { Card, CardHeader, CardTitle, Avatar } from '@/components/ui';
 import { formatNumber } from '@/lib/utils';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/useAuth';
 
 export function LeaderboardPage() {
   const { user } = useAuth();
@@ -70,7 +70,7 @@ export function LeaderboardPage() {
           <div className="grid grid-cols-3 gap-4 mb-8">
             {/* 2nd Place */}
             <div className="pt-8">
-              <Card className="text-center bg-gradient-to-b from-gray-50 to-gray-100 border-gray-200">
+              <Card className="text-center bg-linear-to-b from-gray-50 to-gray-100 border-gray-200">
                 <div className="relative inline-block mb-3">
                   <Avatar src={leaderboard[1].avatar} name={leaderboard[1].name} size="xl" />
                   <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center text-white font-bold text-sm border-2 border-white">
@@ -85,7 +85,7 @@ export function LeaderboardPage() {
 
             {/* 1st Place */}
             <div>
-              <Card className="text-center bg-gradient-to-b from-yellow-50 to-amber-100 border-yellow-300">
+              <Card className="text-center bg-linear-to-b from-yellow-50 to-amber-100 border-yellow-300">
                 <Crown className="w-8 h-8 text-yellow-500 mx-auto mb-2" />
                 <div className="relative inline-block mb-3">
                   <Avatar src={leaderboard[0].avatar} name={leaderboard[0].name} size="xl" className="ring-4 ring-yellow-400" />
@@ -100,7 +100,7 @@ export function LeaderboardPage() {
 
             {/* 3rd Place */}
             <div className="pt-12">
-              <Card className="text-center bg-gradient-to-b from-amber-50 to-orange-100 border-amber-200">
+              <Card className="text-center bg-linear-to-b from-amber-50 to-orange-100 border-amber-200">
                 <div className="relative inline-block mb-3">
                   <Avatar src={leaderboard[2].avatar} name={leaderboard[2].name} size="xl" />
                   <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-amber-600 rounded-full flex items-center justify-center text-white font-bold text-sm border-2 border-white">
@@ -157,7 +157,7 @@ export function LeaderboardPage() {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* My Rank */}
-          <Card className="bg-gradient-to-br from-blue-600 to-indigo-700 text-white">
+          <Card className="bg-linear-to-br from-blue-600 to-indigo-700 text-white">
             <h3 className="font-semibold mb-4">Peringkat Anda</h3>
             <div className="flex items-center gap-4 mb-4">
               <Avatar src={user?.avatar} name={user?.name || 'User'} size="lg" />

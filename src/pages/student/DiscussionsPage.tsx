@@ -357,7 +357,7 @@ export function DiscussionsPage() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
                               {discussion.isPinned && (
-                                <Pin className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                                <Pin className="w-4 h-4 text-blue-500 shrink-0" />
                               )}
                               <h3 className="font-semibold text-gray-900 dark:text-white">
                                 {discussion.title}
@@ -376,7 +376,7 @@ export function DiscussionsPage() {
                               </span>
                             </div>
                           </div>
-                          <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                          <ChevronRight className="w-5 h-5 text-gray-400 shrink-0" />
                         </div>
                         <p className="text-gray-600 dark:text-gray-300 mt-2 line-clamp-2">{discussion.content}</p>
                         <div className="flex items-center gap-4 mt-3">

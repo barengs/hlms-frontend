@@ -248,7 +248,7 @@ export function CertificatesPage() {
               <Card key={cert.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                 <div className="flex flex-col md:flex-row">
                   {/* Course Thumbnail */}
-                  <div className="md:w-48 h-32 md:h-auto flex-shrink-0">
+                  <div className="md:w-48 h-32 md:h-auto shrink-0">
                     <img
                       src={cert.courseThumbnail}
                       alt={cert.courseTitle}

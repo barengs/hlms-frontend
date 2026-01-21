@@ -357,7 +357,7 @@ export function AssignmentsPage() {
                 <Card className="hover:shadow-lg transition-shadow">
                   <div className="flex flex-col sm:flex-row gap-4">
                     {/* Course Thumbnail */}
-                    <div className="sm:w-32 h-20 flex-shrink-0 hidden sm:block">
+                    <div className="sm:w-32 h-20 shrink-0 hidden sm:block">
                       <img
                         src={assignment.courseThumbnail}
                         alt={assignment.courseTitle}
