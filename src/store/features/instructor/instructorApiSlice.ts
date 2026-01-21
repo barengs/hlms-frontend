@@ -68,10 +68,46 @@ export interface InstructorCourse {
   revenueThisMonth: number;
 }
 
+export interface RawInstructorCourse {
+  id: number;
+  instructor_id: string;
+  category_id: string | null;
+  title: string;
+  slug: string;
+  subtitle: string | null;
+  description: string | null;
+  thumbnail: string | null;
+  preview_video: string | null;
+  type: string;
+  level: string;
+  language: string;
+  price: string;
+  discount_price: string | null;
+  requirements: string[] | null;
+  outcomes: string[] | null;
+  target_audience: string[] | null;
+  status: 'draft' | 'pending' | 'published' | 'rejected';
+  admin_feedback: string | null;
+  is_featured: boolean;
+  published_at: string | null;
+  total_duration: string;
+  total_lessons: string;
+  total_enrollments: string;
+  average_rating: string;
+  total_reviews: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+  sections_count: string;
+  lessons_count: string;
+  revenue: string | null;
+  category: Category | null;
+}
+
 export interface InstructorCoursesResponse {
   success: boolean;
   message: string;
-  data: InstructorCourse[];
+  data: RawInstructorCourse[];
 }
 
 export interface Category {
@@ -111,31 +147,29 @@ export const instructorApiSlice = apiSlice.injectEndpoints({
     }),
     getInstructorCourses: builder.query<InstructorCourse[], void>({
       query: () => '/v1/instructor/courses',
-      transformResponse: (response: any) => {
-        // Handle if response is array or object with data property
-        const rawData = Array.isArray(response) ? response : response.data || [];
+      transformResponse: (response: RawInstructorCourse[]) => {
+        // API returns the array directly, not wrapped in a data property
+        const courses = Array.isArray(response) ? response : (response as { data: RawInstructorCourse[] }).data || [];
 
-        return rawData.map((course: any) => ({
-          id: course.id,
+        return courses.map((course: RawInstructorCourse) => ({
+          id: String(course.id),
           title: course.title,
           slug: course.slug,
-          thumbnail: course.thumbnail && !course.thumbnail.startsWith('http')
-            ? `https://api-lms.umediatama.com/storage/${course.thumbnail.replace(/^\/+/, '')}`
-            : course.thumbnail,
-          status: course.status, // Ensure backend returns 'draft' | 'pending' | 'published' | 'rejected'
-          price: Number(course.price || 0),
-          totalStudents: Number(course.students_count || 0),
+          thumbnail: course.thumbnail || '',
+          status: course.status,
+          price: Number(course.price),
+          totalStudents: Number(course.total_enrollments),
           totalRevenue: Number(course.revenue || 0),
-          rating: Number(course.average_rating || 0),
-          totalRatings: Number(course.total_reviews || 0),
-          totalLessons: Number(course.lessons_count || 0),
-          totalModules: Number(course.sections_count || 0),
-          completionRate: 0, // Not available in API derived from screenshot
+          rating: Number(course.average_rating),
+          totalRatings: Number(course.total_reviews),
+          totalLessons: Number(course.lessons_count),
+          totalModules: Number(course.sections_count),
+          completionRate: 0, // Not provided by backend yet
           createdAt: course.created_at,
           updatedAt: course.updated_at,
-          publishedAt: course.published_at,
-          enrollmentsThisMonth: 0, // Placeholder
-          revenueThisMonth: 0, // Placeholder
+          publishedAt: course.published_at || undefined,
+          enrollmentsThisMonth: 0, // Not provided by backend yet
+          revenueThisMonth: 0, // Not provided by backend yet
         }));
       },
       providesTags: ['InstructorCourses'],
@@ -154,7 +188,7 @@ export const instructorApiSlice = apiSlice.injectEndpoints({
     }),
     deleteCourse: builder.mutation<void, string>({
       query: (id) => ({
-        url: `v1/instructor/courses/${id}`,
+        url: `/v1/instructor/courses/${id}`,
         method: 'DELETE',
         headers: {
           // Explicitly set header to ensure it's present for this critical action

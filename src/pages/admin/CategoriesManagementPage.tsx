@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { type ColumnDef } from '@tanstack/react-table';
 import {
   FolderOpen,
@@ -10,101 +10,23 @@ import {
   Edit,
   Trash2,
   Tag,
+  Loader2,
+  AlertCircle
 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layouts';
-import { Card, Button, Badge, Modal, DataTable, Input } from '@/components/ui';
+import { Card, Button, Badge, Modal, DataTable, Input, EmojiSelector } from '@/components/ui';
 import { useLanguage } from '@/context/LanguageContext';
 import { formatNumber } from '@/lib/utils';
 import type { DropdownItem } from '@/components/ui';
 import { Dropdown } from '@/components/ui';
-
-// Category interface
-interface Category {
-  id: string;
-  name: string;
-  slug: string;
-  description?: string;
-  icon?: string;
-  parent?: string;
-  coursesCount: number;
-  isActive: boolean;
-  createdAt: string;
-}
-
-// Mock categories data
-const mockCategories: Category[] = [
-  {
-    id: 'cat-1',
-    name: 'Web Development',
-    slug: 'web-development',
-    description: 'Learn to build modern websites and web applications',
-    icon: '💻',
-    coursesCount: 24,
-    isActive: true,
-    createdAt: new Date(Date.now() - 86400000 * 180).toISOString(),
-  },
-  {
-    id: 'cat-2',
-    name: 'Mobile Development',
-    slug: 'mobile-development',
-    description: 'Create mobile apps for iOS and Android',
-    icon: '📱',
-    coursesCount: 12,
-    isActive: true,
-    createdAt: new Date(Date.now() - 86400000 * 150).toISOString(),
-  },
-  {
-    id: 'cat-3',
-    name: 'Data Science',
-    slug: 'data-science',
-    description: 'Master data analysis, ML, and AI',
-    icon: '📊',
-    coursesCount: 18,
-    isActive: true,
-    createdAt: new Date(Date.now() - 86400000 * 120).toISOString(),
-  },
-  {
-    id: 'cat-4',
-    name: 'Design',
-    slug: 'design',
-    description: 'UI/UX design, graphic design, and more',
-    icon: '🎨',
-    coursesCount: 15,
-    isActive: true,
-    createdAt: new Date(Date.now() - 86400000 * 90).toISOString(),
-  },
-  {
-    id: 'cat-5',
-    name: 'Programming',
-    slug: 'programming',
-    description: 'Learn programming languages and algorithms',
-    icon: '⌨️',
-    coursesCount: 32,
-    isActive: true,
-    createdAt: new Date(Date.now() - 86400000 * 200).toISOString(),
-  },
-  {
-    id: 'cat-6',
-    name: 'Business',
-    slug: 'business',
-    description: 'Business, marketing, and entrepreneurship',
-    icon: '💼',
-    coursesCount: 8,
-    isActive: true,
-    createdAt: new Date(Date.now() - 86400000 * 60).toISOString(),
-  },
-  {
-    id: 'cat-7',
-    name: 'Frontend Development',
-    slug: 'frontend-development',
-    description: 'HTML, CSS, JavaScript, React, and more',
-    icon: '🖼️',
-    parent: 'cat-1', // Parent: Web Development
-    coursesCount: 14,
-    isActive: true,
-    createdAt: new Date(Date.now() - 86400000 * 100).toISOString(),
-  },
-];
+import {
+  useGetCategoriesQuery,
+  useCreateCategoryMutation,
+  useUpdateCategoryMutation,
+  useDeleteCategoryMutation,
+  type Category,
+  type CreateCategoryPayload
+} from '@/store/features/category/categoryApiSlice';
 
 export function CategoriesManagementPage() {
   const { language } = useLanguage();
@@ -114,42 +36,71 @@ export function CategoriesManagementPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
 
+  // API Hooks
+  const { data: categories = [], isLoading, error: queryError, refetch } = useGetCategoriesQuery();
+  const [createCategory, { isLoading: isCreating }] = useCreateCategoryMutation();
+  const [updateCategory, { isLoading: isUpdating }] = useUpdateCategoryMutation();
+  const [deleteCategory, { isLoading: isDeleting }] = useDeleteCategoryMutation();
+
   // Form state
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<CreateCategoryPayload>({
     name: '',
     slug: '',
     description: '',
     icon: '',
-    parent: '',
+    parent_id: null,
+    sort_order: 0,
+    is_active: true,
   });
 
   // Calculate stats
   const stats = useMemo(() => {
-    const total = mockCategories.length;
-    const active = mockCategories.filter(c => c.isActive).length;
-    const totalCourses = mockCategories.reduce((sum, c) => sum + c.coursesCount, 0);
+    if (!categories.length) return { total: 0, active: 0, totalCourses: 0, avgCoursesPerCategory: 0, topCategory: null };
+
+    const total = categories.length;
+    const active = categories.filter(c => c.is_active || c.active).length;
+    const totalCourses = categories.reduce((sum, c) => sum + (c.courses_count || 0), 0);
     const avgCoursesPerCategory = totalCourses / total;
-    const topCategory = mockCategories.reduce((max, c) =>
-      c.coursesCount > max.coursesCount ? c : max
-      , mockCategories[0]);
+    const topCategory = categories.reduce((max, c) =>
+      (c.courses_count || 0) > (max.courses_count || 0) ? c : max
+      , categories[0]);
 
     return { total, active, totalCourses, avgCoursesPerCategory, topCategory };
-  }, []);
+  }, [categories]);
 
   // Filter categories
   const filteredCategories = useMemo(() => {
-    if (!searchQuery) return mockCategories;
+    if (!searchQuery) return categories;
 
     const query = searchQuery.toLowerCase();
-    return mockCategories.filter(c =>
+    return categories.filter(c =>
       c.name.toLowerCase().includes(query) ||
       c.description?.toLowerCase().includes(query) ||
       c.slug.toLowerCase().includes(query)
     );
-  }, [searchQuery]);
+  }, [categories, searchQuery]);
+
+  // Auto-generate slug from name
+  useEffect(() => {
+    if (showAddModal && formData.name) {
+      const slug = formData.name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)+/g, '');
+      setFormData(prev => ({ ...prev, slug }));
+    }
+  }, [formData.name, showAddModal]);
 
   const handleAdd = () => {
-    setFormData({ name: '', slug: '', description: '', icon: '', parent: '' });
+    setFormData({
+      name: '',
+      slug: '',
+      description: '',
+      icon: '',
+      parent_id: null,
+      sort_order: 0,
+      is_active: true
+    });
     setShowAddModal(true);
   };
 
@@ -160,7 +111,9 @@ export function CategoriesManagementPage() {
       slug: category.slug,
       description: category.description || '',
       icon: category.icon || '',
-      parent: category.parent || '',
+      parent_id: category.parent_id || null, // Ensure explicit null
+      sort_order: category.sort_order || 0,
+      is_active: category.is_active || category.active || true,
     });
     setShowEditModal(true);
   };
@@ -170,28 +123,57 @@ export function CategoriesManagementPage() {
     setShowDeleteModal(true);
   };
 
-  const confirmAdd = () => {
-    console.log('Adding category:', formData);
-    setShowAddModal(false);
-    setFormData({ name: '', slug: '', description: '', icon: '', parent: '' });
+  const confirmAdd = async () => {
+    try {
+      // Prepare payload
+      const payload = {
+        ...formData,
+        parent_id: formData.parent_id === '' ? null : (formData.parent_id as number | null)
+      };
+      await createCategory(payload).unwrap();
+      // Force refetch to ensure list is updated
+      refetch();
+      setShowAddModal(false);
+    } catch (err) {
+      console.error('Failed to create category:', err);
+    }
   };
 
-  const confirmEdit = () => {
-    console.log('Editing category:', selectedCategory?.id, formData);
-    setShowEditModal(false);
-    setSelectedCategory(null);
-    setFormData({ name: '', slug: '', description: '', icon: '', parent: '' });
+  const confirmEdit = async () => {
+    if (!selectedCategory) return;
+    try {
+      const payload = {
+        ...formData,
+        id: selectedCategory.id,
+        parent_id: formData.parent_id === '' ? null : (formData.parent_id as number | null)
+      };
+      await updateCategory(payload).unwrap();
+      refetch();
+      setShowEditModal(false);
+      setSelectedCategory(null);
+    } catch (err) {
+      console.error('Failed to update category:', err);
+    }
   };
 
-  const confirmDelete = () => {
-    console.log('Deleting category:', selectedCategory?.id);
-    setShowDeleteModal(false);
-    setSelectedCategory(null);
+
+  const confirmDelete = async () => {
+    if (!selectedCategory) return;
+    try {
+      await deleteCategory(selectedCategory.id).unwrap();
+      setShowDeleteModal(false);
+      setSelectedCategory(null);
+      // toast.success(language === 'id' ? 'Kategori berhasil dihapus' : 'Category deleted successfully');
+    } catch (err) {
+      console.error('Failed to delete category:', err);
+      // toast.error(language === 'id' ? 'Gagal menghapus kategori' : 'Failed to delete category');
+    }
   };
 
-  const getParentName = (parentId?: string) => {
+  const getParentName = (parentId?: number | null) => {
     if (!parentId) return '-';
-    const parent = mockCategories.find(c => c.id === parentId);
+    // Use the fetched categories to find the parent name
+    const parent = categories.find(c => c.id === parentId);
     return parent ? parent.name : '-';
   };
 
@@ -239,32 +221,34 @@ export function CategoriesManagementPage() {
         ),
       },
       {
-        accessorKey: 'parent',
+        accessorKey: 'parent_id',
         header: language === 'id' ? 'Parent' : 'Parent',
         cell: ({ row }) => (
           <span className="text-sm text-gray-700">
-            {getParentName(row.original.parent)}
+            {getParentName(row.original.parent_id)}
           </span>
         ),
       },
       {
-        accessorKey: 'coursesCount',
+        accessorKey: 'courses_count',
         header: language === 'id' ? 'Kursus' : 'Courses',
         cell: ({ row }) => (
           <div className="flex items-center gap-1 text-sm">
             <BookOpen className="w-4 h-4 text-blue-500" />
-            <span className="font-medium">{formatNumber(row.original.coursesCount)}</span>
+            <span className="font-medium">{formatNumber(row.original.courses_count || 0)}</span>
           </div>
         ),
       },
       {
-        accessorKey: 'isActive',
+        accessorKey: 'is_active',
         header: 'Status',
-        cell: ({ row }) => (
-          <Badge variant={row.original.isActive ? 'success' : 'secondary'} size="sm">
-            {row.original.isActive ? (language === 'id' ? 'Aktif' : 'Active') : (language === 'id' ? 'Nonaktif' : 'Inactive')}
+        cell: ({ row }) => {
+            const isActive = row.original.is_active || row.original.active;
+            return (
+          <Badge variant={isActive ? 'success' : 'secondary'} size="sm">
+            {isActive ? (language === 'id' ? 'Aktif' : 'Active') : (language === 'id' ? 'Nonaktif' : 'Inactive')}
           </Badge>
-        ),
+        )},
       },
       {
         id: 'actions',
@@ -282,8 +266,34 @@ export function CategoriesManagementPage() {
         enableSorting: false,
       },
     ],
-    [language]
+    [language, categories]
   );
+  
+  if (isLoading) {
+    return (
+        <DashboardLayout>
+            <div className="flex items-center justify-center h-[50vh]">
+                <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+            </div>
+        </DashboardLayout>
+    );
+  }
+
+  if (queryError) {
+      return (
+          <DashboardLayout>
+              <div className="flex flex-col items-center justify-center h-[50vh] gap-4">
+                  <AlertCircle className="w-12 h-12 text-red-500" />
+                  <p className="text-gray-900 font-medium">
+                      {language === 'id' ? 'Gagal memuat kategori' : 'Failed to load categories'}
+                  </p>
+                  <Button onClick={() => window.location.reload()}>
+                      {language === 'id' ? 'Coba Lagi' : 'Try Again'}
+                  </Button>
+              </div>
+          </DashboardLayout>
+      )
+  }
 
   return (
     <DashboardLayout>
@@ -350,9 +360,9 @@ export function CategoriesManagementPage() {
           </Card>
 
           <Card className="flex items-center gap-3">
-            <span className="text-2xl">{stats.topCategory.icon || '🏆'}</span>
+            <span className="text-2xl">{stats.topCategory?.icon || '🏆'}</span>
             <div>
-              <p className="text-sm font-bold text-gray-900 truncate">{stats.topCategory.name}</p>
+              <p className="text-sm font-bold text-gray-900 truncate max-w-[120px]">{stats.topCategory?.name || '-'}</p>
               <p className="text-xs text-gray-500">{language === 'id' ? 'Terpopuler' : 'Most Popular'}</p>
             </div>
           </Card>
@@ -428,11 +438,12 @@ export function CategoriesManagementPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Icon (Emoji)
               </label>
-              <Input
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Icon (Emoji)
+              </label>
+              <EmojiSelector
                 value={formData.icon}
-                onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                placeholder="💻"
-                maxLength={2}
+                onChange={(val) => setFormData({ ...formData, icon: val })}
               />
             </div>
             <div>
@@ -440,12 +451,12 @@ export function CategoriesManagementPage() {
                 {language === 'id' ? 'Parent Kategori (Opsional)' : 'Parent Category (Optional)'}
               </label>
               <select
-                value={formData.parent}
-                onChange={(e) => setFormData({ ...formData, parent: e.target.value })}
+                value={formData.parent_id ?? ''}
+                onChange={(e) => setFormData({ ...formData, parent_id: e.target.value === '' ? null : Number(e.target.value) })}
                 className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">{language === 'id' ? 'Tidak ada parent' : 'No parent'}</option>
-                {mockCategories.filter(c => !c.parent).map(cat => (
+                {categories.filter(c => !c.parent_id).map(cat => (
                   <option key={cat.id} value={cat.id}>{cat.icon} {cat.name}</option>
                 ))}
               </select>
@@ -454,7 +465,7 @@ export function CategoriesManagementPage() {
               <Button size="sm" variant="outline" onClick={() => setShowAddModal(false)}>
                 {language === 'id' ? 'Batal' : 'Cancel'}
               </Button>
-              <Button size="sm" onClick={confirmAdd}>
+              <Button size="sm" onClick={confirmAdd} isLoading={isCreating}>
                 {language === 'id' ? 'Tambah' : 'Add'}
               </Button>
             </div>
@@ -502,10 +513,9 @@ export function CategoriesManagementPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Icon (Emoji)
               </label>
-              <Input
+              <EmojiSelector
                 value={formData.icon}
-                onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                maxLength={2}
+                onChange={(val) => setFormData({ ...formData, icon: val })}
               />
             </div>
             <div>
@@ -513,21 +523,33 @@ export function CategoriesManagementPage() {
                 {language === 'id' ? 'Parent Kategori (Opsional)' : 'Parent Category (Optional)'}
               </label>
               <select
-                value={formData.parent}
-                onChange={(e) => setFormData({ ...formData, parent: e.target.value })}
+                value={formData.parent_id ?? ''}
+                onChange={(e) => setFormData({ ...formData, parent_id: e.target.value === '' ? null : Number(e.target.value) })}
                 className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">{language === 'id' ? 'Tidak ada parent' : 'No parent'}</option>
-                {mockCategories.filter(c => !c.parent && c.id !== selectedCategory?.id).map(cat => (
+                {categories.filter(c => !c.parent_id && c.id !== selectedCategory?.id).map(cat => (
                   <option key={cat.id} value={cat.id}>{cat.icon} {cat.name}</option>
                 ))}
               </select>
+            </div>
+             <div>
+                <label className="flex items-center gap-2">
+                    <input
+                        type="checkbox"
+                        checked={formData.is_active}
+                        onChange={(e) => setFormData(prev => ({ ...prev, is_active: e.target.checked }))}
+                    />
+                    <span className="text-sm font-medium text-gray-700">
+                        {language === 'id' ? 'Aktif' : 'Active'}
+                    </span>
+                </label>
             </div>
             <div className="flex justify-end gap-2 pt-4">
               <Button size="sm" variant="outline" onClick={() => setShowEditModal(false)}>
                 {language === 'id' ? 'Batal' : 'Cancel'}
               </Button>
-              <Button size="sm" onClick={confirmEdit}>
+              <Button size="sm" onClick={confirmEdit} isLoading={isUpdating}>
                 {language === 'id' ? 'Simpan' : 'Save'}
               </Button>
             </div>
@@ -551,7 +573,7 @@ export function CategoriesManagementPage() {
               <Button size="sm" variant="outline" onClick={() => setShowDeleteModal(false)}>
                 {language === 'id' ? 'Batal' : 'Cancel'}
               </Button>
-              <Button size="sm" variant="danger" onClick={confirmDelete}>
+              <Button size="sm" variant="danger" onClick={confirmDelete} isLoading={isDeleting}>
                 {language === 'id' ? 'Hapus' : 'Delete'}
               </Button>
             </div>

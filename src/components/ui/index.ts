@@ -29,4 +29,6 @@ export { LanguageSwitcher } from './LanguageSwitcher';
 
 export { DataTable } from './DataTable';
 
+export { EmojiSelector } from './EmojiSelector';
+
 export { Tabs } from './Tabs';

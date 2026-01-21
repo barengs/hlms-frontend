@@ -22,10 +22,10 @@ export function InstructorCreateCoursePage() {
     thumbnail: '',
     subtitle: '',
     description: '',
-    // category_id: 0,
+    category_id: 0,
     type: 'self_paced',
     level: 'beginner',
-    language: 'Indonesia',
+    language: 'id',
     price: 0,
     discount_price: 0,
     requirements: [],
@@ -76,42 +76,30 @@ export function InstructorCreateCoursePage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      const submitData = new FormData();
+      const formDataToSend = new FormData();
+      formDataToSend.append('title', formData.title);
+      formDataToSend.append('slug', formData.slug);
+      formDataToSend.append('subtitle', formData.subtitle);
+      formDataToSend.append('description', formData.description);
+      formDataToSend.append('category_id', String(formData.category_id));
+      formDataToSend.append('type', formData.type);
+      formDataToSend.append('level', formData.level);
+      formDataToSend.append('language', formData.language);
+      formDataToSend.append('price', String(formData.price));
 
-      // Append basic fields
-      submitData.append('title', formData.title);
-      submitData.append('slug', formData.slug);
-      submitData.append('subtitle', formData.subtitle);
-      submitData.append('description', formData.description);
-      if (formData.category_id) {
-        submitData.append('category_id', String(formData.category_id));
-      }
-      submitData.append('type', formData.type);
-      submitData.append('level', formData.level);
-      // submitData.append('language', formData.language); // API might not expect this or expects 'id'/'en'
-      submitData.append('language', 'id'); // hardcode to 'id' for now based on user context or keep dynamic if backend supports
-      submitData.append('price', String(formData.price));
-      if (formData.discount_price) {
-        submitData.append('discount_price', String(formData.discount_price));
+      if (formData.discount_price && formData.discount_price > 0) {
+        formDataToSend.append('discount_price', String(formData.discount_price));
       }
 
-      // Append arrays
-      formData.requirements.forEach((req, index) => {
-        submitData.append(`requirements[${index}]`, req);
-      });
-      formData.outcomes.forEach((outcome, index) => {
-        submitData.append(`outcomes[${index}]`, outcome);
-      });
-      formData.target_audience.forEach((target, index) => {
-        submitData.append(`target_audience[${index}]`, target);
-      });
-
-      // Append file
       if (thumbnailFile) {
-        submitData.append('thumbnail', thumbnailFile);
+        formDataToSend.append('thumbnail', thumbnailFile);
       }
 
-      await createCourse(submitData as any).unwrap(); // Cast to any to bypass type check if needed, or update CreateCoursePayload compatibility
+      formData.requirements.forEach((req, index) => formDataToSend.append(`requirements[${index}]`, req));
+      formData.outcomes.forEach((out, index) => formDataToSend.append(`outcomes[${index}]`, out));
+      formData.target_audience.forEach((aud, index) => formDataToSend.append(`target_audience[${index}]`, aud));
+
+      await createCourse(formDataToSend).unwrap();
       navigate('/instructor/courses');
     } catch (error) {
       console.error('Failed to create course:', error);
@@ -206,8 +194,8 @@ export function InstructorCreateCoursePage() {
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
                   disabled={isSubmitting}
                 >
-                  <option value="Indonesia">Indonesia</option>
-                  <option value="English">English</option>
+                  <option value="id">Indonesia</option>
+                  <option value="en">English</option>
                 </select>
               </div>
             </div>
