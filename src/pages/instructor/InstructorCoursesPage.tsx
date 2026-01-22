@@ -471,7 +471,7 @@ export function InstructorCoursesPage() {
                     <div className="flex items-center gap-1.5">
                       <BookOpen className="w-4 h-4" />
                       <span>
-                        {course.totalLessons} {language === 'id' ? 'Pljrn' : 'Lessons'}
+                        {course.totalLessons} {language === 'id' ? 'Pelajaran' : 'Lessons'}
                       </span>
                     </div>
                     {course.status === 'published' && course.rating > 0 && (
