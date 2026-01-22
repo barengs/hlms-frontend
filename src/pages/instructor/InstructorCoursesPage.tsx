@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layouts';
 import { Card, Button, Badge, Input, Dropdown, Modal } from '@/components/ui';
-import { CourseThumbnail } from '@/components/common/CourseThumbnail';
+import { CourseCardSkeleton } from '@/components/common/CourseCardSkeleton';
 import { useLanguage } from '@/context/LanguageContext';
 import { formatCurrency, formatNumber } from '@/lib/utils';
 import { useGetInstructorCoursesQuery, useDeleteCourseMutation, type InstructorCourse } from '@/store/features/instructor/instructorApiSlice';
@@ -48,12 +48,48 @@ export function InstructorCoursesPage() {
   if (isLoading) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center min-h-100">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-gray-500">
-              {language === 'id' ? 'Memuat kursus...' : 'Loading courses...'}
-            </p>
+        <div className="max-w-7xl mx-auto">
+          {/* Header Skeleton */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div>
+              <div className="h-8 bg-gray-200 rounded animate-pulse w-48 mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded animate-pulse w-64"></div>
+            </div>
+            <div className="h-10 bg-gray-200 rounded animate-pulse w-40"></div>
+          </div>
+
+          {/* Stats Skeleton */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Card key={i} className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gray-200 rounded-lg animate-pulse"></div>
+                  <div>
+                    <div className="h-6 bg-gray-200 rounded animate-pulse w-12 mb-1"></div>
+                    <div className="h-3 bg-gray-200 rounded animate-pulse w-20"></div>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+
+          {/* Status Tabs Skeleton */}
+          <div className="flex gap-2 mb-6">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="h-8 bg-gray-200 rounded animate-pulse w-20"></div>
+            ))}
+          </div>
+
+          {/* Search Skeleton */}
+          <Card className="mb-6">
+            <div className="h-12 bg-gray-200 rounded animate-pulse"></div>
+          </Card>
+
+          {/* Courses Grid Skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <CourseCardSkeleton key={i} />
+            ))}
           </div>
         </div>
       </DashboardLayout>
