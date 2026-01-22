@@ -379,100 +379,100 @@ export function InstructorCoursesPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredCourses.map((course) => (
-              <Card 
-                key={course.id} 
-                className="hover:shadow-lg transition-all cursor-pointer group flex flex-col h-full overflow-hidden border-transparent hover:border-blue-500/20"
+              <Card
+                key={course.id}
+                className="hover:shadow-lg transition-all cursor-pointer group flex flex-col h-full border-transparent hover:border-blue-500/20"
                 onClick={() => navigate(`/instructor/courses/${course.id}/edit`)}
               >
-                  {/* Thumbnail */}
-                  <div className="lg:w-64 h-40 lg:h-auto flex-shrink-0 relative overflow-hidden">
-                    <img
-                      src={course.thumbnail}
-                      alt={course.title}
-                      className="w-full h-full object-cover"
+                {/* Thumbnail */}
+                <div className="lg:w-64 h-40 lg:h-auto flex-shrink-0 relative overflow-hidden rounded-t-lg">
+                  <img
+                    src={course.thumbnail}
+                    alt={course.title}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute top-2 left-2">
+                    {getStatusBadge(course.status)}
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 p-4 flex flex-col">
+                  <div className="flex justify-between items-start gap-2 mb-2">
+                    <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2 leading-tight min-h-[3rem]">
+                      {course.title}
+                    </h3>
+                    <Dropdown
+                      trigger={
+                        <button
+                          className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-gray-600 transition-colors -mr-2"
+                          aria-label="Course actions"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <MoreVertical className="w-5 h-5" />
+                        </button>
+                      }
+                      items={getCourseActions(course).map(action => ({
+                        ...action,
+                        onClick: () => {
+                          // Original onClick logic is preserved in getCourseActions, we don't need to wrap it here 
+                          // because the Dropdown component likely handles the click. 
+                          // However, if Dropdown doesn't stop prop automatically, we might have an issue.
+                          // Let's rely on the trigger stopping propagation for the menu OPENING.
+                          // For menu ITEMS, it's a different component scope.
+                          // But usually, clicking an item navigates away or closes modal, so it's fine.
+                          if ('onClick' in action && typeof action.onClick === 'function') {
+                            action.onClick();
+                          }
+                        }
+                      }))}
+                      align="right"
                     />
-                    <div className="absolute top-2 left-2">
-                      {getStatusBadge(course.status)}
+                  </div>
+
+                  {/* Meta Info */}
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-500 mb-4 mt-auto">
+                    <div className="flex items-center gap-1.5">
+                      <BookOpen className="w-4 h-4" />
+                      <span>
+                        {course.totalLessons} {language === 'id' ? 'Pljrn' : 'Lessons'}
+                      </span>
+                    </div>
+                    {course.status === 'published' && course.rating > 0 && (
+                      <div className="flex items-center gap-1.5">
+                        <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                        <span>{course.rating}</span>
+                      </div>
+                    )}
+                    <div className="flex items-center gap-1.5 ml-auto font-medium text-gray-900">
+                      {course.price === 0 ? (language === 'id' ? 'Gratis' : 'Free') : formatCurrency(course.price)}
                     </div>
                   </div>
 
-                  {/* Content */}
-                  <div className="flex-1 p-4 flex flex-col">
-                      <div className="flex justify-between items-start gap-2 mb-2">
-                        <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2 leading-tight min-h-[3rem]">
-                          {course.title}
-                        </h3>
-                        <Dropdown
-                          trigger={
-                            <button
-                              className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-gray-600 transition-colors -mr-2"
-                              aria-label="Course actions"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <MoreVertical className="w-5 h-5" />
-                            </button>
-                          }
-                          items={getCourseActions(course).map(action => ({
-                             ...action,
-                             onClick: () => {
-                                // Original onClick logic is preserved in getCourseActions, we don't need to wrap it here 
-                                // because the Dropdown component likely handles the click. 
-                                // However, if Dropdown doesn't stop prop automatically, we might have an issue.
-                                // Let's rely on the trigger stopping propagation for the menu OPENING.
-                                // For menu ITEMS, it's a different component scope.
-                                // But usually, clicking an item navigates away or closes modal, so it's fine.
-                                if ('onClick' in action && typeof action.onClick === 'function') {
-                                    action.onClick();
-                                }
-                             }
-                          }))}
-                          align="right"
-                        />
+                  {/* Stats Grid - Compact */}
+                  {course.status === 'published' && (
+                    <div className="grid grid-cols-2 gap-2 pt-4 border-t border-gray-100 mt-2">
+                      <div>
+                        <p className="text-xs text-gray-500 mb-0.5">{language === 'id' ? 'Siswa' : 'Students'}</p>
+                        <p className="font-semibold text-gray-900">{formatNumber(course.totalStudents)}</p>
                       </div>
-
-                      {/* Meta Info */}
-                      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-500 mb-4 mt-auto">
-                        <div className="flex items-center gap-1.5">
-                          <BookOpen className="w-4 h-4" />
-                          <span>
-                            {course.totalLessons} {language === 'id' ? 'Pljrn' : 'Lessons'}
-                          </span>
-                        </div>
-                        {course.status === 'published' && course.rating > 0 && (
-                          <div className="flex items-center gap-1.5">
-                            <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                            <span>{course.rating}</span>
-                          </div>
-                        )}
-                        <div className="flex items-center gap-1.5 ml-auto font-medium text-gray-900">
-                           {course.price === 0 ? (language === 'id' ? 'Gratis' : 'Free') : formatCurrency(course.price)}
-                        </div>
+                      <div className="text-right">
+                        <p className="text-xs text-gray-500 mb-0.5">{language === 'id' ? 'Pendapatan' : 'Revenue'}</p>
+                        <p className="font-semibold text-gray-900">{formatCurrency(course.totalRevenue)}</p>
                       </div>
+                    </div>
+                  )}
 
-                      {/* Stats Grid - Compact */}
-                      {course.status === 'published' && (
-                        <div className="grid grid-cols-2 gap-2 pt-4 border-t border-gray-100 mt-2">
-                          <div>
-                             <p className="text-xs text-gray-500 mb-0.5">{language === 'id' ? 'Siswa' : 'Students'}</p>
-                             <p className="font-semibold text-gray-900">{formatNumber(course.totalStudents)}</p>
-                          </div>
-                          <div className="text-right">
-                             <p className="text-xs text-gray-500 mb-0.5">{language === 'id' ? 'Pendapatan' : 'Revenue'}</p>
-                             <p className="font-semibold text-gray-900">{formatCurrency(course.totalRevenue)}</p>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Pending/Rejected Message */}
-                      {course.status !== 'published' && (
-                        <div className="pt-4 border-t border-gray-100 mt-2">
-                            <div className="flex items-center gap-2 text-sm text-gray-500">
-                                <Calendar className="w-4 h-4" />
-                                <span>{language === 'id' ? 'Update:' : 'Updated:'} {formatDate(course.updatedAt)}</span>
-                            </div>
-                        </div>
-                      )}
-                  </div>
+                  {/* Pending/Rejected Message */}
+                  {course.status !== 'published' && (
+                    <div className="pt-4 border-t border-gray-100 mt-2">
+                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <Calendar className="w-4 h-4" />
+                        <span>{language === 'id' ? 'Update:' : 'Updated:'} {formatDate(course.updatedAt)}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </Card>
             ))}
           </div>

@@ -35,7 +35,7 @@ function Dropdown({ trigger, items, children, align = 'right', className, conten
       >
         <MenuItems
           className={cn(
-            'absolute z-50 mt-2 origin-top-right rounded-xl bg-white shadow-lg ring-1 ring-black/5 focus:outline-none overflow-hidden',
+            'absolute z-50 mt-2 origin-top-right rounded-xl bg-white shadow-lg ring-1 ring-black/5 focus:outline-none max-h-[300px] overflow-y-auto',
             align === 'left' ? 'left-0' : 'right-0',
             children ? contentClassName : 'w-56 py-1'
           )}
