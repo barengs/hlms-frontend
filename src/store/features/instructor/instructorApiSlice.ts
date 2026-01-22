@@ -170,6 +170,18 @@ export interface CreateCoursePayload {
   target_audience: string[];
 }
 
+export interface CreateLessonPayload {
+  title: string;
+  description: string;
+  type: 'video' | 'article' | 'quiz' | 'assignment';
+  video_url: string;
+  video_provider: string;
+  duration: number;
+  content: string;
+  is_free: boolean;
+  is_published: boolean;
+}
+
 export interface CategoriesResponse {
   success: boolean;
   message: string;
@@ -239,6 +251,29 @@ export const instructorApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ['InstructorCourses'],
     }),
+    submitCourseForReview: builder.mutation<void, string>({
+      query: (id) => ({
+        url: `/v1/instructor/courses/${id}/submit-review`,
+        method: 'POST',
+      }),
+      invalidatesTags: (_result, _error, id) => [{ type: 'InstructorCourses', id }, 'InstructorCourses'],
+    }),
+    createSection: builder.mutation<void, { courseId: string; title: string }>({
+      query: ({ courseId, title }) => ({
+        url: `/v1/instructor/courses/${courseId}/sections`,
+        method: 'POST',
+        body: { title, sort_order: 0, is_active: true }, // Default values
+      }),
+      invalidatesTags: (_result, _error, { courseId }) => [{ type: 'InstructorCourses', id: courseId }],
+    }),
+    createLesson: builder.mutation<void, { courseId: string; sectionId: string; data: CreateLessonPayload }>({
+      query: ({ courseId, sectionId, data }) => ({
+        url: `/v1/instructor/courses/${courseId}/sections/${sectionId}/lessons`,
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: (_result, _error, { courseId }) => [{ type: 'InstructorCourses', id: courseId }],
+    }),
   }),
 });
 
@@ -248,5 +283,8 @@ export const {
   useGetInstructorCourseQuery,
   useGetCategoriesQuery,
   useCreateCourseMutation,
-  useDeleteCourseMutation
+  useDeleteCourseMutation,
+  useSubmitCourseForReviewMutation,
+  useCreateSectionMutation,
+  useCreateLessonMutation
 } = instructorApiSlice;

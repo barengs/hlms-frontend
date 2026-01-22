@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -26,7 +26,7 @@ import { DashboardLayout } from '@/components/layouts';
 import { Card, CardHeader, CardTitle, Button, Badge, Input, Modal } from '@/components/ui';
 import { useLanguage } from '@/context/LanguageContext';
 import { formatCurrency } from '@/lib/utils';
-import { useGetInstructorCourseQuery, type CourseSection, type CourseLesson } from '@/store/features/instructor/instructorApiSlice';
+import { useGetInstructorCourseQuery, useSubmitCourseForReviewMutation, useCreateSectionMutation, type CourseSection, type CourseLesson } from '@/store/features/instructor/instructorApiSlice';
 import { useEffect } from 'react';
 type Tab = 'overview' | 'curriculum' | 'pricing' | 'students' | 'analytics' | 'settings';
 
@@ -75,12 +75,10 @@ export function CourseManagePage() {
   const [activeTab, setActiveTab] = useState<Tab>('overview');
   const [expandedModules, setExpandedModules] = useState<string[]>(['module-1', 'module-2', 'module-3']);
   const [showAddModuleModal, setShowAddModuleModal] = useState(false);
-  const [showAddLessonModal, setShowAddLessonModal] = useState(false);
-  const [selectedModuleId, setSelectedModuleId] = useState<string | null>(null);
   const [newModuleTitle, setNewModuleTitle] = useState('');
-  const [newLessonTitle, setNewLessonTitle] = useState('');
-  const [newLessonType, setNewLessonType] = useState<Lesson['type']>('video');
   const [isSaving, setIsSaving] = useState(false);
+  const [submitForReview, { isLoading: isSubmitting }] = useSubmitCourseForReviewMutation();
+  const [createSection, { isLoading: isCreatingSection }] = useCreateSectionMutation();
 
   // Fetch course by id
   const { data: courseData, isLoading, error } = useGetInstructorCourseQuery(courseId || '', {
@@ -88,22 +86,26 @@ export function CourseManagePage() {
   });
 
   const [formData, setFormData] = useState<Partial<CourseData>>({});
+  const isFormInitializedRef = useRef(false);
 
   useEffect(() => {
-    if (courseData) {
-      setFormData({
-        title: courseData.title,
-        shortDescription: courseData.subtitle || '',
-        description: courseData.description || '',
-        category: typeof courseData.category === 'object' ? courseData.category?.slug : courseData.category || '',
-        level: courseData.level,
-        price: Number(courseData.price),
-        discountPrice: courseData.discount_price ? Number(courseData.discount_price) : undefined,
-      });
-      // Initialize expanded modules
-      if (courseData.sections && courseData.sections.length > 0) {
-        setExpandedModules(courseData.sections.map(s => String(s.id)));
-      }
+    if (courseData && !isFormInitializedRef.current) {
+      setTimeout(() => {
+        setFormData({
+          title: courseData.title,
+          shortDescription: courseData.subtitle || '',
+          description: courseData.description || '',
+          category: typeof courseData.category === 'object' ? courseData.category?.slug || '' : courseData.category || '',
+          level: courseData.level,
+          price: Number(courseData.price),
+          discountPrice: courseData.discount_price ? Number(courseData.discount_price) : undefined,
+        });
+        // Initialize expanded modules
+        if (courseData.sections && courseData.sections.length > 0) {
+          setExpandedModules(courseData.sections.map(s => String(s.id)));
+        }
+        isFormInitializedRef.current = true;
+      }, 0);
     }
   }, [courseData]);
 
@@ -132,7 +134,7 @@ export function CourseManagePage() {
               : 'Failed to load course data. Please try again later.'}
           </p>
           <Button variant="outline" className="mt-4" onClick={() => navigate('/instructor/courses')}>
-             {language === 'id' ? 'Kembali' : 'Go Back'}
+            {language === 'id' ? 'Kembali' : 'Go Back'}
           </Button>
         </div>
       </DashboardLayout>
@@ -218,22 +220,21 @@ export function CourseManagePage() {
     alert(language === 'id' ? 'Perubahan berhasil disimpan!' : 'Changes saved successfully!');
   };
 
-  const handleAddModule = () => {
-    if (newModuleTitle.trim()) {
-      console.log('Adding module:', newModuleTitle);
-      setNewModuleTitle('');
-      setShowAddModuleModal(false);
+  const handleAddModule = async () => {
+    if (newModuleTitle.trim() && courseId) {
+      try {
+        await createSection({ courseId, title: newModuleTitle }).unwrap();
+        setNewModuleTitle('');
+        setShowAddModuleModal(false);
+        alert(language === 'id' ? 'Modul berhasil ditambahkan!' : 'Module added successfully!');
+      } catch (err) {
+        console.error('Failed to add module:', err);
+        alert(language === 'id' ? 'Gagal menambah modul.' : 'Failed to add module.');
+      }
     }
   };
 
-  const handleAddLesson = () => {
-    if (newLessonTitle.trim() && selectedModuleId) {
-      console.log('Adding lesson:', newLessonTitle, 'to module:', selectedModuleId);
-      setNewLessonTitle('');
-      setNewLessonType('video');
-      setShowAddLessonModal(false);
-    }
-  };
+
 
   const getStatusBadge = () => {
     switch (course.status) {
@@ -481,7 +482,16 @@ export function CourseManagePage() {
                     {getStatusBadge()}
                   </div>
                   {course.status === 'draft' && (
-                    <Button className="w-full">
+                    <Button className="w-full" onClick={async () => {
+                      if (!courseId) return;
+                      try {
+                        await submitForReview(courseId).unwrap();
+                        alert(language === 'id' ? 'Kursus berhasil diajukan untuk review!' : 'Course submitted for review successfully!');
+                      } catch (err) {
+                        console.error('Failed to submit course:', err);
+                        alert(language === 'id' ? 'Gagal mengajukan kursus.' : 'Failed to submit course.');
+                      }
+                    }} isLoading={isSubmitting}>
                       {language === 'id' ? 'Ajukan untuk Review' : 'Submit for Review'}
                     </Button>
                   )}
@@ -541,8 +551,7 @@ export function CourseManagePage() {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => {
-                          setSelectedModuleId(module.id);
-                          setShowAddLessonModal(true);
+                          navigate(`/instructor/courses/${courseId}/sections/${module.id}/lessons/create`);
                         }}
                         className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
                         aria-label="Add lesson"
@@ -732,48 +741,12 @@ export function CourseManagePage() {
               <Button variant="outline" onClick={() => setShowAddModuleModal(false)}>
                 {language === 'id' ? 'Batal' : 'Cancel'}
               </Button>
-              <Button onClick={handleAddModule}>{language === 'id' ? 'Tambah' : 'Add'}</Button>
+              <Button onClick={handleAddModule} isLoading={isCreatingSection}>{language === 'id' ? 'Tambah' : 'Add'}</Button>
             </div>
           </div>
         </Modal>
 
-        {/* Add Lesson Modal */}
-        <Modal
-          isOpen={showAddLessonModal}
-          onClose={() => setShowAddLessonModal(false)}
-          title={language === 'id' ? 'Tambah Pelajaran Baru' : 'Add New Lesson'}
-          size="md"
-        >
-          <div className="space-y-4">
-            <Input
-              label={language === 'id' ? 'Judul Pelajaran' : 'Lesson Title'}
-              value={newLessonTitle}
-              onChange={(e) => setNewLessonTitle(e.target.value)}
-              placeholder={language === 'id' ? 'Contoh: Apa itu React?' : 'e.g., What is React?'}
-            />
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {language === 'id' ? 'Tipe Konten' : 'Content Type'}
-              </label>
-              <select
-                value={newLessonType}
-                onChange={(e) => setNewLessonType(e.target.value as Lesson['type'])}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="video">Video</option>
-                <option value="article">{language === 'id' ? 'Artikel' : 'Article'}</option>
-                <option value="quiz">Quiz</option>
-                <option value="assignment">{language === 'id' ? 'Tugas' : 'Assignment'}</option>
-              </select>
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setShowAddLessonModal(false)}>
-                {language === 'id' ? 'Batal' : 'Cancel'}
-              </Button>
-              <Button onClick={handleAddLesson}>{language === 'id' ? 'Tambah' : 'Add'}</Button>
-            </div>
-          </div>
-        </Modal>
+
       </div>
     </DashboardLayout>
   );
