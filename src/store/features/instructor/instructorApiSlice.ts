@@ -104,6 +104,43 @@ export interface RawInstructorCourse {
   category: any;
 }
 
+export interface CourseSection {
+  id: number;
+  course_id: string;
+  title: string;
+  sort_order: number;
+  is_active: boolean;
+  is_free: boolean;
+  lessons: CourseLesson[];
+}
+
+export interface CourseLesson {
+  id: number;
+  section_id: string;
+  title: string;
+  slug: string;
+  type: 'video' | 'article' | 'quiz' | 'assignment';
+  content: string | null;
+  video_url: string | null;
+  duration: number;
+  is_preview: boolean;
+  sort_order: number;
+  is_active: boolean;
+}
+
+export interface InstructorCourseDetail extends RawInstructorCourse {
+  sections: CourseSection[];
+  requirements: string[] | null;
+  outcomes: string[] | null;
+  target_audience: string[] | null;
+}
+
+export interface InstructorCourseDetailResponse {
+  success: boolean;
+  message: string;
+  data: InstructorCourseDetail;
+}
+
 export interface InstructorCoursesResponse {
   success: boolean;
   message: string;
@@ -153,7 +190,7 @@ export const instructorApiSlice = apiSlice.injectEndpoints({
           id: String(course.id),
           title: course.title,
           slug: course.slug,
-          thumbnail: course.thumbnail || '',
+          thumbnail: course.thumbnail ? `${import.meta.env.VITE_URL_API_IMAGE}/${course.thumbnail}` : '',
           status: course.status,
           price: Number(course.price),
           totalStudents: Number(course.total_enrollments),
@@ -171,6 +208,11 @@ export const instructorApiSlice = apiSlice.injectEndpoints({
         }));
       },
       providesTags: ['InstructorCourses'],
+    }),
+    getInstructorCourse: builder.query<InstructorCourseDetail, string>({
+      query: (id) => `/v1/instructor/courses/${id}`,
+      transformResponse: (response: InstructorCourseDetailResponse) => response.data,
+      providesTags: (_result, _error, id) => [{ type: 'InstructorCourses', id }],
     }),
     getCategories: builder.query<Category[], void>({
       query: () => '/v1/admin/categories',
@@ -190,6 +232,7 @@ export const instructorApiSlice = apiSlice.injectEndpoints({
 export const { 
   useGetInstructorDashboardQuery, 
   useGetInstructorCoursesQuery,
+  useGetInstructorCourseQuery,
   useGetCategoriesQuery,
   useCreateCourseMutation
 } = instructorApiSlice;
