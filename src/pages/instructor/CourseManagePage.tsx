@@ -26,7 +26,8 @@ import { DashboardLayout } from '@/components/layouts';
 import { Card, CardHeader, CardTitle, Button, Badge, Input, Modal } from '@/components/ui';
 import { useLanguage } from '@/context/LanguageContext';
 import { formatCurrency } from '@/lib/utils';
-
+import { useGetInstructorCourseQuery, type CourseSection, type CourseLesson } from '@/store/features/instructor/instructorApiSlice';
+import { useEffect } from 'react';
 type Tab = 'overview' | 'curriculum' | 'pricing' | 'students' | 'analytics' | 'settings';
 
 interface Lesson {
@@ -64,71 +65,8 @@ interface CourseData {
   prerequisites: string[];
 }
 
-// Mock course data
-const mockCourseData: CourseData = {
-  id: 'course-1',
-  title: 'React Masterclass: From Zero to Hero',
-  slug: 'react-masterclass',
-  description: 'Master React.js from the ground up. Learn hooks, state management, and build real-world applications with modern best practices.',
-  shortDescription: 'Complete React course for beginners to advanced developers.',
-  thumbnail: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800',
-  introVideo: 'https://www.youtube.com/watch?v=abc123',
-  category: 'web-development',
-  level: 'intermediate',
-  price: 299000,
-  discountPrice: 249000,
-  status: 'published',
-  totalStudents: 1250,
-  rating: 4.9,
-  totalRatings: 856,
-  objectives: [
-    'Understand React fundamentals and JSX',
-    'Master React Hooks and State Management',
-    'Build complete web applications',
-    'Deploy React apps to production',
-  ],
-  prerequisites: [
-    'Basic HTML, CSS, and JavaScript knowledge',
-    'Understanding of ES6+ syntax',
-    'Familiarity with command line',
-  ],
-  modules: [
-    {
-      id: 'module-1',
-      title: 'Introduction to React',
-      lessons: [
-        { id: 'lesson-1-1', title: 'What is React?', type: 'video', duration: 15, isFree: true },
-        { id: 'lesson-1-2', title: 'Setting Up Development Environment', type: 'video', duration: 20, isFree: true },
-        { id: 'lesson-1-3', title: 'Your First React App', type: 'video', duration: 25, isFree: false },
-        { id: 'lesson-1-4', title: 'Understanding JSX', type: 'article', duration: 10, isFree: false },
-        { id: 'lesson-1-5', title: 'Module 1 Quiz', type: 'quiz', duration: 15, isFree: false },
-      ],
-    },
-    {
-      id: 'module-2',
-      title: 'Components & Props',
-      lessons: [
-        { id: 'lesson-2-1', title: 'Functional Components', type: 'video', duration: 20, isFree: false },
-        { id: 'lesson-2-2', title: 'Class Components', type: 'video', duration: 18, isFree: false },
-        { id: 'lesson-2-3', title: 'Props and PropTypes', type: 'video', duration: 22, isFree: false },
-        { id: 'lesson-2-4', title: 'Component Composition', type: 'article', duration: 12, isFree: false },
-        { id: 'lesson-2-5', title: 'Build a Component Library', type: 'assignment', duration: 60, isFree: false },
-        { id: 'lesson-2-6', title: 'Module 2 Quiz', type: 'quiz', duration: 20, isFree: false },
-      ],
-    },
-    {
-      id: 'module-3',
-      title: 'State & Lifecycle',
-      lessons: [
-        { id: 'lesson-3-1', title: 'Understanding State', type: 'video', duration: 25, isFree: false },
-        { id: 'lesson-3-2', title: 'useState Hook', type: 'video', duration: 20, isFree: false },
-        { id: 'lesson-3-3', title: 'useEffect Hook', type: 'video', duration: 22, isFree: false },
-        { id: 'lesson-3-4', title: 'Lifecycle Methods', type: 'article', duration: 15, isFree: false },
-        { id: 'lesson-3-5', title: 'Module 3 Quiz', type: 'quiz', duration: 15, isFree: false },
-      ],
-    },
-  ],
-};
+// Mock data removed
+
 
 export function CourseManagePage() {
   const { courseId } = useParams<{ courseId: string }>();
@@ -144,19 +82,95 @@ export function CourseManagePage() {
   const [newLessonType, setNewLessonType] = useState<Lesson['type']>('video');
   const [isSaving, setIsSaving] = useState(false);
 
-  // In real app, fetch course by id
-  const course = mockCourseData;
-  console.log('Course ID:', courseId);
-
-  const [formData, setFormData] = useState({
-    title: course.title,
-    shortDescription: course.shortDescription,
-    description: course.description,
-    category: course.category,
-    level: course.level,
-    price: course.price,
-    discountPrice: course.discountPrice,
+  // Fetch course by id
+  const { data: courseData, isLoading, error } = useGetInstructorCourseQuery(courseId || '', {
+    skip: !courseId,
   });
+
+  const [formData, setFormData] = useState<Partial<CourseData>>({});
+
+  useEffect(() => {
+    if (courseData) {
+      setFormData({
+        title: courseData.title,
+        shortDescription: courseData.subtitle || '',
+        description: courseData.description || '',
+        category: typeof courseData.category === 'object' ? courseData.category?.slug : courseData.category || '',
+        level: courseData.level,
+        price: Number(courseData.price),
+        discountPrice: courseData.discount_price ? Number(courseData.discount_price) : undefined,
+      });
+      // Initialize expanded modules
+      if (courseData.sections && courseData.sections.length > 0) {
+        setExpandedModules(courseData.sections.map(s => String(s.id)));
+      }
+    }
+  }, [courseData]);
+
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-gray-500">
+              {language === 'id' ? 'Memuat data kursus...' : 'Loading course data...'}
+            </p>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (error || !courseData) {
+    return (
+      <DashboardLayout>
+        <div className="p-8 text-center bg-red-50 rounded-lg border border-red-200 text-red-700">
+          <p>
+            {language === 'id'
+              ? 'Gagal memuat data kursus. Silakan coba lagi nanti.'
+              : 'Failed to load course data. Please try again later.'}
+          </p>
+          <Button variant="outline" className="mt-4" onClick={() => navigate('/instructor/courses')}>
+             {language === 'id' ? 'Kembali' : 'Go Back'}
+          </Button>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  // Transform API data to local CourseData format
+  const course: CourseData = {
+    id: String(courseData.id),
+    title: courseData.title,
+    slug: courseData.slug,
+    description: courseData.description || '',
+    shortDescription: courseData.subtitle || '',
+    thumbnail: courseData.thumbnail ? `${import.meta.env.VITE_URL_API_IMAGE}/${courseData.thumbnail}` : '',
+    introVideo: courseData.preview_video || '',
+    category: typeof courseData.category === 'object' ? courseData.category?.slug : String(courseData.category) || '',
+    level: courseData.level,
+    price: Number(courseData.price),
+    discountPrice: courseData.discount_price ? Number(courseData.discount_price) : undefined,
+    status: courseData.status,
+    totalStudents: Number(courseData.total_enrollments),
+    rating: Number(courseData.average_rating),
+    totalRatings: Number(courseData.total_reviews),
+    objectives: courseData.outcomes || [],
+    prerequisites: courseData.requirements || [],
+    modules: (courseData.sections || []).map((section: CourseSection) => ({
+      id: String(section.id),
+      title: section.title,
+      lessons: (section.lessons || []).map((lesson: CourseLesson) => ({
+        id: String(lesson.id),
+        title: lesson.title,
+        type: lesson.type,
+        duration: lesson.duration,
+        isFree: lesson.is_preview || !lesson.is_active, // Assuming preview is free
+      })),
+    })),
+  };
+
 
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
     { id: 'overview', label: language === 'id' ? 'Ikhtisar' : 'Overview', icon: <Edit className="w-4 h-4" /> },
@@ -236,7 +250,7 @@ export function CourseManagePage() {
 
   return (
     <DashboardLayout>
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-4">
@@ -304,12 +318,12 @@ export function CourseManagePage() {
                 <div className="space-y-4">
                   <Input
                     label={language === 'id' ? 'Judul Kursus' : 'Course Title'}
-                    value={formData.title}
+                    value={formData.title || ''}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   />
                   <Input
                     label={language === 'id' ? 'Deskripsi Singkat' : 'Short Description'}
-                    value={formData.shortDescription}
+                    value={formData.shortDescription || ''}
                     onChange={(e) => setFormData({ ...formData, shortDescription: e.target.value })}
                   />
                   <div>
@@ -317,7 +331,7 @@ export function CourseManagePage() {
                       {language === 'id' ? 'Deskripsi Lengkap' : 'Full Description'}
                     </label>
                     <textarea
-                      value={formData.description}
+                      value={formData.description || ''}
                       onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                       rows={4}
                       className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
@@ -329,10 +343,11 @@ export function CourseManagePage() {
                         {language === 'id' ? 'Kategori' : 'Category'}
                       </label>
                       <select
-                        value={formData.category}
+                        value={formData.category || ''}
                         onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                         className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
+                        <option value="">{language === 'id' ? 'Pilih Kategori' : 'Select Category'}</option>
                         <option value="web-development">Web Development</option>
                         <option value="mobile-development">Mobile Development</option>
                         <option value="data-science">Data Science</option>
@@ -344,7 +359,7 @@ export function CourseManagePage() {
                         {language === 'id' ? 'Level' : 'Level'}
                       </label>
                       <select
-                        value={formData.level}
+                        value={formData.level || 'beginner'}
                         onChange={(e) => setFormData({ ...formData, level: e.target.value })}
                         className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
@@ -630,7 +645,7 @@ export function CourseManagePage() {
                 </div>
               </div>
             </div>
-            {formData.discountPrice && (
+            {formData.discountPrice && formData.price && (
               <div className="mt-4 p-4 bg-green-50 rounded-lg">
                 <p className="text-green-800">
                   {language === 'id' ? 'Diskon:' : 'Discount:'}{' '}

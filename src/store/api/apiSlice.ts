@@ -12,7 +12,7 @@ const getToken = () => {
 export const apiSlice = createApi({
     reducerPath: 'api',
     baseQuery: fetchBaseQuery({
-        baseUrl: 'https://api-lms.umediatama.com/api/',
+        baseUrl: `${import.meta.env.VITE_URL_API}/api/`,
         prepareHeaders: (headers) => {
             const token = getToken();
             if (token) {
