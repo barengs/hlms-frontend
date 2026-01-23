@@ -188,6 +188,12 @@ export interface CategoriesResponse {
   data: Category[];
 }
 
+export interface CreateCourseResponse {
+  success: boolean;
+  message: string;
+  data: RawInstructorCourse;
+}
+
 export const instructorApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getInstructorDashboard: builder.query<InstructorDashboardData, void>({
@@ -232,7 +238,7 @@ export const instructorApiSlice = apiSlice.injectEndpoints({
       query: () => '/v1/categories',
       transformResponse: (response: CategoriesResponse) => response.data,
     }),
-    createCourse: builder.mutation<void, FormData>({
+    createCourse: builder.mutation<CreateCourseResponse, FormData>({
       query: (body) => ({
         url: '/v1/instructor/courses',
         method: 'POST',

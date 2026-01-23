@@ -6,6 +6,7 @@ import { Card, Button, Input, Textarea } from '@/components/ui';
 import { FileUpload } from '@/components/ui/FileUpload';
 import { DynamicList } from '@/components/ui/DynamicList';
 import { useLanguage } from '@/context/LanguageContext';
+import { useToast } from '@/context/ToastContext';
 import {
   useCreateCourseMutation,
   useGetPublicCategoriesQuery,
@@ -15,6 +16,7 @@ import {
 export function InstructorCreateCoursePage() {
   const { language } = useLanguage();
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [createCourse, { isLoading: isSubmitting }] = useCreateCourseMutation();
   const { data: categories = [] } = useGetPublicCategoriesQuery();
 
@@ -101,7 +103,8 @@ export function InstructorCreateCoursePage() {
       formData.outcomes.forEach((out, index) => formDataToSend.append(`outcomes[${index}]`, out));
       formData.target_audience.forEach((aud, index) => formDataToSend.append(`target_audience[${index}]`, aud));
 
-      await createCourse(formDataToSend).unwrap();
+      const response = await createCourse(formDataToSend).unwrap();
+      showToast(response.message || (language === 'id' ? 'Kursus berhasil dibuat!' : 'Course created successfully!'), 'success');
       navigate('/instructor/courses');
     } catch (error) {
       console.error('Failed to create course:', error);
