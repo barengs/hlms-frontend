@@ -79,6 +79,7 @@ export function CourseManagePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [submitForReview, { isLoading: isSubmitting }] = useSubmitCourseForReviewMutation();
   const [createSection, { isLoading: isCreatingSection }] = useCreateSectionMutation();
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Fetch course by id
   const { data: courseData, isLoading, error } = useGetInstructorCourseQuery(courseId || '', {
@@ -471,6 +472,7 @@ export function CourseManagePage() {
                 </div>
               </Card>
 
+
               {/* Publish Status */}
               <Card>
                 <CardHeader>
@@ -481,15 +483,25 @@ export function CourseManagePage() {
                     <span className="text-gray-600">{language === 'id' ? 'Status Saat Ini' : 'Current Status'}</span>
                     {getStatusBadge()}
                   </div>
+
+                  {submitError && (
+                    <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm flex items-start gap-2">
+                      <HelpCircle className="w-5 h-5 shrink-0" />
+                      <p>{submitError}</p>
+                    </div>
+                  )}
+
                   {course.status === 'draft' && (
                     <Button className="w-full" onClick={async () => {
                       if (!courseId) return;
+                      setSubmitError(null);
                       try {
                         await submitForReview(courseId).unwrap();
                         alert(language === 'id' ? 'Kursus berhasil diajukan untuk review!' : 'Course submitted for review successfully!');
-                      } catch (err) {
+                      } catch (err: any) {
                         console.error('Failed to submit course:', err);
-                        alert(language === 'id' ? 'Gagal mengajukan kursus.' : 'Failed to submit course.');
+                        const errorMessage = err?.data?.message || (language === 'id' ? 'Gagal mengajukan kursus.' : 'Failed to submit course.');
+                        setSubmitError(errorMessage);
                       }
                     }} isLoading={isSubmitting}>
                       {language === 'id' ? 'Ajukan untuk Review' : 'Submit for Review'}
