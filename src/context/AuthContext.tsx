@@ -4,6 +4,7 @@ import { useAppDispatch, useAppSelector } from '@/store';
 import { useLoginMutation, useLogoutMutation, useRegisterMutation } from '@/store/features/auth/authApiSlice';
 import { setCredentials, logOut, selectCurrentUser } from '@/store/features/auth/authSlice';
 import { AuthContext } from './AuthContextValue';
+import { useToast } from './ToastContext';
 
 // Mock users removed as we are using API
 
@@ -14,13 +15,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loginApi, { isLoading: isLoginLoading }] = useLoginMutation();
   const [logoutApi, { isLoading: isLogoutLoading }] = useLogoutMutation();
   const [registerApi, { isLoading: isRegisterLoading }] = useRegisterMutation();
+  const { showToast } = useToast();
 
   const isLoading = isLoginLoading || isLogoutLoading || isRegisterLoading;
 
   const login = useCallback(async (email: string, password: string) => {
     try {
       const response = await loginApi({ email, password }).unwrap();
-      
+
       // Backend response structure:
       // {
       //   "message": "Login successful.",
@@ -30,7 +32,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       //     "token_type": "Bearer"
       //   }
       // }
-      
+
       const data = response.data;
       const token = data?.token;
       let userData = data?.user;
@@ -40,13 +42,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Backend returns: roles: [{ name: 'admin' }, ...]
         // Frontend expects: role: 'admin'
         if (userData.roles && Array.isArray(userData.roles) && userData.roles.length > 0) {
-           const roleName = userData.roles[0].name;
-           console.log('Mapping role:', roleName);
-           userData = { ...userData, role: roleName };
+          const roleName = userData.roles[0].name;
+          console.log('Mapping role:', roleName);
+          userData = { ...userData, role: roleName };
         } else {
-           console.warn('No roles found in user data or format incorrect', userData);
+          console.warn('No roles found in user data or format incorrect', userData);
         }
-        
+
         console.log('Dispatching credentials with:', userData);
         dispatch(setCredentials({ user: userData, token }));
       } else {
@@ -62,39 +64,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     try {
-      await logoutApi().unwrap();
+      const response = await logoutApi().unwrap();
+      // @ts-ignore
+      const message = response?.message || 'Logout successful.';
+      showToast(message, 'success');
     } catch (error) {
       console.warn('Logout failed on server', error);
     } finally {
       dispatch(logOut());
     }
-  }, [dispatch, logoutApi]);
+  }, [dispatch, logoutApi, showToast]);
 
   const register = useCallback(async (name: string, email: string, password: string, password_confirmation: string) => {
     try {
-      const response = await registerApi({ 
-        name, 
-        email, 
+      const response = await registerApi({
+        name,
+        email,
         password,
         password_confirmation
       }).unwrap();
-      
+
       // Assuming auto-login after register or just success message?
       // User request did not specify response structure, but usually standard flow is login after register
       // OR user has to login manually.
       // Let's assume manual login for safety, OR check if token is returned.
-      
+
       const data = response.data;
       const token = data?.token;
       let userData = data?.user;
-      
+
       if (token && userData) {
-         if (userData.roles && Array.isArray(userData.roles) && userData.roles.length > 0) {
-           userData = { ...userData, role: userData.roles[0].name };
+        if (userData.roles && Array.isArray(userData.roles) && userData.roles.length > 0) {
+          userData = { ...userData, role: userData.roles[0].name };
         }
         dispatch(setCredentials({ user: userData, token }));
       }
-      
+
       // If no token, caller (RegisterPage) handles navigation or success message
     } catch (error) {
       console.error('Registration failed', error);
@@ -103,8 +108,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [dispatch, registerApi]);
 
   const updateProfile = useCallback(async (data: Partial<User>) => {
-     // Placeholder for profile update
-     console.log('Update profile not yet implemented via API', data);
+    // Placeholder for profile update
+    console.log('Update profile not yet implemented via API', data);
   }, []);
 
   return (

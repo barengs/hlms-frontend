@@ -151,7 +151,7 @@ export function CourseManagePage() {
     shortDescription: courseData.subtitle || '',
     thumbnail: courseData.thumbnail ? `${import.meta.env.VITE_URL_API_IMAGE}/${courseData.thumbnail}` : '',
     introVideo: courseData.preview_video || '',
-    category: typeof courseData.category === 'object' ? courseData.category?.slug : String(courseData.category) || '',
+    kmn: typeof courseData.category === 'object' ? courseData.category?.slug : String(courseData.category) || '',
     level: courseData.level,
     price: Number(courseData.price),
     discountPrice: courseData.discount_price ? Number(courseData.discount_price) : undefined,
