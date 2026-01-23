@@ -27,6 +27,7 @@ import { CourseCardSkeleton } from '@/components/common/CourseCardSkeleton';
 import { useLanguage } from '@/context/LanguageContext';
 import { formatCurrency, formatNumber } from '@/lib/utils';
 import { useGetInstructorCoursesQuery, useDeleteCourseMutation, type InstructorCourse } from '@/store/features/instructor/instructorApiSlice';
+import { useToast } from '@/context/ToastContext';
 
 type CourseStatus = 'draft' | 'pending' | 'published' | 'rejected';
 
@@ -39,6 +40,7 @@ export function InstructorCoursesPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<InstructorCourse | null>(null);
   const [deleteCourse, { isLoading: isDeleting }] = useDeleteCourseMutation();
+  const { showToast } = useToast();
 
   const { data: courses = [], isLoading, error } = useGetInstructorCoursesQuery();
 
@@ -183,13 +185,13 @@ export function InstructorCoursesPage() {
   const handleDeleteCourse = async () => {
     if (selectedCourse) {
       try {
-        await deleteCourse(selectedCourse.id).unwrap();
+        const response = await deleteCourse(selectedCourse.id).unwrap();
         setShowDeleteModal(false);
         setSelectedCourse(null);
+        showToast(response.message, 'success');
       } catch (err) {
         console.error('Failed to delete course:', err);
-        // Fallback error handling if no toast system
-        alert(language === 'id' ? 'Gagal menghapus kursus' : 'Failed to delete course');
+        showToast(language === 'id' ? 'Gagal menghapus kursus' : 'Failed to delete course', 'error');
       }
     }
   };

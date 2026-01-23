@@ -194,6 +194,10 @@ export interface CreateCourseResponse {
   data: RawInstructorCourse;
 }
 
+export interface DeleteCourseResponse {
+  message: string;
+}
+
 export const instructorApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getInstructorDashboard: builder.query<InstructorDashboardData, void>({
@@ -254,7 +258,7 @@ export const instructorApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: (_result, _error, { id }) => [{ type: 'InstructorCourses', id }, 'InstructorCourses'],
     }),
-    deleteCourse: builder.mutation<void, string>({
+    deleteCourse: builder.mutation<DeleteCourseResponse, string>({
       query: (id) => ({
         url: `/v1/instructor/courses/${id}`,
         method: 'DELETE',
