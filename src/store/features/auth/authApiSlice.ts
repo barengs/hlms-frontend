@@ -22,7 +22,13 @@ export const authApiSlice = apiSlice.injectEndpoints({
         body: { ...credentials },
       }),
     }),
+    refresh: builder.mutation<any, void>({
+      query: () => ({
+        url: '/v1/auth/refresh',
+        method: 'POST',
+      }),
+    }),
   }),
 });
 
-export const { useLoginMutation, useLogoutMutation, useRegisterMutation } = authApiSlice;
+export const { useLoginMutation, useLogoutMutation, useRegisterMutation, useRefreshMutation } = authApiSlice;
