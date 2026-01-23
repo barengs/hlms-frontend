@@ -80,13 +80,13 @@ export function CourseManagePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [submitForReview, { isLoading: isSubmitting }] = useSubmitCourseForReviewMutation();
   const [createSection, { isLoading: isCreatingSection }] = useCreateSectionMutation();
-  const [updateCourse, { isLoading: isUpdating }] = useUpdateCourseMutation();
+  const [updateCourse] = useUpdateCourseMutation();
   const [submitError, setSubmitError] = useState<string | null>(null);
   const { showToast } = useToast();
 
   const { data: categories } = useGetPublicCategoriesQuery();
   // Fetch course by id
-  const { data: courseData, isLoading, error } = useGetInstructorCourseQuery(courseId || '', {
+  const { data: courseData, isLoading, error, refetch } = useGetInstructorCourseQuery(courseId || '', {
     skip: !courseId,
   });
 
@@ -261,6 +261,7 @@ export function CourseManagePage() {
       form.append('_method', 'PUT'); // Common spoofing for FormData PUT
 
       await updateCourse({ id: courseId, data: form }).unwrap();
+      await refetch(); // Refetch course data after update
       showToast(language === 'id' ? 'Perubahan berhasil disimpan!' : 'Changes saved successfully!', 'success');
     } catch (err) {
       console.error('Failed to update course:', err);
@@ -607,9 +608,11 @@ export function CourseManagePage() {
                       try {
                         await submitForReview(courseId).unwrap();
                         alert(language === 'id' ? 'Kursus berhasil diajukan untuk review!' : 'Course submitted for review successfully!');
-                      } catch (err: any) {
+                      } catch (err: unknown) {
                         console.error('Failed to submit course:', err);
-                        const errorMessage = err?.data?.message || (language === 'id' ? 'Gagal mengajukan kursus.' : 'Failed to submit course.');
+                        const errorMessage = (err && typeof err === 'object' && 'data' in err && err.data && typeof err.data === 'object' && 'message' in err.data)
+                          ? (err.data as { message: string }).message
+                          : (language === 'id' ? 'Gagal mengajukan kursus.' : 'Failed to submit course.');
                         setSubmitError(errorMessage);
                       }
                     }} isLoading={isSubmitting}>

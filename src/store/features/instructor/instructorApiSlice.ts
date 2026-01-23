@@ -243,7 +243,7 @@ export const instructorApiSlice = apiSlice.injectEndpoints({
     updateCourse: builder.mutation<void, { id: string; data: FormData }>({
       query: ({ id, data }) => ({
         url: `/v1/instructor/courses/${id}`,
-        method: 'PUT',
+        method: 'POST',
         body: data,
       }),
       invalidatesTags: (_result, _error, { id }) => [{ type: 'InstructorCourses', id }, 'InstructorCourses'],
