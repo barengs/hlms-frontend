@@ -384,7 +384,7 @@ export const translations: Record<Language, Translations> = {
     },
     admin: {
       adminDashboard: 'Dashboard Admin',
-      platformOverview: 'Pantau dan kelola platform HLMS dari sini.',
+      platformOverview: 'Pantau dan kelola platform MOLANG dari sini.',
       totalUsers: 'Total Pengguna',
       totalCourses: 'Total Kursus',
       totalRevenue: 'Pendapatan Total',
@@ -608,7 +608,7 @@ export const translations: Record<Language, Translations> = {
     },
     admin: {
       adminDashboard: 'Admin Dashboard',
-      platformOverview: 'Monitor and manage the HLMS platform from here.',
+      platformOverview: 'Monitor and manage the MOLANG platform from here.',
       totalUsers: 'Total Users',
       totalCourses: 'Total Courses',
       totalRevenue: 'Total Revenue',

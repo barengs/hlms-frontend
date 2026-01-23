@@ -58,7 +58,7 @@ export function AdminDashboard() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">Dashboard Admin</h1>
-        <p className="text-gray-600">Pantau dan kelola platform HLMS dari sini.</p>
+        <p className="text-gray-600">Pantau dan kelola platform MOLANG dari sini.</p>
       </div>
 
       {/* Alert Cards */}

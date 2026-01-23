@@ -249,7 +249,7 @@ function FeaturesSection() {
     <section className="py-16 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Mengapa Memilih HLMS?</h2>
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">Mengapa Memilih MOLANG?</h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
             Platform pembelajaran yang dirancang untuk membantu Anda mencapai tujuan karir
           </p>
@@ -277,7 +277,7 @@ function TestimonialsSection() {
       name: 'Andi Pratama',
       role: 'Frontend Developer di Tokopedia',
       avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Andi',
-      content: 'Berkat HLMS, saya berhasil mendapatkan pekerjaan impian sebagai developer. Materinya sangat relevan dengan kebutuhan industri.',
+      content: 'Berkat MOLANG, saya berhasil mendapatkan pekerjaan impian sebagai developer. Materinya sangat relevan dengan kebutuhan industri.',
       rating: 5,
     },
     {
@@ -301,7 +301,7 @@ function TestimonialsSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">Apa Kata Mereka?</h2>
-          <p className="text-gray-600">Cerita sukses dari alumni HLMS</p>
+          <p className="text-gray-600">Cerita sukses dari alumni MOLANG</p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-8">
@@ -339,7 +339,7 @@ function CTASection() {
           Siap Memulai Perjalanan Belajar Anda?
         </h2>
         <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-          Bergabung dengan 50,000+ siswa yang sudah membuktikan kualitas pembelajaran di HLMS.
+          Bergabung dengan 50,000+ siswa yang sudah membuktikan kualitas pembelajaran di MOLANG.
         </p>
         <div className="flex flex-wrap justify-center gap-4">
           <Link to="/register">
@@ -369,7 +369,7 @@ function InstructorCTASection() {
           Bagikan Ilmu Anda, Wujudkan Perubahan!
         </h2>
         <p className="text-xl text-green-100 mb-8 max-w-2xl mx-auto">
-          Jadilah bagian dari komunitas instruktur HLMS. Bantu ribuan siswa mencapai tujuan karir mereka dan dapatkan penghasilan dari keahlian Anda.
+          Jadilah bagian dari komunitas instruktur MOLANG. Bantu ribuan siswa mencapai tujuan karir mereka dan dapatkan penghasilan dari keahlian Anda.
         </p>
 
         {/* Benefits Grid */}

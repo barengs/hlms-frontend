@@ -85,7 +85,7 @@ function Navbar() {
             <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
               <BookOpen className="w-6 h-6 text-white" />
             </div>
-            <span className="text-xl font-bold text-gray-900 hidden sm:block">HLMS</span>
+            <span className="text-xl font-bold text-gray-900 hidden sm:block">MOLANG</span>
           </Link>
 
           {/* Search Bar - Desktop */}
@@ -275,7 +275,7 @@ function Footer() {
               <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
                 <BookOpen className="w-6 h-6 text-white" />
               </div>
-              <span className="text-xl font-bold text-white">HLMS</span>
+              <span className="text-xl font-bold text-white">MOLANG</span>
             </div>
             <p className="text-sm text-gray-400">
               Platform pembelajaran hybrid yang menggabungkan kursus mandiri dan kelas terstruktur.
@@ -314,7 +314,7 @@ function Footer() {
         </div>
 
         <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
-          <p>&copy; {new Date().getFullYear()} HLMS. {t.footer.allRightsReserved}</p>
+          <p>&copy; {new Date().getFullYear()} MOLANG. {t.footer.allRightsReserved}</p>
         </div>
       </div>
     </footer>

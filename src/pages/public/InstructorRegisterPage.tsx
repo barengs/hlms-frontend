@@ -435,7 +435,7 @@ export function InstructorRegisterPage() {
                       required
                       rows={4}
                       className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 resize-none"
-                      placeholder="Ceritakan motivasi Anda untuk menjadi instruktur di HLMS..."
+                      placeholder="Ceritakan motivasi Anda untuk menjadi instruktur di MOLANG..."
                     />
                   </div>
 

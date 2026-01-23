@@ -20,7 +20,7 @@ export function AdminSettingsPage() {
   const [hasChanges, setHasChanges] = useState(false);
 
   // General Settings
-  const [platformName, setPlatformName] = useState('HLMS - Higher Learning Management System');
+  const [platformName, setPlatformName] = useState('MOLANG - Higher Learning Management System');
   const [platformTagline, setPlatformTagline] = useState('Empowering Education Through Technology');
   const [defaultLanguage, setDefaultLanguage] = useState('id');
   const [defaultCurrency, setDefaultCurrency] = useState('IDR');
@@ -29,7 +29,7 @@ export function AdminSettingsPage() {
   // Email Settings
   const [smtpHost, setSmtpHost] = useState('smtp.gmail.com');
   const [smtpPort, setSmtpPort] = useState('587');
-  const [emailSenderName, setEmailSenderName] = useState('HLMS Platform');
+  const [emailSenderName, setEmailSenderName] = useState('MOLANG Platform');
   const [emailSenderAddress, setEmailSenderAddress] = useState('noreply@hlms.com');
 
   // Security Settings

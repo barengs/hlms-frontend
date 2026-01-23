@@ -53,7 +53,7 @@ const mockCertificate: Certificate = {
   instructorAvatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100',
   instructorTitle: 'Senior Software Engineer at Tech Company',
   issuedAt: '2024-12-01T10:00:00Z',
-  credentialId: 'HLMS-REACT-2024-001',
+  credentialId: 'AJHAR-REACT-2024-001',
   grade: 'A',
   completionDate: '2024-11-30T23:59:59Z',
   hoursCompleted: 42,
@@ -100,8 +100,8 @@ export function CertificateDetailPage() {
 
   const verifyUrl = `${window.location.origin}/certificate/verify/${certificate.credentialId}`;
   const shareText = language === 'id'
-    ? `Saya telah menyelesaikan kursus "${certificate.courseTitle}" di HLMS!`
-    : `I've completed the "${certificate.courseTitle}" course on HLMS!`;
+    ? `Saya telah menyelesaikan kursus "${certificate.courseTitle}" di MOLANG!`
+    : `I've completed the "${certificate.courseTitle}" course on MOLANG!`;
 
   const shareLinks = {
     linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(verifyUrl)}`,
@@ -170,7 +170,7 @@ export function CertificateDetailPage() {
             {/* Grade */}
             {certificate.grade && (
               <div className="mb-6">
-                <Badge variant="success" size="lg" className="text-lg px-6 py-2">
+                <Badge variant="success" size="md" className="text-lg px-6 py-2">
                   {language === 'id' ? 'Nilai Akhir' : 'Final Grade'}: {certificate.grade}
                 </Badge>
               </div>

@@ -57,13 +57,6 @@ export function LoginPage() {
     }
   };
 
-  // Demo accounts info
-  const demoAccounts = [
-    { email: 'student@example.com', role: language === 'id' ? 'Siswa' : 'Student' },
-    { email: 'instructor@example.com', role: language === 'id' ? 'Instruktur' : 'Instructor' },
-    { email: 'admin@example.com', role: 'Admin' },
-  ];
-
   return (
     <AuthLayout
       title={t.auth.welcomeBack}
@@ -144,26 +137,6 @@ export function LoginPage() {
             {t.nav.register}
           </Link>
         </p>
-
-        {/* Demo accounts */}
-        <div className="mt-6 pt-6 border-t border-gray-200">
-          <p className="text-xs text-gray-500 text-center mb-3">{t.auth.demoAccounts}</p>
-          <div className="grid grid-cols-3 gap-2">
-            {demoAccounts.map((account) => (
-              <button
-                key={account.email}
-                type="button"
-                onClick={() => {
-                  setEmail(account.email);
-                  setPassword('demo');
-                }}
-                className="px-2 py-1.5 text-xs bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 transition-colors"
-              >
-                {account.role}
-              </button>
-            ))}
-          </div>
-        </div>
       </form>
     </AuthLayout>
   );

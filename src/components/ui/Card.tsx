@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import type { ReactNode } from 'react';
+import { forwardRef, type ReactNode } from 'react';
 
 interface CardProps {
   children: ReactNode;
@@ -9,29 +9,34 @@ interface CardProps {
   onClick?: () => void;
 }
 
-function Card({ children, className, padding = 'md', hover = false, onClick }: CardProps) {
-  const paddingStyles = {
-    none: '',
-    sm: 'p-3',
-    md: 'p-4',
-    lg: 'p-6',
-  };
+const Card = forwardRef<HTMLDivElement, CardProps>(
+  ({ children, className, padding = 'md', hover = false, onClick }, ref) => {
+    const paddingStyles = {
+      none: '',
+      sm: 'p-3',
+      md: 'p-4',
+      lg: 'p-6',
+    };
 
-  return (
-    <div
-      onClick={onClick}
-      className={cn(
-        'bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700',
-        paddingStyles[padding],
-        hover && 'hover:shadow-md transition-shadow duration-200 cursor-pointer',
-        onClick && 'cursor-pointer',
-        className
-      )}
-    >
-      {children}
-    </div>
-  );
-}
+    return (
+      <div
+        ref={ref}
+        onClick={onClick}
+        className={cn(
+          'bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700',
+          paddingStyles[padding],
+          hover && 'hover:shadow-md transition-shadow duration-200 cursor-pointer',
+          onClick && 'cursor-pointer',
+          className
+        )}
+      >
+        {children}
+      </div>
+    );
+  }
+);
+
+Card.displayName = 'Card';
 
 function CardHeader({ children, className }: { children: ReactNode; className?: string }) {
   return <div className={cn('mb-4', className)}>{children}</div>;
