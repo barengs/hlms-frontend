@@ -32,3 +32,5 @@ export { DataTable } from './DataTable';
 export { EmojiSelector } from './EmojiSelector';
 
 export { Tabs } from './Tabs';
+
+export { Skeleton } from './Skeleton';

@@ -10,7 +10,7 @@ import {
   ArrowUpRight,
 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layouts';
-import { Card, CardHeader, CardTitle, Badge, Button, Avatar } from '@/components/ui';
+import { Card, CardHeader, CardTitle, Badge, Button, Avatar, Skeleton } from '@/components/ui';
 import { formatCurrency, formatNumber, getTimeAgo } from '@/lib/utils';
 import { useAuth } from '@/context/useAuth';
 import { useGetInstructorDashboardQuery } from '@/store/features/instructor/instructorApiSlice';
@@ -22,10 +22,94 @@ export function InstructorDashboard() {
   if (isLoading) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center min-h-100">
-          <div className="text-center">
-             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-             <p className="text-gray-500">Memuat data dashboard...</p>
+        {/* Skeleton Header */}
+        <div className="mb-8">
+          <Skeleton className="h-8 w-64 mb-2" />
+          <Skeleton className="h-5 w-96" />
+        </div>
+
+        {/* Skeleton Stats Grid */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i} className="flex items-center gap-4">
+              <Skeleton className="w-12 h-12 rounded-xl" />
+              <div className="space-y-2">
+                <Skeleton className="h-7 w-16" />
+                <Skeleton className="h-4 w-24" />
+              </div>
+            </Card>
+          ))}
+        </div>
+
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Main Content Skeleton */}
+          <div className="lg:col-span-2 space-y-6">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <Skeleton className="h-6 w-48" />
+                <Skeleton className="h-5 w-24" />
+              </CardHeader>
+              <div className="p-4 space-y-4">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="flex gap-4">
+                    <Skeleton className="w-12 h-12 rounded-lg shrink-0" />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-5 w-3/4" />
+                      <div className="flex gap-4">
+                        <Skeleton className="h-4 w-20" />
+                        <Skeleton className="h-4 w-20" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+            <Card>
+              <CardHeader>
+                <Skeleton className="h-6 w-32" />
+              </CardHeader>
+              <div className="p-4">
+                <Skeleton className="h-64 w-full rounded-lg" />
+              </div>
+            </Card>
+          </div>
+
+          {/* Sidebar Skeleton */}
+          <div className="space-y-6">
+            <Card>
+              <div className="space-y-4 p-4">
+                <Skeleton className="h-6 w-40" />
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <Skeleton className="h-5 w-32" />
+                    <Skeleton className="h-5 w-24" />
+                  </div>
+                  <div className="flex justify-between">
+                    <Skeleton className="h-5 w-24" />
+                    <Skeleton className="h-5 w-24" />
+                  </div>
+                  <div className="flex justify-between">
+                    <Skeleton className="h-5 w-40" />
+                    <Skeleton className="h-5 w-24" />
+                  </div>
+                </div>
+                <Skeleton className="h-9 w-full mt-4" />
+              </div>
+            </Card>
+            <Card>
+              <div className="p-4 space-y-4">
+                <Skeleton className="h-6 w-36" />
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="flex gap-3">
+                    <Skeleton className="w-2 h-2 rounded-full mt-2" />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-3 w-20" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
           </div>
         </div>
       </DashboardLayout>
@@ -33,13 +117,13 @@ export function InstructorDashboard() {
   }
 
   if (error || !dashboardData) {
-     return (
-        <DashboardLayout>
-           <div className="p-8 text-center bg-red-50 rounded-lg border border-red-200 text-red-700">
-              <p>Gagal memuat data dashboard. Silakan coba lagi nanti.</p>
-           </div>
-        </DashboardLayout>
-     );
+    return (
+      <DashboardLayout>
+        <div className="p-8 text-center bg-red-50 rounded-lg border border-red-200 text-red-700">
+          <p>Gagal memuat data dashboard. Silakan coba lagi nanti.</p>
+        </div>
+      </DashboardLayout>
+    );
   }
 
   const { stats, actions, top_courses, revenue_summary, activities, active_students } = dashboardData;
@@ -166,7 +250,7 @@ export function InstructorDashboard() {
 
             <div className="space-y-4">
               {top_courses.length === 0 ? (
-                 <p className="text-center text-gray-500 py-4">Belum ada data kursus.</p>
+                <p className="text-center text-gray-500 py-4">Belum ada data kursus.</p>
               ) : (
                 top_courses.map((course) => (
                   <div
@@ -174,7 +258,7 @@ export function InstructorDashboard() {
                     className="flex gap-4 p-3 -mx-3 rounded-lg hover:bg-gray-50 transition-colors"
                   >
                     <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center shrink-0">
-                       <BookOpen className="w-6 h-6 text-indigo-600" />
+                      <BookOpen className="w-6 h-6 text-indigo-600" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-medium text-gray-900 truncate">{course.title}</h3>
@@ -250,7 +334,7 @@ export function InstructorDashboard() {
             </CardHeader>
             <div className="space-y-3">
               {recentActivities.length === 0 ? (
-                 <p className="text-gray-500 text-sm">Belum ada aktivitas.</p>
+                <p className="text-gray-500 text-sm">Belum ada aktivitas.</p>
               ) : (
                 recentActivities.map((activity) => (
                   <div key={activity.id} className="flex items-start gap-3">
@@ -275,7 +359,7 @@ export function InstructorDashboard() {
             </CardHeader>
             <div className="space-y-3">
               {topStudents.length === 0 ? (
-                 <p className="text-gray-500 text-sm">Belum ada siswa aktif.</p>
+                <p className="text-gray-500 text-sm">Belum ada siswa aktif.</p>
               ) : (
                 topStudents.map((student, index) => (
                   <div key={student.id} className="flex items-center gap-3">
