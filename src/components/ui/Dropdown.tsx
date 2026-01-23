@@ -50,7 +50,10 @@ function Dropdown({ trigger, items, children, align = 'right', className, conten
                 <MenuItem key={index}>
                   {({ focus }) => (
                     <button
-                      onClick={item.onClick}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        item.onClick?.();
+                      }}
                       className={cn(
                         'flex w-full items-center gap-3 px-4 py-2.5 text-sm',
                         focus && 'bg-gray-50',
