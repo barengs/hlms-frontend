@@ -228,8 +228,8 @@ export const instructorApiSlice = apiSlice.injectEndpoints({
       transformResponse: (response: InstructorCourseDetailResponse) => response.data,
       providesTags: (_result, _error, id) => [{ type: 'InstructorCourses', id }],
     }),
-    getCategories: builder.query<Category[], void>({
-      query: () => '/v1/admin/categories',
+    getPublicCategories: builder.query<Category[], void>({
+      query: () => '/v1/categories',
       transformResponse: (response: CategoriesResponse) => response.data,
     }),
     createCourse: builder.mutation<void, FormData>({
@@ -239,6 +239,14 @@ export const instructorApiSlice = apiSlice.injectEndpoints({
         body,
       }),
       invalidatesTags: ['InstructorCourses'],
+    }),
+    updateCourse: builder.mutation<void, { id: string; data: FormData }>({
+      query: ({ id, data }) => ({
+        url: `/v1/instructor/courses/${id}`,
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: (_result, _error, { id }) => [{ type: 'InstructorCourses', id }, 'InstructorCourses'],
     }),
     deleteCourse: builder.mutation<void, string>({
       query: (id) => ({
@@ -281,10 +289,11 @@ export const {
   useGetInstructorDashboardQuery,
   useGetInstructorCoursesQuery,
   useGetInstructorCourseQuery,
-  useGetCategoriesQuery,
+  useGetPublicCategoriesQuery,
   useCreateCourseMutation,
   useDeleteCourseMutation,
   useSubmitCourseForReviewMutation,
   useCreateSectionMutation,
-  useCreateLessonMutation
+  useCreateLessonMutation,
+  useUpdateCourseMutation
 } = instructorApiSlice;

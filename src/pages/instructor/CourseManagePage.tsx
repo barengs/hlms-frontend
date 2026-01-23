@@ -26,7 +26,8 @@ import { DashboardLayout } from '@/components/layouts';
 import { Card, CardHeader, CardTitle, Button, Badge, Input, Modal } from '@/components/ui';
 import { useLanguage } from '@/context/LanguageContext';
 import { formatCurrency } from '@/lib/utils';
-import { useGetInstructorCourseQuery, useSubmitCourseForReviewMutation, useCreateSectionMutation, type CourseSection, type CourseLesson } from '@/store/features/instructor/instructorApiSlice';
+import { useGetInstructorCourseQuery, useSubmitCourseForReviewMutation, useCreateSectionMutation, useUpdateCourseMutation, useGetPublicCategoriesQuery, type CourseSection, type CourseLesson } from '@/store/features/instructor/instructorApiSlice';
+import { useToast } from '@/context/ToastContext';
 import { useEffect } from 'react';
 type Tab = 'overview' | 'curriculum' | 'pricing' | 'students' | 'analytics' | 'settings';
 
@@ -79,8 +80,11 @@ export function CourseManagePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [submitForReview, { isLoading: isSubmitting }] = useSubmitCourseForReviewMutation();
   const [createSection, { isLoading: isCreatingSection }] = useCreateSectionMutation();
+  const [updateCourse, { isLoading: isUpdating }] = useUpdateCourseMutation();
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const { showToast } = useToast();
 
+  const { data: categories } = useGetPublicCategoriesQuery();
   // Fetch course by id
   const { data: courseData, isLoading, error } = useGetInstructorCourseQuery(courseId || '', {
     skip: !courseId,
@@ -96,10 +100,12 @@ export function CourseManagePage() {
           title: courseData.title,
           shortDescription: courseData.subtitle || '',
           description: courseData.description || '',
-          category: typeof courseData.category === 'object' ? courseData.category?.slug || '' : courseData.category || '',
+          category: typeof courseData.category === 'object' ? String(courseData.category?.id || '') : String(courseData.category || ''),
           level: courseData.level,
           price: Number(courseData.price),
           discountPrice: courseData.discount_price ? Number(courseData.discount_price) : undefined,
+          objectives: courseData.outcomes || [],
+          prerequisites: courseData.requirements || [],
         });
         // Initialize expanded modules
         if (courseData.sections && courseData.sections.length > 0) {
@@ -150,8 +156,8 @@ export function CourseManagePage() {
     description: courseData.description || '',
     shortDescription: courseData.subtitle || '',
     thumbnail: courseData.thumbnail ? `${import.meta.env.VITE_URL_API_IMAGE}/${courseData.thumbnail}` : '',
-    introVideo: courseData.preview_video || '',
-    kmn: typeof courseData.category === 'object' ? courseData.category?.slug : String(courseData.category) || '',
+    introVideo: (courseData.preview_video ?? '') as string,
+    category: typeof courseData.category === 'object' ? courseData.category?.slug : String(courseData.category) || '',
     level: courseData.level,
     price: Number(courseData.price),
     discountPrice: courseData.discount_price ? Number(courseData.discount_price) : undefined,
@@ -215,10 +221,53 @@ export function CourseManagePage() {
     course.modules.reduce((sum, m) => sum + m.lessons.reduce((s, l) => s + l.duration, 0), 0);
 
   const handleSave = async () => {
+    if (!courseId) return;
     setIsSaving(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setIsSaving(false);
-    alert(language === 'id' ? 'Perubahan berhasil disimpan!' : 'Changes saved successfully!');
+    try {
+      const form = new FormData();
+      if (formData.title) form.append('title', formData.title);
+      if (formData.shortDescription) form.append('subtitle', formData.shortDescription);
+      if (formData.description) form.append('description', formData.description);
+      if (formData.category) form.append('category_id', formData.category); // Assuming slug/ID usage based on API expectation? Wait, API says category_id integer. 
+      // Current formData.category stores slug from initialization?
+      // line 99: category: typeof courseData.category === 'object' ? courseData.category?.slug || '' : courseData.category || '',
+      // This might be wrong if API expects ID.
+      // But looking at getInstructorCourses, it returns string IDs or slugs?
+      // Let's assume for now keeping existing structure, but user said "category_id integer or null".
+      // I should probably map slug back to ID or ensure ID is stored.
+      // Ideally I should store category_id in formData.
+      // But for now, let's append what we have or skip if not proper ID.
+      // Actually, looking at `useGetCategoriesQuery` in slice, categories have IDs.
+      // I'll append 'category_id' if proper mapping is done, but here I'll just append simple fields for now and arrays.
+
+      // Let's assume formData.category handles what user selected.
+      // However, the Select in UI (line 347) uses values like 'web-development' which look like slugs.
+      // If API needs ID, we need to map slug -> ID using categories data. 
+      // I don't have categories query here yet.
+      // I will proceed with other fields first.
+
+      form.append('level', formData.level || 'beginner');
+      form.append('price', String(formData.price || 0));
+      if (formData.discountPrice) form.append('discount_price', String(formData.discountPrice));
+
+      // Arrays
+      if (formData.objectives) {
+        formData.objectives.forEach((obj, index) => form.append(`outcomes[${index}]`, obj));
+      }
+      if (formData.prerequisites) {
+        formData.prerequisites.forEach((req, index) => form.append(`requirements[${index}]`, req));
+      }
+
+      form.append('_method', 'PUT'); // Common spoofing for FormData PUT
+
+      await updateCourse({ id: courseId, data: form }).unwrap();
+      showToast(language === 'id' ? 'Perubahan berhasil disimpan!' : 'Changes saved successfully!', 'success');
+    } catch (err) {
+      console.error('Failed to update course:', err);
+      showToast(language === 'id' ? 'Gagal menyimpan perubahan.' : 'Failed to save changes.', 'error');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleAddModule = async () => {
@@ -350,10 +399,11 @@ export function CourseManagePage() {
                         className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
                         <option value="">{language === 'id' ? 'Pilih Kategori' : 'Select Category'}</option>
-                        <option value="web-development">Web Development</option>
-                        <option value="mobile-development">Mobile Development</option>
-                        <option value="data-science">Data Science</option>
-                        <option value="design">Design</option>
+                        {categories?.map((category) => (
+                          <option key={category.id} value={category.id}>
+                            {category.name}
+                          </option>
+                        ))}
                       </select>
                     </div>
                     <div>
@@ -413,29 +463,88 @@ export function CourseManagePage() {
                 </div>
               </Card>
 
-              {/* Objectives & Prerequisites */}
+              {/* Objectives */}
               <Card>
                 <CardHeader>
                   <CardTitle>{language === 'id' ? 'Tujuan Pembelajaran' : 'Learning Objectives'}</CardTitle>
                 </CardHeader>
                 <div className="space-y-2">
-                  {course.objectives.map((obj, index) => (
+                  {(formData.objectives || []).map((obj, index) => (
                     <div key={index} className="flex items-center gap-2">
                       <CheckCircle className="w-4 h-4 text-green-500 shrink-0" />
                       <input
                         type="text"
                         value={obj}
-                        onChange={() => { }}
+                        onChange={(e) => {
+                          const newObjectives = [...(formData.objectives || [])];
+                          newObjectives[index] = e.target.value;
+                          setFormData({ ...formData, objectives: newObjectives });
+                        }}
                         className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder={language === 'id' ? 'Contoh: Menguasai React Hooks' : 'e.g. Master React Hooks'}
                       />
-                      <button className="p-1 text-gray-400 hover:text-red-500">
+                      <button
+                        onClick={() => {
+                          const newObjectives = (formData.objectives || []).filter((_, i) => i !== index);
+                          setFormData({ ...formData, objectives: newObjectives });
+                        }}
+                        className="p-1 text-gray-400 hover:text-red-500"
+                      >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   ))}
-                  <button className="text-sm text-blue-600 hover:underline flex items-center gap-1">
+                  <button
+                    onClick={() => {
+                      setFormData({ ...formData, objectives: [...(formData.objectives || []), ''] });
+                    }}
+                    className="text-sm text-blue-600 hover:underline flex items-center gap-1"
+                  >
                     <Plus className="w-4 h-4" />
                     {language === 'id' ? 'Tambah Tujuan' : 'Add Objective'}
+                  </button>
+                </div>
+              </Card>
+
+              {/* Prerequisites */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>{language === 'id' ? 'Prasyarat' : 'Prerequisites'}</CardTitle>
+                </CardHeader>
+                <div className="space-y-2">
+                  {(formData.prerequisites || []).map((req, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <HelpCircle className="w-4 h-4 text-yellow-500 shrink-0" />
+                      <input
+                        type="text"
+                        value={req}
+                        onChange={(e) => {
+                          const newPrerequisites = [...(formData.prerequisites || [])];
+                          newPrerequisites[index] = e.target.value;
+                          setFormData({ ...formData, prerequisites: newPrerequisites });
+                        }}
+                        className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder={language === 'id' ? 'Contoh: Dasar HTML & CSS' : 'e.g. Basic HTML & CSS'}
+                      />
+                      <button
+                        onClick={() => {
+                          const newPrerequisites = (formData.prerequisites || []).filter((_, i) => i !== index);
+                          setFormData({ ...formData, prerequisites: newPrerequisites });
+                        }}
+                        className="p-1 text-gray-400 hover:text-red-500"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    onClick={() => {
+                      setFormData({ ...formData, prerequisites: [...(formData.prerequisites || []), ''] });
+                    }}
+                    className="text-sm text-blue-600 hover:underline flex items-center gap-1"
+                  >
+                    <Plus className="w-4 h-4" />
+                    {language === 'id' ? 'Tambah Prasyarat' : 'Add Prerequisite'}
                   </button>
                 </div>
               </Card>
