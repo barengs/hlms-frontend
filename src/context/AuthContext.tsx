@@ -51,6 +51,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         console.log('Dispatching credentials with:', userData);
         dispatch(setCredentials({ user: userData, token }));
+
+        // Show success toast
+        // @ts-ignore
+        const message = response?.message || 'Login successful.';
+        showToast(message, 'success');
       } else {
         // Fallback for debugging if structure is different
         console.error('Invalid API response structure', response);
@@ -60,7 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error('Login failed', error);
       throw error;
     }
-  }, [dispatch, loginApi]);
+  }, [dispatch, loginApi, showToast]);
 
   const logout = useCallback(async () => {
     try {
