@@ -32,7 +32,16 @@ import {
 import { DashboardLayout } from '@/components/layouts';
 import { Card, CardHeader, CardTitle, Button, Badge, Input, Dropdown, Modal, Avatar, Textarea } from '@/components/ui';
 import { useLanguage } from '@/context/LanguageContext';
+import {
+  useGetInstructorCourseQuery,
+  useAddCourseToClassMutation,
+  useRemoveCourseFromClassMutation,
+  useGetInstructorCoursesQuery,
+  useGetInstructorClassesQuery,
+} from '@/store/features/instructor/instructorApiSlice';
+import { useToast } from '@/context/ToastContext';
 import { formatNumber, getTimeAgo } from '@/lib/utils';
+import { SettingsDropdown } from './components/SettingsDropdown';
 
 type Tab = 'topics' | 'materials' | 'students' | 'grading' | 'settings';
 
@@ -71,150 +80,114 @@ interface Student {
   totalAssignments: number;
 }
 
-// Mock data
-const mockClass = {
-  id: 'class-1',
-  name: 'React Advanced 2024 - Batch A',
-  code: 'RA2024A',
-  description: 'Kelas intensif React untuk developer yang sudah paham dasar React.',
-  thumbnail: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400',
-  course: {
-    id: 'course-1',
-    title: 'React Masterclass: From Zero to Hero',
-  },
-  status: 'active' as const,
-  studentsCount: 32,
-  topicsCount: 12,
-  materialsCount: 45,
-  assignmentsCount: 8,
-  averageGrade: 85,
-  createdAt: '2024-09-01T10:00:00Z',
-  updatedAt: '2024-12-16T14:30:00Z',
-  lastActivityAt: '2024-12-16T14:30:00Z',
-};
-
-const mockTopics: Topic[] = [
-  {
-    id: 'topic-1',
-    title: 'Introduction to Advanced React Patterns',
-    description: 'Understanding compound components, render props, and HOCs',
-    order: 1,
-    createdAt: '2024-09-01T10:00:00Z',
-    updatedAt: '2024-09-01T10:00:00Z',
-  },
-  {
-    id: 'topic-2',
-    title: 'State Management with Context API',
-    description: 'Deep dive into useContext and useReducer for complex state',
-    order: 2,
-    createdAt: '2024-09-05T10:00:00Z',
-    updatedAt: '2024-09-05T10:00:00Z',
-  },
-  {
-    id: 'topic-3',
-    title: 'Performance Optimization Techniques',
-    description: 'React.memo, useMemo, useCallback, and lazy loading',
-    order: 3,
-    createdAt: '2024-09-10T10:00:00Z',
-    updatedAt: '2024-09-10T10:00:00Z',
-  },
-];
-
-const mockMaterials: Material[] = [
-  {
-    id: 'material-1',
-    title: 'Advanced React Patterns Guide.pdf',
-    type: 'document',
-    fileName: 'Advanced React Patterns Guide.pdf',
-    fileSize: '2.4 MB',
-    description: 'Comprehensive guide to advanced React patterns',
-    topicId: 'topic-1',
-    createdAt: '2024-09-01T10:00:00Z',
-    updatedAt: '2024-09-01T10:00:00Z',
-  },
-  {
-    id: 'material-2',
-    title: 'React Performance Workshop.mp4',
-    type: 'video',
-    fileName: 'React Performance Workshop.mp4',
-    fileSize: '125 MB',
-    description: 'Hands-on workshop on React performance optimization',
-    topicId: 'topic-3',
-    createdAt: '2024-09-10T10:00:00Z',
-    updatedAt: '2024-09-10T10:00:00Z',
-  },
-  {
-    id: 'material-3',
-    title: 'Official React Documentation',
-    type: 'link',
-    url: 'https://react.dev/',
-    description: 'Official React documentation website',
-    topicId: 'topic-1',
-    createdAt: '2024-09-01T10:00:00Z',
-    updatedAt: '2024-09-01T10:00:00Z',
-  },
-];
-
-const mockStudents: Student[] = [
-  {
-    id: 'student-1',
-    name: 'Ahmad Rizki',
-    email: 'ahmad.rizki@email.com',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Ahmad',
-    enrolledAt: '2024-09-01T10:00:00Z',
-    lastActiveAt: '2024-12-16T14:30:00Z',
-    progress: 95,
-    grade: 92,
-    assignmentsSubmitted: 8,
-    totalAssignments: 8,
-  },
-  {
-    id: 'student-2',
-    name: 'Siti Nurhaliza',
-    email: 'siti.nur@email.com',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Siti',
-    enrolledAt: '2024-09-02T10:00:00Z',
-    lastActiveAt: '2024-12-15T09:00:00Z',
-    progress: 88,
-    grade: 85,
-    assignmentsSubmitted: 7,
-    totalAssignments: 8,
-  },
-  {
-    id: 'student-3',
-    name: 'Budi Hartono',
-    email: 'budi.hartono@email.com',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=BudiH',
-    enrolledAt: '2024-09-03T10:00:00Z',
-    lastActiveAt: '2024-12-14T16:00:00Z',
-    progress: 75,
-    grade: 78,
-    assignmentsSubmitted: 6,
-    totalAssignments: 8,
-  },
-];
+// Mock data removed
 
 export function ClassManagePage() {
-  const { classId } = useParams<{ classId: string }>();
-  const navigate = useNavigate();
-  const { language } = useLanguage();
+  const { showToast } = useToast();
+  // Fetch class data from list
+  const { data: classesData, isLoading: isLoadingClass } = useGetInstructorClassesQuery();
+  const currentClass = classesData?.find(c => c.id === classId);
+
+  // Fetch all courses for "Add Course" functionality
+  const { data: allCourses } = useGetInstructorCoursesQuery();
+
+  // Mutations
+  const [addCourseToClass, { isLoading: isAddingCourse }] = useAddCourseToClassMutation();
+  const [removeCourseFromClass, { isLoading: isRemovingCourse }] = useRemoveCourseFromClassMutation();
+
   const [activeTab, setActiveTab] = useState<Tab>('topics');
   const [expandedTopics, setExpandedTopics] = useState<string[]>(['topic-1']);
   const [showTopicModal, setShowTopicModal] = useState(false);
   const [showMaterialModal, setShowMaterialModal] = useState(false);
   const [showStudentModal, setShowStudentModal] = useState(false);
+  const [showAddCourseModal, setShowAddCourseModal] = useState(false); // Add modal state
   const [editingTopic, setEditingTopic] = useState<Topic | null>(null);
   const [editingMaterial, setEditingMaterial] = useState<Material | null>(null);
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
 
   // Form states
+  const [selectedCourseId, setSelectedCourseId] = useState<string>('');
   const [topicTitle, setTopicTitle] = useState('');
   const [topicDescription, setTopicDescription] = useState('');
   const [materialTitle, setMaterialTitle] = useState('');
   const [materialType, setMaterialType] = useState<'document' | 'video' | 'link' | 'image'>('document');
   const [materialUrl, setMaterialUrl] = useState('');
   const [materialDescription, setMaterialDescription] = useState('');
+
+  const handleAddCourse = async () => {
+    if (!classId || !selectedCourseId) return;
+    try {
+      await addCourseToClass({ classId, course_id: Number(selectedCourseId) }).unwrap();
+      showToast(language === 'id' ? 'Kursus berhasil ditambahkan' : 'Course added successfully', 'success');
+      setShowAddCourseModal(false);
+      setSelectedCourseId('');
+    } catch (error) {
+      console.error('Failed to add course:', error);
+      showToast(language === 'id' ? 'Gagal menambahkan kursus' : 'Failed to add course', 'error');
+    }
+  };
+
+  const handleRemoveCourse = async (courseId: string) => {
+    if (!classId) return;
+    if (!confirm(language === 'id' ? 'Apakah Anda yakin ingin menghapus kursus ini dari kelas?' : 'Are you sure you want to remove this course from the class?')) return;
+
+    try {
+      await removeCourseFromClass({ classId, courseId }).unwrap();
+      showToast(language === 'id' ? 'Kursus berhasil dihapus' : 'Course removed successfully', 'success');
+    } catch (error) {
+      console.error('Failed to remove course:', error);
+      showToast(language === 'id' ? 'Gagal menghapus kursus' : 'Failed to remove course', 'error');
+    }
+  };
+
+  if (isLoadingClass) {
+    return (
+      <DashboardLayout>
+        <div className="flex justify-center items-center h-screen">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (!currentClass) {
+    return (
+      <DashboardLayout>
+        <div className="text-center py-12">
+          <h2 className="text-2xl font-bold text-gray-900">{language === 'id' ? 'Kelas Tidak Ditemukan' : 'Class Not Found'}</h2>
+          <Button onClick={() => navigate('/instructor/classes')} className="mt-4">
+            {language === 'id' ? 'Kembali ke Kelas' : 'Back to Classes'}
+          </Button>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  // Use currentClass data
+  const mockClass = {
+    id: currentClass.id,
+    name: currentClass.name,
+    code: currentClass.code,
+    description: currentClass.description,
+    thumbnail: currentClass.course?.thumbnail || 'https://placehold.co/400x200?text=Class',
+    course: currentClass.course,
+    status: currentClass.is_archived ? 'archived' : 'active',
+    studentsCount: currentClass.students_count,
+    topicsCount: currentClass.topics_count,
+    materialsCount: currentClass.materials_count,
+    assignmentsCount: currentClass.assignments_count,
+    averageGrade: currentClass.average_grade,
+    createdAt: currentClass.created_at,
+    updatedAt: currentClass.updated_at,
+    lastActivityAt: currentClass.last_activity_at,
+  };
+
+  // Keep other mock data for now as structure might differ significantly or need huge refactor
+  // Ideally, valid real data should be fetched for topics/materials/students/grading
+  const mockTopics: Topic[] = [];
+  const mockMaterials: Material[] = [];
+  const mockStudents: Student[] = [];
 
   const toggleTopic = (topicId: string) => {
     setExpandedTopics(prev =>
@@ -444,11 +417,46 @@ export function ClassManagePage() {
             <Button variant="outline" leftIcon={<Eye className="w-4 h-4" />}>
               {language === 'id' ? 'Pratinjau Kelas' : 'Preview Class'}
             </Button>
-            <Button leftIcon={<Settings className="w-4 h-4" />} onClick={() => setActiveTab('settings')}>
-              {language === 'id' ? 'Pengaturan' : 'Settings'}
-            </Button>
+            {/* Implement Add Course Button if logic allows or in settings */}
+            <SettingsDropdown
+              onAddCourse={() => setShowAddCourseModal(true)}
+              currentCourse={mockClass.course}
+              onRemoveCourse={() => mockClass.course && handleRemoveCourse(mockClass.course.id)}
+              language={language}
+            />
           </div>
         </div>
+
+        {/* Add Course Modal */}
+        <Modal
+          isOpen={showAddCourseModal}
+          onClose={() => setShowAddCourseModal(false)}
+          title={language === 'id' ? 'Tambahkan Kursus ke Kelas' : 'Add Course to Class'}
+        >
+          <div className="space-y-4">
+            <p className="text-gray-600">
+              {language === 'id' ? 'Pilih kursus untuk ditambahkan ke kelas ini.' : 'Select a course to add to this class.'}
+            </p>
+            <select
+              value={selectedCourseId}
+              onChange={(e) => setSelectedCourseId(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">{language === 'id' ? 'Pilih kursus...' : 'Select a course...'}</option>
+              {allCourses?.map(course => (
+                <option key={course.id} value={course.id}>{course.title}</option>
+              ))}
+            </select>
+            <div className="flex justify-end gap-2 pt-4">
+              <Button variant="outline" onClick={() => setShowAddCourseModal(false)}>
+                {language === 'id' ? 'Batal' : 'Cancel'}
+              </Button>
+              <Button onClick={handleAddCourse} disabled={!selectedCourseId || isAddingCourse} isLoading={isAddingCourse}>
+                {language === 'id' ? 'Tambahkan' : 'Add'}
+              </Button>
+            </div>
+          </div>
+        </Modal>
 
         {/* Tabs */}
         <div className="border-b border-gray-200 mb-6">

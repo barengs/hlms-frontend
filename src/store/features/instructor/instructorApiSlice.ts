@@ -182,6 +182,46 @@ export interface CreateLessonPayload {
   is_published: boolean;
 }
 
+export interface CreateClassPayload {
+  name: string;
+  code: string;
+  description: string;
+  course_id?: string;
+}
+
+export interface CreateClassResponse {
+  success: boolean;
+  message: string;
+  data: any;
+}
+
+export interface InstructorClass {
+  id: string;
+  name: string;
+  code: string;
+  description: string;
+  course: {
+    id: string;
+    title: string;
+    thumbnail: string;
+  } | null;
+  students_count: number;
+  topics_count: number;
+  materials_count: number;
+  assignments_count: number;
+  average_grade: number;
+  created_at: string;
+  updated_at: string;
+  last_activity_at: string;
+  is_archived: boolean;
+}
+
+export interface GetInstructorClassesResponse {
+  success: boolean;
+  message: string;
+  data: InstructorClass[];
+}
+
 export interface CategoriesResponse {
   success: boolean;
   message: string;
@@ -292,6 +332,42 @@ export const instructorApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: (_result, _error, { courseId }) => [{ type: 'InstructorCourses', id: courseId }],
     }),
+    createClass: builder.mutation<CreateClassResponse, CreateClassPayload>({
+      query: (body) => ({
+        url: '/v1/classes',
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: ['InstructorCourses'],
+    }),
+    getInstructorClasses: builder.query<InstructorClass[], void>({
+      query: () => '/v1/classes',
+      transformResponse: (response: GetInstructorClassesResponse) => response.data,
+      providesTags: ['Class'],
+    }),
+    joinClass: builder.mutation<void, { class_code: string }>({
+      query: (body) => ({
+        url: '/v1/classes/join',
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: ['Class'],
+    }),
+    addCourseToClass: builder.mutation<void, { classId: string; course_id: number }>({
+      query: ({ classId, course_id }) => ({
+        url: `/v1/classes/${classId}/courses`,
+        method: 'POST',
+        body: { course_id },
+      }),
+      invalidatesTags: ['Class'],
+    }),
+    removeCourseFromClass: builder.mutation<void, { classId: string; courseId: string }>({
+      query: ({ classId, courseId }) => ({
+        url: `/v1/classes/${classId}/courses/${courseId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Class'],
+    }),
   }),
 });
 
@@ -305,5 +381,10 @@ export const {
   useSubmitCourseForReviewMutation,
   useCreateSectionMutation,
   useCreateLessonMutation,
-  useUpdateCourseMutation
+  useUpdateCourseMutation,
+  useCreateClassMutation,
+  useGetInstructorClassesQuery,
+  useJoinClassMutation,
+  useAddCourseToClassMutation,
+  useRemoveCourseFromClassMutation,
 } = instructorApiSlice;

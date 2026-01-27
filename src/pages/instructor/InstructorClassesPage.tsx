@@ -1,6 +1,13 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
+  useCreateClassMutation,
+  useGetInstructorClassesQuery,
+  useGetInstructorCoursesQuery,
+  useJoinClassMutation
+} from '@/store/features/instructor/instructorApiSlice';
+import { useToast } from '@/context/ToastContext';
+import {
   Users,
   Search,
   Plus,
@@ -50,99 +57,8 @@ interface ClassRoom {
   }[];
 }
 
-// Mock data
-const mockClasses: ClassRoom[] = [
-  {
-    id: 'class-1',
-    name: 'React Advanced 2024 - Batch A',
-    code: 'RA2024A',
-    description: 'Kelas intensif React untuk developer yang sudah paham dasar React.',
-    thumbnail: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400',
-    course: {
-      id: 'course-1',
-      title: 'React Masterclass: From Zero to Hero',
-    },
-    status: 'active',
-    studentsCount: 32,
-    topicsCount: 12,
-    materialsCount: 45,
-    assignmentsCount: 8,
-    averageGrade: 85,
-    createdAt: '2024-09-01T10:00:00Z',
-    updatedAt: '2024-12-16T14:30:00Z',
-    lastActivityAt: '2024-12-16T14:30:00Z',
-    recentStudents: [
-      { id: 's1', name: 'Ahmad Rizki', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Ahmad' },
-      { id: 's2', name: 'Siti Nurhaliza', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Siti' },
-      { id: 's3', name: 'Budi Hartono', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=BudiH' },
-    ],
-  },
-  {
-    id: 'class-2',
-    name: 'Full Stack Web Development - Weekend Class',
-    code: 'FSWD-WKD',
-    description: 'Kelas full stack development untuk pemula di akhir pekan.',
-    thumbnail: 'https://images.unsplash.com/photo-1627398242454-45a1465c2479?w=400',
-    course: {
-      id: 'course-2',
-      title: 'Full Stack Development with Node.js',
-    },
-    status: 'active',
-    studentsCount: 28,
-    topicsCount: 15,
-    materialsCount: 52,
-    assignmentsCount: 10,
-    averageGrade: 78,
-    createdAt: '2024-10-15T10:00:00Z',
-    updatedAt: '2024-12-15T11:00:00Z',
-    lastActivityAt: '2024-12-15T16:45:00Z',
-    recentStudents: [
-      { id: 's4', name: 'Dewi Lestari', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Dewi' },
-      { id: 's5', name: 'Eko Prasetyo', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Eko' },
-    ],
-  },
-  {
-    id: 'class-3',
-    name: 'UI/UX Design Fundamentals - Batch 1',
-    code: 'UIUX-B1',
-    description: 'Menguasai dasar-dasar desain UI/UX untuk pemula.',
-    thumbnail: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400',
-    course: null,
-    status: 'active',
-    studentsCount: 20,
-    topicsCount: 8,
-    materialsCount: 30,
-    assignmentsCount: 6,
-    averageGrade: 82,
-    createdAt: '2024-11-01T10:00:00Z',
-    updatedAt: '2024-12-14T09:00:00Z',
-    lastActivityAt: '2024-12-14T15:20:00Z',
-    recentStudents: [
-      { id: 's6', name: 'Fitri Handayani', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Fitri' },
-    ],
-  },
-  {
-    id: 'class-4',
-    name: 'React Fundamentals 2023 - Batch C',
-    code: 'RF2023C',
-    description: 'Kelas dasar React untuk batch C tahun 2023.',
-    thumbnail: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400',
-    course: {
-      id: 'course-1',
-      title: 'React Masterclass: From Zero to Hero',
-    },
-    status: 'archived',
-    studentsCount: 35,
-    topicsCount: 10,
-    materialsCount: 38,
-    assignmentsCount: 8,
-    averageGrade: 88,
-    createdAt: '2023-06-01T10:00:00Z',
-    updatedAt: '2023-12-15T16:00:00Z',
-    lastActivityAt: '2023-12-15T16:00:00Z',
-    recentStudents: [],
-  },
-];
+// Mock data removed
+
 
 export function InstructorClassesPage() {
   const { language } = useLanguage();
@@ -160,20 +76,70 @@ export function InstructorClassesPage() {
   const [newClassDescription, setNewClassDescription] = useState('');
   const [selectedCourseId, setSelectedCourseId] = useState('');
 
+  // Form state for joining class
+  const [joinClassCode, setJoinClassCode] = useState('');
+  const [showJoinModal, setShowJoinModal] = useState(false);
+
+  const { data: classesData } = useGetInstructorClassesQuery();
+  const { data: coursesData } = useGetInstructorCoursesQuery();
+
+  const classes = classesData?.map(cls => ({
+    id: cls.id,
+    name: cls.name,
+    code: cls.code,
+    description: cls.description,
+    thumbnail: cls.course?.thumbnail || 'https://placehold.co/400x200?text=Class', // Fallback or use course thumbnail
+    course: cls.course ? {
+      id: cls.course.id,
+      title: cls.course.title || 'Untitled Course'
+    } : null,
+    status: (cls.is_archived ? 'archived' : 'active') as ClassStatus,
+    studentsCount: cls.students_count,
+    topicsCount: cls.topics_count,
+    materialsCount: cls.materials_count,
+    assignmentsCount: cls.assignments_count,
+    averageGrade: cls.average_grade,
+    createdAt: cls.created_at,
+    updatedAt: cls.updated_at,
+    lastActivityAt: cls.last_activity_at,
+    recentStudents: [] as { id: string; name: string; avatar?: string }[]
+  })) || [];
+
+  const { showToast } = useToast();
+  const [createClass, { isLoading: isCreating }] = useCreateClassMutation();
+  const [joinClass, { isLoading: isJoining }] = useJoinClassMutation();
+
+  const handleJoinClass = async () => {
+    if (!joinClassCode.trim()) {
+      showToast(language === 'id' ? 'Kode kelas wajib diisi' : 'Class code is required', 'error');
+      return;
+    }
+
+    try {
+      await joinClass({ class_code: joinClassCode }).unwrap();
+      showToast(language === 'id' ? 'Berhasil bergabung ke kelas' : 'Successfully joined class', 'success');
+      setShowJoinModal(false);
+      setJoinClassCode('');
+    } catch (error) {
+      console.error('Failed to join class:', error);
+      showToast(language === 'id' ? 'Gagal bergabung ke kelas' : 'Failed to join class', 'error');
+    }
+  };
+
   // Stats
   const stats = {
-    totalClasses: mockClasses.length,
-    activeClasses: mockClasses.filter((c) => c.status === 'active').length,
-    archivedClasses: mockClasses.filter((c) => c.status === 'archived').length,
-    totalStudents: mockClasses.reduce((sum, c) => sum + c.studentsCount, 0),
+    totalClasses: classes.length,
+    activeClasses: classes.filter((c) => c.status === 'active').length,
+    archivedClasses: classes.filter((c) => c.status === 'archived').length,
+    totalStudents: classes.reduce((sum, c) => sum + c.studentsCount, 0),
     avgGrade: Math.round(
-      mockClasses.filter((c) => c.status === 'active').reduce((sum, c) => sum + c.averageGrade, 0) /
-      mockClasses.filter((c) => c.status === 'active').length
+      classes.filter((c) => c.status === 'active').reduce((sum, c) => sum + c.averageGrade, 0) /
+      (classes.filter((c) => c.status === 'active').length || 1)
     ),
   };
 
   // Filter classes
-  const filteredClasses = mockClasses
+  const filteredClasses = classes
     .filter((cls) => {
       const matchesSearch =
         cls.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -238,14 +204,37 @@ export function InstructorClassesPage() {
     return actions;
   };
 
-  const handleCreateClass = () => {
-    // Create class logic
-    console.log('Create class:', { newClassName, newClassCode, newClassDescription, selectedCourseId });
-    setShowCreateModal(false);
-    setNewClassName('');
-    setNewClassCode('');
-    setNewClassDescription('');
-    setSelectedCourseId('');
+  const handleCreateClass = async () => {
+    try {
+      if (!newClassName.trim() || !newClassCode.trim()) {
+        showToast(language === 'id' ? 'Nama dan kode kelas wajib diisi' : 'Class name and code are required', 'error');
+        return;
+      }
+
+      await createClass({
+        name: newClassName,
+        code: newClassCode,
+        description: newClassDescription,
+        course_id: selectedCourseId || undefined
+      }).unwrap();
+
+      showToast(
+        language === 'id' ? 'Kelas berhasil dibuat' : 'Class created successfully',
+        'success'
+      );
+
+      setShowCreateModal(false);
+      setNewClassName('');
+      setNewClassCode('');
+      setNewClassDescription('');
+      setSelectedCourseId('');
+    } catch (error) {
+      console.error('Failed to create class:', error);
+      showToast(
+        language === 'id' ? 'Gagal membuat kelas' : 'Failed to create class',
+        'error'
+      );
+    }
   };
 
   const generateClassCode = () => {
@@ -272,9 +261,14 @@ export function InstructorClassesPage() {
                 : 'Manage classes and organize learning for your students.'}
             </p>
           </div>
-          <Button leftIcon={<Plus className="w-4 h-4" />} onClick={() => setShowCreateModal(true)}>
-            {language === 'id' ? 'Buat Kelas Baru' : 'Create New Class'}
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" leftIcon={<Users className="w-4 h-4" />} onClick={() => setShowJoinModal(true)}>
+              {language === 'id' ? 'Gabung Kelas' : 'Join Class'}
+            </Button>
+            <Button leftIcon={<Plus className="w-4 h-4" />} onClick={() => setShowCreateModal(true)}>
+              {language === 'id' ? 'Buat Kelas Baru' : 'Create New Class'}
+            </Button>
+          </div>
         </div>
 
         {/* Stats Overview */}
@@ -587,9 +581,11 @@ export function InstructorClassesPage() {
                 aria-label="Select course"
               >
                 <option value="">{language === 'id' ? 'Pilih kursus...' : 'Select a course...'}</option>
-                <option value="course-1">React Masterclass: From Zero to Hero</option>
-                <option value="course-2">Full Stack Development with Node.js</option>
-                <option value="course-3">UI/UX Design Fundamentals</option>
+                {coursesData?.map((course) => (
+                  <option key={course.id} value={course.id}>
+                    {course.title}
+                  </option>
+                ))}
               </select>
               <p className="text-xs text-gray-500 mt-1">
                 {language === 'id'
@@ -603,9 +599,48 @@ export function InstructorClassesPage() {
               </Button>
               <Button
                 onClick={handleCreateClass}
-                disabled={!newClassName.trim() || !newClassCode.trim()}
+                disabled={!newClassName.trim() || !newClassCode.trim() || isCreating}
+                isLoading={isCreating}
               >
                 {language === 'id' ? 'Buat Kelas' : 'Create Class'}
+              </Button>
+            </div>
+          </div>
+        </Modal>
+
+        {/* Join Class Modal */}
+        <Modal
+          isOpen={showJoinModal}
+          onClose={() => setShowJoinModal(false)}
+          title={language === 'id' ? 'Gabung Kelas' : 'Join Class'}
+        >
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {language === 'id' ? 'Kode Kelas' : 'Class Code'} *
+              </label>
+              <Input
+                value={joinClassCode}
+                onChange={(e) => setJoinClassCode(e.target.value.toUpperCase())}
+                placeholder="Ex: RA2024"
+                maxLength={6}
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                {language === 'id'
+                  ? 'Masukkan 6 karakter kode kelas.'
+                  : 'Enter the 6-character class code.'}
+              </p>
+            </div>
+            <div className="flex justify-end gap-2 pt-4">
+              <Button variant="outline" onClick={() => setShowJoinModal(false)}>
+                {language === 'id' ? 'Batal' : 'Cancel'}
+              </Button>
+              <Button
+                onClick={handleJoinClass}
+                disabled={!joinClassCode.trim() || joinClassCode.length < 6 || isJoining}
+                isLoading={isJoining}
+              >
+                {language === 'id' ? 'Gabung' : 'Join'}
               </Button>
             </div>
           </div>
@@ -671,6 +706,6 @@ export function InstructorClassesPage() {
           </div>
         </Modal>
       </div>
-    </DashboardLayout>
+    </DashboardLayout >
   );
 }
