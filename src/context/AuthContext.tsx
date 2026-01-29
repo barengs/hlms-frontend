@@ -59,13 +59,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Frontend expects: role: 'admin'
         if (userData.roles && Array.isArray(userData.roles) && userData.roles.length > 0) {
            const roleName = userData.roles[0].name;
-           console.log('Mapping role:', roleName);
+          //  console.log('Mapping role:', roleName);
            userData = { ...userData, role: roleName };
         } else {
            console.warn('No roles found in user data or format incorrect', userData);
         }
         
-        console.log('Dispatching credentials with:', userData);
+        // console.log('Dispatching credentials with:', userData);
         dispatch(setCredentials({ user: userData, token, expiresAt }));
         
         // Reset activity timer on login

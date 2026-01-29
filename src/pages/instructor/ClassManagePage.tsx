@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   BookOpen,
@@ -93,69 +93,11 @@ const mockClass = {
   lastActivityAt: '2024-12-16T14:30:00Z',
 };
 
-const mockTopics: Topic[] = [
-  {
-    id: 'topic-1',
-    title: 'Introduction to Advanced React Patterns',
-    description: 'Understanding compound components, render props, and HOCs',
-    order: 1,
-    createdAt: '2024-09-01T10:00:00Z',
-    updatedAt: '2024-09-01T10:00:00Z',
-  },
-  {
-    id: 'topic-2',
-    title: 'State Management with Context API',
-    description: 'Deep dive into useContext and useReducer for complex state',
-    order: 2,
-    createdAt: '2024-09-05T10:00:00Z',
-    updatedAt: '2024-09-05T10:00:00Z',
-  },
-  {
-    id: 'topic-3',
-    title: 'Performance Optimization Techniques',
-    description: 'React.memo, useMemo, useCallback, and lazy loading',
-    order: 3,
-    createdAt: '2024-09-10T10:00:00Z',
-    updatedAt: '2024-09-10T10:00:00Z',
-  },
-];
 
-const mockMaterials: Material[] = [
-  {
-    id: 'material-1',
-    title: 'Advanced React Patterns Guide.pdf',
-    type: 'document',
-    fileName: 'Advanced React Patterns Guide.pdf',
-    fileSize: '2.4 MB',
-    description: 'Comprehensive guide to advanced React patterns',
-    topicId: 'topic-1',
-    createdAt: '2024-09-01T10:00:00Z',
-    updatedAt: '2024-09-01T10:00:00Z',
-  },
-  {
-    id: 'material-2',
-    title: 'React Performance Workshop.mp4',
-    type: 'video',
-    fileName: 'React Performance Workshop.mp4',
-    fileSize: '125 MB',
-    description: 'Hands-on workshop on React performance optimization',
-    topicId: 'topic-3',
-    createdAt: '2024-09-10T10:00:00Z',
-    updatedAt: '2024-09-10T10:00:00Z',
-  },
-  {
-    id: 'material-3',
-    title: 'Official React Documentation',
-    type: 'link',
-    url: 'https://react.dev/',
-    description: 'Official React documentation website',
-    topicId: 'topic-1',
-    createdAt: '2024-09-01T10:00:00Z',
-    updatedAt: '2024-09-01T10:00:00Z',
-  },
-];
 
 const mockStudents: Student[] = [
+  // Keep mock students for now as the API response example had "students": "string", which implies it might not represent the list yet
+  // Once the API provides a proper list of students in the class details, we should map that too.
   {
     id: 'student-1',
     name: 'Ahmad Rizki',
@@ -194,10 +136,60 @@ const mockStudents: Student[] = [
   },
 ];
 
+import { 
+  useGetClassQuery,
+  useUpdateClassMutation
+} from '@/store/features/classes/classesApiSlice';
+import { Loader2 } from 'lucide-react';
+
+
 export function ClassManagePage() {
   const { classId } = useParams<{ classId: string }>();
   const navigate = useNavigate();
   const { language } = useLanguage();
+  
+  // API Hooks
+  const { data: classDataResponse, isLoading } = useGetClassQuery(classId || '', { skip: !classId });
+  const [updateClass, { isLoading: isUpdating }] = useUpdateClassMutation();
+  
+  const classData = classDataResponse?.data;
+
+  // Use derived state for topics and materials to avoid conflict between API data and local state for now
+  // Ideally we should sync these. For this refactor we prioritize displaying API data.
+  const topicsData = classData?.courses?.flatMap(course => course.topics) || [];
+  // Ensure we have unique IDs if multiple courses have topics with same IDs (unlikely in real DB but good safety)
+  // Or just map them directly if structure matches.
+  
+  // We need to map the API Topic structure to the UI Topic interface if they differ.
+  // API Topic: { id, title, materials_count, materials: [], description? }
+  // UI Topic: { id, title, description, order, createdAt, updatedAt }
+  // The API response doesn't seem to have order/createdAt/updatedAt in Topic yet.
+  
+  const displayTopics: Topic[] = topicsData.map((t: any, index: number) => ({
+    id: String(t.id),
+    title: t.title,
+    description: t.description || '',
+    order: index + 1,
+    createdAt: new Date().toISOString(), // Placeholder
+    updatedAt: new Date().toISOString(), // Placeholder
+  }));
+
+  const displayMaterials: Material[] = topicsData.flatMap((t: any) => 
+    (t.materials || []).map((m: any) => ({
+      id: String(m.id),
+      title: m.title,
+      type: m.type as any,
+      url: m.url,
+      fileName: m.file_name,
+      fileSize: m.file_size,
+      description: '', 
+      topicId: String(t.id),
+      createdAt: new Date().toISOString(), // Placeholder
+      updatedAt: new Date().toISOString(), // Placeholder
+    }))
+  );
+
+  
   const [activeTab, setActiveTab] = useState<Tab>('topics');
   const [expandedTopics, setExpandedTopics] = useState<string[]>(['topic-1']);
   const [showTopicModal, setShowTopicModal] = useState(false);
@@ -209,12 +201,50 @@ export function ClassManagePage() {
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
 
   // Form states
+  const [className, setClassName] = useState('');
+  const [classCode, setClassCode] = useState('');
+  const [classDescription, setClassDescription] = useState('');
+  const [classStatus, setClassStatus] = useState<'active' | 'archived'>('active');
+
+  // Topics form
   const [topicTitle, setTopicTitle] = useState('');
   const [topicDescription, setTopicDescription] = useState('');
+  
+  // Materials form
   const [materialTitle, setMaterialTitle] = useState('');
   const [materialType, setMaterialType] = useState<'document' | 'video' | 'link' | 'image'>('document');
   const [materialUrl, setMaterialUrl] = useState('');
   const [materialDescription, setMaterialDescription] = useState('');
+  
+  useEffect(() => {
+    if (classData) {
+      setClassName(classData.name || '');
+      setClassCode(classData.class_code || '');
+      setClassDescription(classData.description || '');
+      // Only set status if it matches the types, otherwise default to active
+      if (classData.status === 'active' || classData.status === 'archived') {
+         setClassStatus(classData.status);
+      }
+    }
+  }, [classData]);
+
+  const handleUpdateClass = async () => {
+    if (!classId) return;
+    try {
+      await updateClass({
+        id: classId,
+        name: className,
+        code: classCode,
+        description: classDescription,
+        status: classStatus
+      }).unwrap();
+      // Optional: show success feedback
+    } catch (err) {
+      console.error('Failed to update class', err);
+    }
+  };
+
+
 
   const toggleTopic = (topicId: string) => {
     setExpandedTopics(prev =>
@@ -384,6 +414,29 @@ export function ClassManagePage() {
     },
   ];
 
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-[60vh]">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (!classData) {
+    return (
+      <DashboardLayout>
+         <div className="flex flex-col items-center justify-center h-[60vh]">
+            <p className="text-gray-500">Class not found</p>
+             <Button variant="outline" onClick={() => navigate('/instructor/classes')}>
+                Back to Classes
+             </Button>
+         </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
       <div className="max-w-7xl mx-auto">
@@ -402,18 +455,18 @@ export function ClassManagePage() {
         <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6 mb-6">
           <div className="flex-1">
             <div className="flex items-start gap-4">
-              <div className="w-16 h-16 rounded-xl overflow-hidden">
+              <div className="w-16 h-16 rounded-xl overflow-hidden bg-gray-200">
                 <img
-                  src={mockClass.thumbnail}
-                  alt={mockClass.name}
+                  src={classData.thumbnail || 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400'}
+                  alt={classData.name}
                   className="w-full h-full object-cover"
                 />
               </div>
               <div>
                 <div className="flex items-center gap-3 flex-wrap">
-                  <h1 className="text-2xl font-bold text-gray-900">{mockClass.name}</h1>
-                  <Badge variant={mockClass.status === 'active' ? 'success' : 'secondary'}>
-                    {mockClass.status === 'active'
+                  <h1 className="text-2xl font-bold text-gray-900">{classData.name}</h1>
+                  <Badge variant={classData.status === 'active' ? 'success' : 'secondary'}>
+                    {classData.status === 'active'
                       ? language === 'id'
                         ? 'Aktif'
                         : 'Active'
@@ -422,19 +475,19 @@ export function ClassManagePage() {
                         : 'Archived'}
                   </Badge>
                 </div>
-                <p className="text-gray-600 mt-1">{mockClass.description}</p>
+                <p className="text-gray-600 mt-1">{classData.description}</p>
                 <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
                   <span className="flex items-center gap-1">
                     <GraduationCap className="w-4 h-4" />
-                    {mockClass.code}
+                    {classData.class_code}
                   </span>
                   <span className="flex items-center gap-1">
                     <Users className="w-4 h-4" />
-                    {formatNumber(mockClass.studentsCount)} {language === 'id' ? 'siswa' : 'students'}
+                    {formatNumber(Number(classData.students_count) || 0)} {language === 'id' ? 'siswa' : 'students'}
                   </span>
                   <span className="flex items-center gap-1">
                     <Clock className="w-4 h-4" />
-                    {getTimeAgo(mockClass.updatedAt)}
+                    {getTimeAgo(classData.updated_at || '')}
                   </span>
                 </div>
               </div>
@@ -463,7 +516,7 @@ export function ClassManagePage() {
               <div className="flex items-center gap-2">
                 <BookOpen className="w-4 h-4" />
                 {language === 'id' ? 'Topik' : 'Topics'}
-                <Badge variant="secondary" size="sm">{mockTopics.length}</Badge>
+                <Badge variant="secondary" size="sm">{displayTopics.length}</Badge>
               </div>
             </button>
             <button
@@ -476,7 +529,7 @@ export function ClassManagePage() {
               <div className="flex items-center gap-2">
                 <FileText className="w-4 h-4" />
                 {language === 'id' ? 'Materi' : 'Materials'}
-                <Badge variant="secondary" size="sm">{mockMaterials.length}</Badge>
+                <Badge variant="secondary" size="sm">{displayMaterials.length}</Badge>
               </div>
             </button>
             <button
@@ -489,7 +542,7 @@ export function ClassManagePage() {
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4" />
                 {language === 'id' ? 'Siswa' : 'Students'}
-                <Badge variant="secondary" size="sm">{mockClass.studentsCount}</Badge>
+                <Badge variant="secondary" size="sm">{classData?.students_count || 0}</Badge>
               </div>
             </button>
             <button
@@ -502,7 +555,7 @@ export function ClassManagePage() {
               <div className="flex items-center gap-2">
                 <BarChart3 className="w-4 h-4" />
                 {language === 'id' ? 'Penilaian' : 'Grading'}
-                <Badge variant="secondary" size="sm">{mockClass.assignmentsCount}</Badge>
+                <Badge variant="secondary" size="sm">{classData?.assessment_stats?.assignments_count || 0}</Badge>
               </div>
             </button>
             <button
@@ -532,7 +585,7 @@ export function ClassManagePage() {
               </Button>
             </div>
 
-            {mockTopics.length === 0 ? (
+            {displayTopics.length === 0 ? (
               <Card className="text-center py-12">
                 <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
@@ -549,8 +602,8 @@ export function ClassManagePage() {
               </Card>
             ) : (
               <div className="space-y-4">
-                {mockTopics.map((topic) => {
-                  const topicMaterials = mockMaterials.filter(m => m.topicId === topic.id);
+                {displayTopics.map((topic) => {
+                  const topicMaterials = displayMaterials.filter(m => m.topicId === topic.id);
 
                   return (
                     <Card key={topic.id}>
@@ -674,7 +727,7 @@ export function ClassManagePage() {
               </Button>
             </div>
 
-            {mockMaterials.length === 0 ? (
+            {displayMaterials.length === 0 ? (
               <Card className="text-center py-12">
                 <FolderOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
@@ -691,7 +744,7 @@ export function ClassManagePage() {
               </Card>
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {mockMaterials.map((material) => (
+                {displayMaterials.map((material) => (
                   <Card key={material.id} className="hover:shadow-md transition-shadow">
                     <div className="p-4">
                       <div className="flex items-start justify-between">
@@ -721,7 +774,7 @@ export function ClassManagePage() {
                       <div className="flex items-center justify-between mt-3 text-xs text-gray-500">
                         <span>{getTimeAgo(material.createdAt)}</span>
                         <span>
-                          {mockTopics.find(t => t.id === material.topicId)?.title || 'Unassigned'}
+                          {displayTopics.find(t => t.id === material.topicId)?.title || 'Unassigned'}
                         </span>
                       </div>
                     </div>
@@ -941,19 +994,29 @@ export function ClassManagePage() {
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         {language === 'id' ? 'Nama Kelas' : 'Class Name'}
                       </label>
-                      <Input defaultValue={mockClass.name} />
+                      <Input 
+                        value={className}
+                        onChange={(e) => setClassName(e.target.value)}
+                      />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         {language === 'id' ? 'Kode Kelas' : 'Class Code'}
                       </label>
-                      <Input defaultValue={mockClass.code} />
+                      <Input 
+                         value={classCode}
+                         onChange={(e) => setClassCode(e.target.value)}
+                      />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         {language === 'id' ? 'Deskripsi' : 'Description'}
                       </label>
-                      <Textarea defaultValue={mockClass.description} rows={4} />
+                      <Textarea 
+                        value={classDescription}
+                        onChange={(e) => setClassDescription(e.target.value)}
+                        rows={4} 
+                      />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -961,13 +1024,16 @@ export function ClassManagePage() {
                       </label>
                       <select className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="">{language === 'id' ? 'Tanpa kursus terkait' : 'No linked course'}</option>
-                        <option value="course-1" selected>React Masterclass: From Zero to Hero</option>
-                        <option value="course-2">Full Stack Development with Node.js</option>
-                        <option value="course-3">UI/UX Design Fundamentals</option>
+                        {/* Course list should ideally be fetched from API */}
                       </select>
                     </div>
                     <div className="pt-4">
-                      <Button leftIcon={<Save className="w-4 h-4" />}>
+                      <Button 
+                        leftIcon={<Save className="w-4 h-4" />}
+                        onClick={handleUpdateClass}
+                        isLoading={isUpdating}
+                        disabled={isUpdating}
+                      >
                         {language === 'id' ? 'Simpan Perubahan' : 'Save Changes'}
                       </Button>
                     </div>
@@ -992,7 +1058,18 @@ export function ClassManagePage() {
                             : 'Archive this class if no longer in use. Students will not be able to access this class.'}
                         </p>
                       </div>
-                      <Button variant="secondary">
+                      <Button 
+                        variant="secondary"
+                        onClick={async () => {
+                            if (classId) {
+                                try {
+                                    await updateClass({ id: classId, status: 'archived' }).unwrap();
+                                } catch (err) {
+                                    console.error(err);
+                                }
+                            }
+                        }}
+                      >
                         {language === 'id' ? 'Arsipkan' : 'Archive'}
                       </Button>
                     </div>
@@ -1027,7 +1104,12 @@ export function ClassManagePage() {
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         {language === 'id' ? 'Status' : 'Status'}
                       </label>
-                      <select className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                      <select 
+                        value={classStatus}
+                        onChange={(e) => setClassStatus(e.target.value as any)}
+                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        disabled={isUpdating}
+                      >
                         <option value="active">{language === 'id' ? 'Aktif' : 'Active'}</option>
                         <option value="archived">{language === 'id' ? 'Diarsipkan' : 'Archived'}</option>
                       </select>
@@ -1047,8 +1129,15 @@ export function ClassManagePage() {
                         {language === 'id' ? 'Kode Bergabung' : 'Join Code'}
                       </label>
                       <div className="flex gap-2">
-                        <Input value={mockClass.code} readOnly />
-                        <Button variant="outline">
+                        <Input value={classCode} readOnly />
+                        <Button 
+                            variant="outline"
+                            onClick={() => {
+                                if (classCode) {
+                                    navigator.clipboard.writeText(classCode);
+                                }
+                            }}
+                        >
                           {language === 'id' ? 'Salin' : 'Copy'}
                         </Button>
                       </div>
@@ -1202,7 +1291,7 @@ export function ClassManagePage() {
                   className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">{language === 'id' ? 'Pilih topik...' : 'Select topic...'}</option>
-                  {mockTopics.map(topic => (
+                  {displayTopics.map(topic => (
                     <option key={topic.id} value={topic.id}>{topic.title}</option>
                   ))}
                 </select>

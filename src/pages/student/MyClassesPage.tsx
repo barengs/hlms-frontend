@@ -18,90 +18,9 @@ import { Card, Button, Badge, Avatar, Input, Modal, Select } from '@/components/
 import { useLanguage } from '@/context/LanguageContext';
 import { formatDate, getTimeAgo } from '@/lib/utils';
 
-// Mock data for enrolled classes
-const mockEnrolledClasses = [
-  {
-    id: 'class-1',
-    courseId: 'course-1',
-    courseName: 'React Masterclass Professional',
-    instructor: {
-      id: 'inst-1',
-      name: 'Budi Pengajar',
-      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop',
-    },
-    schedule: {
-      day: 'Senin & Rabu',
-      time: '19:00 - 21:00',
-      location: 'Online (Zoom)',
-    },
-    startDate: '2024-01-15',
-    endDate: '2024-03-15',
-    progress: 65,
-    students: 28,
-    maxStudents: 30,
-    status: 'ongoing' as const,
-    nextSession: '2024-01-24T19:00:00',
-    notifications: {
-      newMaterials: 2,
-      newAssignments: 1,
-      upcomingDeadlines: 1,
-    },
-  },
-  {
-    id: 'class-2',
-    courseId: 'course-2',
-    courseName: 'Full Stack Development Bootcamp',
-    instructor: {
-      id: 'inst-2',
-      name: 'Siti Developer',
-      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop',
-    },
-    schedule: {
-      day: 'Selasa & Kamis',
-      time: '20:00 - 22:00',
-      location: 'Online (Google Meet)',
-    },
-    startDate: '2024-02-01',
-    endDate: '2024-05-01',
-    progress: 30,
-    students: 25,
-    maxStudents: 25,
-    status: 'ongoing' as const,
-    nextSession: '2024-01-25T20:00:00',
-    notifications: {
-      newMaterials: 0,
-      newAssignments: 3,
-      upcomingDeadlines: 2,
-    },
-  },
-  {
-    id: 'class-3',
-    courseId: 'course-3',
-    courseName: 'UI/UX Design Fundamentals',
-    instructor: {
-      id: 'inst-3',
-      name: 'Ahmad Designer',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop',
-    },
-    schedule: {
-      day: 'Sabtu',
-      time: '10:00 - 12:00',
-      location: 'Hybrid (Lab 301)',
-    },
-    startDate: '2023-12-01',
-    endDate: '2024-01-15',
-    progress: 100,
-    students: 20,
-    maxStudents: 20,
-    status: 'completed' as const,
-    nextSession: null,
-    notifications: {
-      newMaterials: 0,
-      newAssignments: 0,
-      upcomingDeadlines: 0,
-    },
-  },
-];
+import { useGetClassesQuery } from '@/store/features/classes/classesApiSlice';
+import { Loader2 } from 'lucide-react';
+
 
 export function MyClassesPage() {
   const { language } = useLanguage();
@@ -125,8 +44,11 @@ export function MyClassesPage() {
     setIsJoining(false);
   };
 
+  const { data: classesData, isLoading, isError } = useGetClassesQuery();
+  const classes = classesData?.data || [];
+
   // Filter classes
-  const filteredClasses = mockEnrolledClasses.filter((cls) => {
+  const filteredClasses = classes.filter((cls) => {
     const matchesSearch = cls.courseName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       cls.instructor.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = filterStatus === 'all' || cls.status === filterStatus;
@@ -134,10 +56,33 @@ export function MyClassesPage() {
   });
 
   const stats = {
-    total: mockEnrolledClasses.length,
-    ongoing: mockEnrolledClasses.filter((c) => c.status === 'ongoing').length,
-    completed: mockEnrolledClasses.filter((c) => c.status === 'completed').length,
+    total: classes.length,
+    ongoing: classes.filter((c) => c.status === 'ongoing').length,
+    completed: classes.filter((c) => c.status === 'completed').length,
   };
+
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-[60vh]">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (isError) {
+    return (
+      <DashboardLayout>
+        <div className="flex flex-col items-center justify-center h-[60vh]">
+          <p className="text-red-500 font-medium mb-2">Error loading classes</p>
+          <Button size="sm" onClick={() => window.location.reload()}>
+            Retry
+          </Button>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>

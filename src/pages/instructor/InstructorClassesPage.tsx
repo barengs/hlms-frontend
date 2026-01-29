@@ -17,142 +17,34 @@ import {
   FolderOpen,
   ArchiveRestore,
 } from 'lucide-react';
-import { DashboardLayout } from '@/components/layouts';
 import { Card, Button, Badge, Input, Dropdown, Modal, Avatar, type DropdownItem } from '@/components/ui';
+import { DashboardLayout } from '@/components/layouts/DashboardLayout';
 import { useLanguage } from '@/context/LanguageContext';
 import { formatNumber, getTimeAgo } from '@/lib/utils';
 
 type ClassStatus = 'active' | 'archived';
 
-interface ClassRoom {
-  id: string;
-  name: string;
-  code: string;
-  description: string;
-  thumbnail: string;
-  course: {
-    id: string;
-    title: string;
-  } | null;
-  status: ClassStatus;
-  studentsCount: number;
-  topicsCount: number;
-  materialsCount: number;
-  assignmentsCount: number;
-  averageGrade: number;
-  createdAt: string;
-  updatedAt: string;
-  lastActivityAt: string;
-  recentStudents: {
-    id: string;
-    name: string;
-    avatar?: string;
-  }[];
-}
+import { 
+  useGetClassesQuery, 
+  useCreateClassMutation, 
+  useUpdateClassMutation, 
+  useDeleteClassMutation,
+  type ClassItem
+} from '@/store/features/classes/classesApiSlice';
+import { Loader2 } from 'lucide-react';
 
-// Mock data
-const mockClasses: ClassRoom[] = [
-  {
-    id: 'class-1',
-    name: 'React Advanced 2024 - Batch A',
-    code: 'RA2024A',
-    description: 'Kelas intensif React untuk developer yang sudah paham dasar React.',
-    thumbnail: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400',
-    course: {
-      id: 'course-1',
-      title: 'React Masterclass: From Zero to Hero',
-    },
-    status: 'active',
-    studentsCount: 32,
-    topicsCount: 12,
-    materialsCount: 45,
-    assignmentsCount: 8,
-    averageGrade: 85,
-    createdAt: '2024-09-01T10:00:00Z',
-    updatedAt: '2024-12-16T14:30:00Z',
-    lastActivityAt: '2024-12-16T14:30:00Z',
-    recentStudents: [
-      { id: 's1', name: 'Ahmad Rizki', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Ahmad' },
-      { id: 's2', name: 'Siti Nurhaliza', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Siti' },
-      { id: 's3', name: 'Budi Hartono', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=BudiH' },
-    ],
-  },
-  {
-    id: 'class-2',
-    name: 'Full Stack Web Development - Weekend Class',
-    code: 'FSWD-WKD',
-    description: 'Kelas full stack development untuk pemula di akhir pekan.',
-    thumbnail: 'https://images.unsplash.com/photo-1627398242454-45a1465c2479?w=400',
-    course: {
-      id: 'course-2',
-      title: 'Full Stack Development with Node.js',
-    },
-    status: 'active',
-    studentsCount: 28,
-    topicsCount: 15,
-    materialsCount: 52,
-    assignmentsCount: 10,
-    averageGrade: 78,
-    createdAt: '2024-10-15T10:00:00Z',
-    updatedAt: '2024-12-15T11:00:00Z',
-    lastActivityAt: '2024-12-15T16:45:00Z',
-    recentStudents: [
-      { id: 's4', name: 'Dewi Lestari', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Dewi' },
-      { id: 's5', name: 'Eko Prasetyo', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Eko' },
-    ],
-  },
-  {
-    id: 'class-3',
-    name: 'UI/UX Design Fundamentals - Batch 1',
-    code: 'UIUX-B1',
-    description: 'Menguasai dasar-dasar desain UI/UX untuk pemula.',
-    thumbnail: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400',
-    course: null,
-    status: 'active',
-    studentsCount: 20,
-    topicsCount: 8,
-    materialsCount: 30,
-    assignmentsCount: 6,
-    averageGrade: 82,
-    createdAt: '2024-11-01T10:00:00Z',
-    updatedAt: '2024-12-14T09:00:00Z',
-    lastActivityAt: '2024-12-14T15:20:00Z',
-    recentStudents: [
-      { id: 's6', name: 'Fitri Handayani', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Fitri' },
-    ],
-  },
-  {
-    id: 'class-4',
-    name: 'React Fundamentals 2023 - Batch C',
-    code: 'RF2023C',
-    description: 'Kelas dasar React untuk batch C tahun 2023.',
-    thumbnail: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400',
-    course: {
-      id: 'course-1',
-      title: 'React Masterclass: From Zero to Hero',
-    },
-    status: 'archived',
-    studentsCount: 35,
-    topicsCount: 10,
-    materialsCount: 38,
-    assignmentsCount: 8,
-    averageGrade: 88,
-    createdAt: '2023-06-01T10:00:00Z',
-    updatedAt: '2023-12-15T16:00:00Z',
-    lastActivityAt: '2023-12-15T16:00:00Z',
-    recentStudents: [],
-  },
-];
 
 export function InstructorClassesPage() {
   const { language } = useLanguage();
+
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<ClassStatus | 'all'>('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showArchiveModal, setShowArchiveModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [selectedClass, setSelectedClass] = useState<ClassRoom | null>(null);
+  const [selectedClass, setSelectedClass] = useState<ClassItem | null>(null);
+
 
   // Form state for creating class
   const [newClassName, setNewClassName] = useState('');
@@ -160,30 +52,44 @@ export function InstructorClassesPage() {
   const [newClassDescription, setNewClassDescription] = useState('');
   const [selectedCourseId, setSelectedCourseId] = useState('');
 
-  // Stats
+
+  // API Hooks
+  const { data: classesData, isLoading } = useGetClassesQuery();
+  const [createClass, { isLoading: isCreating }] = useCreateClassMutation();
+  const [updateClass] = useUpdateClassMutation();
+  const [deleteClass] = useDeleteClassMutation();
+
+  const classes = classesData?.data?.items || [];
+  const metaStats = classesData?.data?.meta?.statistics;
+
+  // Stats - Use meta stats if available, else calculate
   const stats = {
-    totalClasses: mockClasses.length,
-    activeClasses: mockClasses.filter((c) => c.status === 'active').length,
-    archivedClasses: mockClasses.filter((c) => c.status === 'archived').length,
-    totalStudents: mockClasses.reduce((sum, c) => sum + c.studentsCount, 0),
-    avgGrade: Math.round(
-      mockClasses.filter((c) => c.status === 'active').reduce((sum, c) => sum + c.averageGrade, 0) /
-      mockClasses.filter((c) => c.status === 'active').length
-    ),
+    totalClasses: metaStats?.total_batches ?? classes.length,
+    activeClasses: metaStats?.active_batches ?? classes.filter((c) => c.status === 'active').length,
+    archivedClasses: metaStats?.archived_batches ?? classes.filter((c) => c.status === 'archived').length,
+    totalStudents: metaStats?.total_students ?? classes.reduce((sum, c) => sum + (c.students_count || 0), 0),
+    avgGrade: metaStats?.average_grade ?? (classes.length > 0 
+      ? Math.round(
+          classes.filter((c) => c.status === 'active').reduce((sum, c) => sum + (c.averageGrade || 0), 0) /
+          (classes.filter((c) => c.status === 'active').length || 1)
+        )
+      : 0),
   };
 
+
   // Filter classes
-  const filteredClasses = mockClasses
+  const filteredClasses = classes
     .filter((cls) => {
       const matchesSearch =
-        cls.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        cls.code.toLowerCase().includes(searchQuery.toLowerCase());
+        (cls.name?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+        (cls.class_code?.toLowerCase() || '').includes(searchQuery.toLowerCase());
       const matchesStatus = statusFilter === 'all' || cls.status === statusFilter;
       return matchesSearch && matchesStatus;
     })
-    .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+    .sort((a, b) => new Date(b.updated_at || b.created_at || new Date()).getTime() - new Date(a.updated_at || a.created_at || new Date()).getTime());
 
-  const getClassActions = (cls: ClassRoom) => {
+
+  const getClassActions = (cls: any) => {
     const actions: DropdownItem[] = [
       {
         label: language === 'id' ? 'Lihat Detail' : 'View Details',
@@ -199,8 +105,12 @@ export function InstructorClassesPage() {
         label: language === 'id' ? 'Salin Kode' : 'Copy Code',
         icon: <Copy className="w-4 h-4" />,
         onClick: () => {
-          navigator.clipboard.writeText(cls.code);
+          if (cls.class_code) {
+             navigator.clipboard.writeText(cls.class_code);
+             // Toast removed
+          }
         },
+
       },
       { divider: true, label: '' },
     ];
@@ -214,13 +124,16 @@ export function InstructorClassesPage() {
           setShowArchiveModal(true);
         },
       });
-    } else {
+    } else if (cls.status === 'archived') {
       actions.push({
         label: language === 'id' ? 'Aktifkan Kembali' : 'Restore',
         icon: <ArchiveRestore className="w-4 h-4" />,
-        onClick: () => {
-          // Restore class logic
-          console.log('Restore:', cls.id);
+        onClick: async () => {
+          try {
+             await updateClass({ id: cls.id, status: 'active' }).unwrap();
+          } catch (err) {
+             console.error('Failed to restore class', err);
+          }
         },
       });
     }
@@ -238,15 +151,25 @@ export function InstructorClassesPage() {
     return actions;
   };
 
-  const handleCreateClass = () => {
-    // Create class logic
-    console.log('Create class:', { newClassName, newClassCode, newClassDescription, selectedCourseId });
-    setShowCreateModal(false);
-    setNewClassName('');
-    setNewClassCode('');
-    setNewClassDescription('');
-    setSelectedCourseId('');
+  const handleCreateClass = async () => {
+    try {
+       await createClass({
+          name: newClassName,
+          code: newClassCode,
+          description: newClassDescription,
+          courseId: selectedCourseId || undefined
+       }).unwrap();
+       
+       setShowCreateModal(false);
+       setNewClassName('');
+       setNewClassCode('');
+       setNewClassDescription('');
+       setSelectedCourseId('');
+    } catch (err) {
+       console.error('Failed to create class', err);
+    }
   };
+
 
   const generateClassCode = () => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -256,6 +179,16 @@ export function InstructorClassesPage() {
     }
     setNewClassCode(code);
   };
+
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-[60vh]">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -441,8 +374,9 @@ export function InstructorClassesPage() {
                   <div className="absolute bottom-3 left-3 right-3">
                     <p className="text-white font-bold text-lg line-clamp-1">{cls.name}</p>
                     <p className="text-white/80 text-sm flex items-center gap-1">
-                      <span className="bg-white/20 px-2 py-0.5 rounded text-xs">{cls.code}</span>
+                      <span className="bg-white/20 px-2 py-0.5 rounded text-xs">{cls.class_code}</span>
                     </p>
+
                   </div>
                 </div>
 
@@ -464,27 +398,28 @@ export function InstructorClassesPage() {
                   {/* Stats Grid */}
                   <div className="grid grid-cols-4 gap-2 mb-4">
                     <div className="text-center p-2 bg-gray-50 rounded-lg">
-                      <p className="text-lg font-bold text-gray-900">{cls.topicsCount}</p>
+                      <p className="text-lg font-bold text-gray-900">{cls.topicsCount || 0}</p>
                       <p className="text-xs text-gray-500">{language === 'id' ? 'Topik' : 'Topics'}</p>
                     </div>
                     <div className="text-center p-2 bg-gray-50 rounded-lg">
-                      <p className="text-lg font-bold text-gray-900">{cls.materialsCount}</p>
+                      <p className="text-lg font-bold text-gray-900">{cls.materialsCount || 0}</p>
                       <p className="text-xs text-gray-500">{language === 'id' ? 'Materi' : 'Materials'}</p>
                     </div>
                     <div className="text-center p-2 bg-gray-50 rounded-lg">
-                      <p className="text-lg font-bold text-gray-900">{cls.studentsCount}</p>
+                      <p className="text-lg font-bold text-gray-900">{cls.students_count || 0}</p>
                       <p className="text-xs text-gray-500">{language === 'id' ? 'Siswa' : 'Students'}</p>
                     </div>
                     <div className="text-center p-2 bg-gray-50 rounded-lg">
-                      <p className="text-lg font-bold text-gray-900">{cls.averageGrade}%</p>
+                      <p className="text-lg font-bold text-gray-900">{cls.averageGrade || 0}%</p>
                       <p className="text-xs text-gray-500">{language === 'id' ? 'Nilai' : 'Grade'}</p>
                     </div>
+
                   </div>
 
                   {/* Students Avatars */}
                   <div className="flex items-center justify-between">
                     <div className="flex -space-x-2">
-                      {cls.recentStudents.slice(0, 4).map((student) => (
+                      {(cls.recentStudents || []).slice(0, 4).map((student: any) => (
                         <Avatar
                           key={student.id}
                           src={student.avatar}
@@ -493,16 +428,17 @@ export function InstructorClassesPage() {
                           className="ring-2 ring-white"
                         />
                       ))}
-                      {cls.studentsCount > 4 && (
+                      {(cls.students_count || 0) > 4 && (
                         <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium text-gray-600 ring-2 ring-white">
-                          +{cls.studentsCount - 4}
+                          +{(cls.students_count || 0) - 4}
                         </div>
                       )}
                     </div>
                     <div className="text-xs text-gray-500 flex items-center gap-1">
                       <Clock className="w-3 h-3" />
-                      {getTimeAgo(cls.lastActivityAt)}
+                      {getTimeAgo(cls.lastActivityAt || cls.updated_at || cls.created_at || new Date().toISOString())}
                     </div>
+
                   </div>
                 </div>
 
@@ -603,7 +539,8 @@ export function InstructorClassesPage() {
               </Button>
               <Button
                 onClick={handleCreateClass}
-                disabled={!newClassName.trim() || !newClassCode.trim()}
+                disabled={!newClassName.trim() || !newClassCode.trim() || isCreating}
+                isLoading={isCreating}
               >
                 {language === 'id' ? 'Buat Kelas' : 'Create Class'}
               </Button>
@@ -629,9 +566,15 @@ export function InstructorClassesPage() {
               </Button>
               <Button
                 variant="secondary"
-                onClick={() => {
-                  console.log('Archive:', selectedClass?.id);
-                  setShowArchiveModal(false);
+                onClick={async () => {
+                  if (selectedClass) {
+                    try {
+                      await updateClass({ id: selectedClass.id, status: 'archived' }).unwrap();
+                      setShowArchiveModal(false);
+                    } catch (err) {
+                       console.error('Failed to archive class', err);
+                    }
+                  }
                 }}
               >
                 {language === 'id' ? 'Arsipkan' : 'Archive'}
@@ -660,9 +603,15 @@ export function InstructorClassesPage() {
               </Button>
               <Button
                 variant="danger"
-                onClick={() => {
-                  console.log('Delete:', selectedClass?.id);
-                  setShowDeleteModal(false);
+                onClick={async () => {
+                  if (selectedClass) {
+                    try {
+                      await deleteClass(selectedClass.id).unwrap();
+                      setShowDeleteModal(false);
+                    } catch (err) {
+                       console.error('Failed to delete class', err);
+                    }
+                  }
                 }}
               >
                 {language === 'id' ? 'Hapus Permanen' : 'Delete Permanently'}
