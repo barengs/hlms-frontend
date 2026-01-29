@@ -91,6 +91,9 @@ export function CourseManagePage() {
   });
 
   const [formData, setFormData] = useState<Partial<CourseData>>({});
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const isFormInitializedRef = useRef(false);
 
   useEffect(() => {
@@ -220,11 +223,30 @@ export function CourseManagePage() {
   const getTotalDuration = () =>
     course.modules.reduce((sum, m) => sum + m.lessons.reduce((s, l) => s + l.duration, 0), 0);
 
+  const handleImageClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSave = async () => {
     if (!courseId) return;
     setIsSaving(true);
     try {
       const form = new FormData();
+      if (imageFile) {
+        form.append('thumbnail', imageFile);
+      }
       if (formData.title) form.append('title', formData.title);
       if (formData.shortDescription) form.append('subtitle', formData.shortDescription);
       if (formData.description) form.append('description', formData.description);
@@ -436,12 +458,22 @@ export function CourseManagePage() {
                       {language === 'id' ? 'Thumbnail Kursus' : 'Course Thumbnail'}
                     </label>
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleImageChange}
+                        className="hidden"
+                        accept="image/*"
+                      />
                       <img
-                        src={course.thumbnail}
+                        src={imagePreview || course.thumbnail}
                         alt={course.title}
                         className="w-full h-32 object-cover rounded-lg mb-2"
                       />
-                      <button className="text-sm text-blue-600 hover:underline flex items-center justify-center gap-1 mx-auto">
+                      <button
+                        onClick={handleImageClick}
+                        className="text-sm text-blue-600 hover:underline flex items-center justify-center gap-1 mx-auto"
+                      >
                         <Image className="w-4 h-4" />
                         {language === 'id' ? 'Ganti Gambar' : 'Change Image'}
                       </button>
