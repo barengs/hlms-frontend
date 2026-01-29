@@ -196,30 +196,41 @@ export interface CreateClassResponse {
 }
 
 export interface InstructorClass {
-  id: string;
+  id: number;
   name: string;
-  code: string;
+  slug: string;
   description: string;
-  course: {
-    id: string;
-    title: string;
-    thumbnail: string;
-  } | null;
+  class_code: string;
+  type: string;
+  courses: any[];
   students_count: number;
-  topics_count: number;
-  materials_count: number;
-  assignments_count: number;
-  average_grade: number;
   created_at: string;
-  updated_at: string;
-  last_activity_at: string;
-  is_archived: boolean;
+  is_open_for_enrollment: boolean;
+  is_enrolled: boolean;
+  students: any[];
 }
 
 export interface GetInstructorClassesResponse {
   success: boolean;
   message: string;
-  data: InstructorClass[];
+  data: {
+    items: InstructorClass[];
+    meta: {
+      statistics: {
+        total_batches: number;
+        active_batches: number;
+        published_batches: number;
+        archived_batches: number;
+        total_students: number;
+        average_grade: number;
+      };
+      filters: {
+        all: number;
+        active: number;
+        archived: number;
+      };
+    };
+  };
 }
 
 export interface CategoriesResponse {
@@ -342,12 +353,8 @@ export const instructorApiSlice = apiSlice.injectEndpoints({
     }),
     getInstructorClasses: builder.query<InstructorClass[], void>({
       query: () => '/v1/classes',
-      transformResponse: (response: any) => {
-        // Handle various response structures
-        if (Array.isArray(response)) return response;
-        if (response?.data && Array.isArray(response.data)) return response.data;
-        if (response?.data?.data && Array.isArray(response.data.data)) return response.data.data;
-        return [];
+      transformResponse: (response: GetInstructorClassesResponse) => {
+        return response.data?.items || [];
       },
       providesTags: ['Class'],
     }),

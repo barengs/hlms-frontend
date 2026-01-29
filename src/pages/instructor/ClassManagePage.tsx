@@ -86,7 +86,7 @@ export function ClassManagePage() {
   const { showToast } = useToast();
   // Fetch class data from list
   const { data: classesData, isLoading: isLoadingClass } = useGetInstructorClassesQuery();
-  const currentClass = classesData?.find(c => c.id === classId);
+  const currentClass = classesData?.find((c) => String(c.id) === classId);
 
   // Fetch all courses for "Add Course" functionality
   const { data: allCourses } = useGetInstructorCoursesQuery();
@@ -166,21 +166,21 @@ export function ClassManagePage() {
 
   // Use currentClass data
   const mockClass = {
-    id: currentClass.id,
+    id: String(currentClass.id),
     name: currentClass.name,
-    code: currentClass.code,
+    code: currentClass.class_code,
     description: currentClass.description,
-    thumbnail: currentClass.course?.thumbnail || 'https://placehold.co/400x200?text=Class',
-    course: currentClass.course,
-    status: currentClass.is_archived ? 'archived' : 'active',
+    thumbnail: 'https://placehold.co/400x200?text=Class',
+    course: currentClass.courses?.[0] || null,
+    status: currentClass.is_open_for_enrollment ? 'active' : 'archived',
     studentsCount: currentClass.students_count,
-    topicsCount: currentClass.topics_count,
-    materialsCount: currentClass.materials_count,
-    assignmentsCount: currentClass.assignments_count,
-    averageGrade: currentClass.average_grade,
+    topicsCount: 0,
+    materialsCount: 0,
+    assignmentsCount: 0,
+    averageGrade: 0,
     createdAt: currentClass.created_at,
-    updatedAt: currentClass.updated_at,
-    lastActivityAt: currentClass.last_activity_at,
+    updatedAt: currentClass.created_at,
+    lastActivityAt: currentClass.created_at,
   };
 
   // Keep other mock data for now as structure might differ significantly or need huge refactor
