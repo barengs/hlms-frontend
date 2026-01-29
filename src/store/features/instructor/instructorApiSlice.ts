@@ -342,7 +342,13 @@ export const instructorApiSlice = apiSlice.injectEndpoints({
     }),
     getInstructorClasses: builder.query<InstructorClass[], void>({
       query: () => '/v1/classes',
-      transformResponse: (response: GetInstructorClassesResponse) => response.data,
+      transformResponse: (response: any) => {
+        // Handle various response structures
+        if (Array.isArray(response)) return response;
+        if (response?.data && Array.isArray(response.data)) return response.data;
+        if (response?.data?.data && Array.isArray(response.data.data)) return response.data.data;
+        return [];
+      },
       providesTags: ['Class'],
     }),
     joinClass: builder.mutation<void, { class_code: string }>({
